@@ -5,6 +5,9 @@
   --color-lila: #E7D6FF;
   --color-oscuro: #2C2A4A; 
 
+  --color-error-bg: #572444; 
+  --color-error-text: #FFCCE5;
+
   --font-cinzel: 'Cinzel Decorative', serif; 
   --font-baskervville: 'Baskervville', serif; 
 }
