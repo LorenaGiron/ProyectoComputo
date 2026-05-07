@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Recepciones from "./pages/Recepciones";
+
 import "./App.css";
 
 const Placeholder = ({ titulo }) => (
@@ -18,8 +20,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Redirección principal */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
+
+        {/* Home */}
+        <Route path="/home" element={<Home />} />
+
+        {/* Login */}
         <Route path="/login" element={<Login />} />
 
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -28,6 +38,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Productos */}
         <Route
           path="/productos"
           element={
@@ -36,6 +48,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Recepciones */}
         <Route
           path="/recepciones"
           element={
@@ -44,6 +58,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Clientes */}
         <Route
           path="/clientes"
           element={
@@ -52,6 +68,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Proveedores */}
         <Route
           path="/proveedores"
           element={
@@ -60,6 +78,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Usuarios */}
         <Route
           path="/usuarios"
           element={
@@ -68,6 +88,8 @@ function App() {
             </Layout>
           }
         />
+
+        {/* Auditoría */}
         <Route
           path="/auditoria"
           element={
@@ -77,7 +99,8 @@ function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/recepciones" replace />} />
+        {/* Ruta no encontrada */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
