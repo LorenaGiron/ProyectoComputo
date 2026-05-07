@@ -1,7 +1,3 @@
-// Requiere en tu index.css o index.html:
-// @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Poppins:wght@700&display=swap');
-
-import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const navItems = [
@@ -48,92 +44,41 @@ export default function Sidebar() {
 
   return (
     <aside
-      style={{
-        width: "237px",
-        minHeight: "100vh",
-        background: "#221E3A",
-        boxShadow: "10.35px 11.5px 72.43px 50px rgba(0,0,0,0.25)",
-        borderRadius: "1px 20px 20px 20px",
-        display: "flex",
-        flexDirection: "column",
-        paddingBottom: "40px",
-        flexShrink: 0,
-      }}
+      className="flex flex-col min-h-screen w-[237px] shrink-0 pb-10 shadow-2xl"
+      style={{ background: "#221E3A" }}
     >
-      {/* ── Logo ── */}
-      <div
-        style={{
-          height: "70px",
-          marginLeft: "32px",
-          marginTop: "11px",
-          marginBottom: "48px",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      {/* Logo */}
+      <div className="flex items-center h-[70px] ml-8 mt-3 mb-12">
         <span
-          style={{
-            fontFamily: "'Cinzel Decorative', serif",
-            fontWeight: 400,
-            fontSize: "36px",
-            letterSpacing: "-0.02em",
-            color: "#E7D6FF",
-          }}
+          className="text-[#E7D6FF] text-6xl tracking-tight"
+          style={{ fontFamily: "'Cinzel Decorative', serif" }}
         >
           AURA
         </span>
       </div>
 
-      {/* ── Nav items ── */}
-      <nav style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      {/* Nav items */}
+      <nav className="flex flex-col flex-1">
         {navItems.map(({ label, ruta, icon }) => {
           const isActive = location.pathname === ruta;
           return (
-            <div key={label} style={{ position: "relative" }}>
+            <div key={label} className="relative">
               {isActive && (
                 <div
+                  className="absolute top-0 right-0 h-[60px] rounded-tl-lg rounded-bl-lg"
                   style={{
-                    position: "absolute",
-                    height: "60px",
                     left: "29px",
-                    right: "0px",
-                    top: "0px",
                     background: "#2C2A4A",
-                    borderRadius: "8px 0 0 8px",
                     pointerEvents: "none",
                   }}
                 />
               )}
-
               <button
                 onClick={() => navigate(ruta)}
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  width: "100%",
-                  height: "60px",
-                  paddingLeft: "40px",
-                  paddingRight: "24px",
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  fontFamily: "'Poppins', sans-serif",
-                  fontWeight: 700,
-                  fontSize: "18px",
-                  lineHeight: "30px",
-                  color: "#E7D6FF",
-                  textAlign: "left",
-                  opacity: isActive ? 1 : 0.55,
-                  transition: "opacity 0.15s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.opacity = "0.9";
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.opacity = "0.55";
-                }}
+                className={`relative flex items-center gap-3 w-full h-[60px] pl-10 pr-6 border-none bg-transparent cursor-pointer text-left text-[#E7D6FF] text-lg font-bold transition-opacity duration-150 hover:opacity-90 ${
+                  isActive ? "opacity-100" : "opacity-55"
+                }`}
+                style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -143,7 +88,7 @@ export default function Sidebar() {
                   viewBox="0 0 24 24"
                   stroke="#E7D6FF"
                   strokeWidth={isActive ? 2.2 : 1.8}
-                  style={{ flexShrink: 0 }}
+                  className="shrink-0"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
                 </svg>
@@ -154,36 +99,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* ── Logout ── */}
-      <div style={{ padding: "0 24px", marginTop: "8px" }}>
+      {/* Logout */}
+      <div className="px-6 mt-2">
         <button
           onClick={() => navigate("/login")}
+          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-xl font-bold text-[17px] cursor-pointer transition-opacity duration-150 hover:opacity-100 opacity-85"
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "10px",
-            background: "#E7D6FF",
-            border: "2px solid #E7D6FF",
-            borderRadius: "12px",
-            cursor: "pointer",
             fontFamily: "'Poppins', sans-serif",
-            fontWeight: 700,
-            fontSize: "17px",
-            lineHeight: "30px",
+            background: "#E7D6FF",
             color: "#221E3A",
-            padding: "8px 16px",
-            width: "100%",
-            opacity: 0.85,
-            transition: "opacity 0.15s ease, background 0.15s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.background = "rgba(231,214,255,0.08)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.85";
-            e.currentTarget.style.background = "#E7D6FF";
+            border: "2px solid #E7D6FF",
           }}
         >
           <svg

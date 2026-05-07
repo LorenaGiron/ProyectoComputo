@@ -4,19 +4,13 @@ import Layout from "./components/Layout";
 import Recepciones from "./pages/Recepciones";
 import "./App.css";
 
-// Páginas placeholder para las demás secciones
 const Placeholder = ({ titulo }) => (
   <div
-    style={{
-      padding: "40px 48px",
-      color: "#E7D6FF",
-      fontFamily: "'Poppins', sans-serif",
-    }}
+    className="p-10 text-[#E7D6FF]"
+    style={{ fontFamily: "'Poppins', sans-serif" }}
   >
-    <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#fff" }}>
-      {titulo}
-    </h1>
-    <p style={{ opacity: 0.6 }}>Esta sección está en construcción...</p>
+    <h1 className="text-3xl font-bold text-white">{titulo}</h1>
+    <p className="opacity-60">Esta sección está en construcción...</p>
   </div>
 );
 
