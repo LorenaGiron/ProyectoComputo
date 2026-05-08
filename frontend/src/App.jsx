@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Recepciones from "./pages/Recepciones";
+import Usuarios from "./pages/Usuarios";
 
 import "./App.css";
 
@@ -84,7 +85,7 @@ function App() {
           path="/usuarios"
           element={
             <Layout>
-              <Placeholder titulo="USUARIOS" />
+              <Usuarios />
             </Layout>
           }
         />
