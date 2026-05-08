@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Recepciones from "./pages/Recepciones";
 import Usuarios from "./pages/Usuarios";
+import Clientes from "./pages/Clientes";
 
 import "./App.css";
 
@@ -65,7 +66,7 @@ function App() {
           path="/clientes"
           element={
             <Layout>
-              <Placeholder titulo="CLIENTES" />
+              <Clientes />
             </Layout>
           }
         />
