@@ -6,6 +6,7 @@ import Recepciones from "./pages/Recepciones";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Productos from './pages/Productos'
+import Auditoria from "./pages/Auditoria";
 
 import "./App.css";
 
@@ -96,9 +97,7 @@ function App() {
         <Route
           path="/auditoria"
           element={
-            <Layout>
-              <Placeholder titulo="AUDITORÍA" />
-            </Layout>
+              <Auditoria />
           }
         />
 
