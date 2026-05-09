@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import Etiquetas from "../components/Etiquetas";
 
 const LIMIT = 10;
 
@@ -17,23 +18,6 @@ const USUARIOS_MOCK = [
   { id: 11, nombre: "Ricardo Paredes", rfc: "RFCR1234567S8T", email: "ricardo.paredes@email.com", telefono: "556 777 000", estado: "Activo" },
   { id: 12, nombre: "Natalia Cruz", rfc: "RFCN2345678T9U", email: "natalia.cruz@email.com", telefono: "557 555 444", estado: "Activo" },
 ];
-
-const BADGE_STYLES = {
-  Activo: { background: "#4D7C46", color: "#ffffff" },
-  Inactivo: { background: "#8B3F3F", color: "#ffffff" },
-};
-
-function Badge({ estado }) {
-  const styles = BADGE_STYLES[estado] ?? BADGE_STYLES.Inactivo;
-  return (
-    <span
-      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-      style={{ backgroundColor: styles.background, color: styles.color }}
-    >
-      {estado}
-    </span>
-  );
-}
 
 function StatCard({ label, value, sub, active, onClick }) {
   return (
@@ -202,7 +186,7 @@ export default function Clientes() {
                       <td className="px-5 py-4 text-sm font-medium text-[#C9B8E8]">{usuario.email}</td>
                       <td className="px-5 py-4 text-sm font-medium text-[#C9B8E8]">{usuario.telefono}</td>
                       <td className="px-5 py-4">
-                        <Badge estado={usuario.estado} />
+                        <Etiquetas contenido={usuario.estado} />
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
