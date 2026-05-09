@@ -3,6 +3,8 @@ import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
 import AccionesTabla from "../components/AccionesTabla";
+import Paginacion from "../components/Paginacion";
+import Tabla from "../components/Tabla";
 
 const mockData = [
   { sku: "SKU-001", nombre: "Playera Oversize", categoria: "Playeras", marca: "Urban Style", modelo: "Street-2024", pVenta: 200, stock: 50, estado: "Activo" },
@@ -12,31 +14,31 @@ const mockData = [
   { sku: "SKU-005", nombre: "Tenis Urban", categoria: "Calzado", marca: "Urban Style", modelo: "Sneak-1", pVenta: 800, stock: 25, estado: "Activo" },
 ];
 
-const categoriaStyle = {
-  background: "#7C6AF7",
-  color: "#fff",
-  padding: "4px 14px",
-  borderRadius: "20px",
-  fontSize: "13px",
-  fontWeight: 600,
-};
-
-const getStockColor = (stock) => {
-  if (stock === 0) return "#C0392B"; 
-  if (stock <= 5) return "#F0C040"; 
-  return "#7C6AF7"; 
-};
-
 export default function Productos() {
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
-
+  
   const opcionesFiltroProductos = [
     { value: "", label: "Todos" },
     { value: "Activo", label: "Activos" },
     { value: "Inactivo", label: "Inactivos" }
   ];
+
+  const encabezadosProductos = [
+    "Sku", "Nombre", "Categoría", "Marca", "Modelo", "Precio", "Stock", "Estado", "Acciones"
+  ];
+
+  const datosFiltrados = mockData
+    .filter((row) => filtro === "" || row.estado === filtro)
+    .filter((row) => busqueda === "" || row.nombre.toLowerCase().includes(busqueda.toLowerCase()) || row.sku.toLowerCase().includes(busqueda.toLowerCase()));
+
+  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
+
+  const getColorStock = (stock) => {
+    if (stock <= 10) return "text-rojo";       
+    if (stock <= 30) return "text-amarillo";  
+    return "text-verde";                      
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -107,69 +109,46 @@ export default function Productos() {
       />
 
       {/* Tabla */}
-      <div className="bg-bg-card rounded-xl border border-lila/20 shadow-lg relative overflow-x-auto w-full">
-        <table className="w-full border-collapse min-w-max">
-          <thead>
-            <tr className="bg-black/20">
-              {[ "Sku", "Nombre", "Categoría", "Marca", "Modelo", "P. venta", "Stock", "Estado", "Acciones" ].map((col) => (
-                <th key={col} className="p-4 text-center text-base font-bold text-lila-soft whitespace-nowrap">
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {mockData
-              .filter((row) => filtro === "" || row.estado === filtro)
-              .filter((row) => busqueda === "" || row.nombre.toLowerCase().includes(busqueda.toLowerCase()) || row.sku.toLowerCase().includes(busqueda.toLowerCase()))
-              .map((row, i) => (
-                <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
-                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.sku}</td>
-                  <td className="p-4 text-center text-sm font-medium text-blanco whitespace-nowrap">{row.nombre}</td>
-                  <td className="p-4 text-center whitespace-nowrap">
-                    <span style={categoriaStyle}>{row.categoria}</span>
-                  </td>
-                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.marca}</td>
-                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.modelo}</td>
-                  <td className="p-4 text-center text-[#88E06A] font-semibold text-sm whitespace-nowrap">${row.pVenta}</td>
-                  <td className="p-4 text-center text-sm whitespace-nowrap" style={{ color: getStockColor(row.stock), fontWeight: row.stock <= 5 ? 700 : 400 }}>
-                    {row.stock}
-                  </td>
-                  <td className="p-4 text-center whitespace-nowrap">
-                    <Etiquetas contenido={row.estado} />
-                  </td>
-                  <td className="p-4 align-middle">
-                    <AccionesTabla 
-                      onVer={() => console.log("Ver producto", row.sku)}
-                      onEditar={() => console.log("Editar producto", row.sku)}
-                      onEliminar={() => console.log("Eliminar producto", row.sku)}
-                    />
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+      <Tabla encabezados={encabezadosProductos}>
+        {datosFiltrados.map((row, i) => (
+          <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+            
+            <td className="p-4 text-center text-sm whitespace-nowrap">{row.sku}</td>
+            <td className="p-4 text-center text-sm font-medium text-blanco whitespace-nowrap">{row.nombre}</td>
+            
+            <td className="p-4 text-center whitespace-nowrap">
+              <span className="inline-block w-28 text-center uppercase py-1 rounded-full text-xs font-medium tracking-wide bg-lila-soft/20 text-lila-soft border border-lila-soft/30 shadow-sm">
+                {row.categoria}
+              </span>
+            </td>
+            
+            <td className="p-4 text-center text-sm whitespace-nowrap">{row.marca}</td>
+            <td className="p-4 text-center text-sm whitespace-nowrap">{row.modelo}</td>
+            
+            <td className="p-4 text-center whitespace-nowrap">${row.pVenta}</td>
+            
+            <td className={`p-4 text-center text-sm font-bold whitespace-nowrap ${getColorStock(row.stock)}`}>
+              {row.stock}
+            </td>
+            
+            <td className="p-4 text-center whitespace-nowrap">
+              <Etiquetas contenido={row.estado} />
+            </td>
+            
+            <td className="p-4 align-middle whitespace-nowrap">
+              <AccionesTabla 
+                onVer={() => console.log("Ver producto", row.sku)}
+                onEditar={() => console.log("Editar producto", row.sku)}
+                onEliminar={() => console.log("Eliminar producto", row.sku)}
+              />
+            </td>
 
+          </tr>
+        ))}
+      </Tabla>
+ 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
-        <button className="bg-transparent text-lila-soft border border-lila/20 rounded-lg px-5 py-2 font-bold cursor-pointer hover:border-lila-mid hover:text-blanco transition-all active:scale-95 w-full sm:w-auto">
-          Exportar
-        </button>
-        <span className="text-text-muted text-sm font-medium">1 – 5 de 5,000</span>
-        <div className="flex gap-2">
-          {["‹", "1", "2", "3", "4", "›"].map((p) => (
-            <button
-              key={p}
-              className={`w-9 h-9 rounded-lg font-bold cursor-pointer transition-all hover:scale-110 active:scale-90 ${
-                p === "1" ? "bg-lila text-oscuro border-none hover:bg-blanco" : "bg-transparent text-lila-soft border border-lila/20 hover:border-lila-mid hover:text-blanco"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Paginacion totalRegistros={5000} onExportar={() => console.log("Exportando...")} />
     </div>
   );
 }
