@@ -8,6 +8,7 @@
 
   --color-oscuro: #2C2A4A; 
   --color-oscuro-card: #3A3660;
+  --color-bg-card: #231E3C;
 
   --color-bg: #F8F5F2;
   --color-blanco: #FFFFFF;
@@ -17,8 +18,17 @@
   --color-error-bg: #572444; 
   --color-error-text: #FFCCE5;
 
+  --color-verde: #A3E378;  
+  --color-rojo: #FF6B6B;   
+  --color-amarillo: #F7CB57; 
+
+  --color-azul: #7EC9ED;    
+  --color-rosa: #ED8ABA;    
+  --color-naranja: #FAA86B; 
+
   --font-cinzel: 'Cinzel Decorative', serif; 
   --font-baskervville: 'Baskervville', serif; 
+  --font-poppins: 'Poppins', sans-serif;
 }
 :root {
   --color-lila: #E7D6FF;

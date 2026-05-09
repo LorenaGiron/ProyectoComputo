@@ -1,0 +1,175 @@
+import { useState } from "react";
+import Tarjetas from "../components/Tarjetas";
+import Etiquetas from "../components/Etiquetas";
+import ToolBar from "../components/ToolBar";
+import AccionesTabla from "../components/AccionesTabla";
+
+const mockData = [
+  { sku: "SKU-001", nombre: "Playera Oversize", categoria: "Playeras", marca: "Urban Style", modelo: "Street-2024", pVenta: 200, stock: 50, estado: "Activo" },
+  { sku: "SKU-002", nombre: "Pantalón Cargo", categoria: "Pantalones", marca: "Urban Style", modelo: "Cargo-X", pVenta: 450, stock: 3, estado: "Activo" },
+  { sku: "SKU-003", nombre: "Sudadera Hoodie", categoria: "Sudaderas", marca: "Urban Style", modelo: "Hood-W", pVenta: 600, stock: 0, estado: "Inactivo" },
+  { sku: "SKU-004", nombre: "Gorra Clásica", categoria: "Accesorios", marca: "Urban Style", modelo: "Cap-01", pVenta: 150, stock: 15, estado: "Activo" },
+  { sku: "SKU-005", nombre: "Tenis Urban", categoria: "Calzado", marca: "Urban Style", modelo: "Sneak-1", pVenta: 800, stock: 25, estado: "Activo" },
+];
+
+const categoriaStyle = {
+  background: "#7C6AF7",
+  color: "#fff",
+  padding: "4px 14px",
+  borderRadius: "20px",
+  fontSize: "13px",
+  fontWeight: 600,
+};
+
+const getStockColor = (stock) => {
+  if (stock === 0) return "#C0392B"; 
+  if (stock <= 5) return "#F0C040"; 
+  return "#7C6AF7"; 
+};
+
+export default function Productos() {
+  const [filtro, setFiltro] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
+
+  const opcionesFiltroProductos = [
+    { value: "", label: "Todos" },
+    { value: "Activo", label: "Activos" },
+    { value: "Inactivo", label: "Inactivos" }
+  ];
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8">
+      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
+        Catálogo de Productos
+      </h1>
+
+      {/* Tarjetas y Gráfica */}
+      <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
+        <div className="flex flex-col sm:flex-row gap-6 w-full xl:w-7/12">
+          <Tarjetas 
+            label="Total productos" 
+            value="5,000" 
+            sub="+124 este mes" 
+            icon="bi bi-box-seam"
+          />
+          <Tarjetas 
+            label="Productos Activos" 
+            value="4,850" 
+            sub="97% del catálogo" 
+            accent="#28B463" 
+            icon="bi bi-check-circle" 
+          />
+          <Tarjetas 
+            label="Productos Inactivos" 
+            value="150" 
+            sub="3% del catálogo" 
+            accent="#C0392B" 
+            icon="bi bi-x-circle" 
+          />
+        </div>
+
+        <div className="bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg relative w-full xl:w-5/12 text-white">
+          <p className="m-0 text-sm text-lila-soft">Categoría</p>
+          <div className="flex h-7 mt-4 w-full relative overflow-visible font-medium text-white">
+            <div style={{width: "35%"}} className="bg-[#7C6AF7] rounded-l-md hover:opacity-80 transition-opacity cursor-help relative group">
+              <span className={tooltipBaseClasses}>Playeras: 1,250 (35%)</span>
+            </div>
+            <div style={{width: "42%"}} className="bg-[#9D4A70] hover:opacity-80 transition-opacity cursor-help relative group">
+              <span className={tooltipBaseClasses}>Pantalones: 1,500 (42%)</span>
+            </div>
+            <div style={{width: "20%"}} className="bg-[#4A55A2] hover:opacity-80 transition-opacity cursor-help relative group">
+              <span className={tooltipBaseClasses}>Sudaderas: 714 (20%)</span>
+            </div>
+            <div style={{width: "3%"}} className="bg-[#4AC0B6] rounded-r-md hover:opacity-80 transition-opacity cursor-help relative group">
+              <span className={tooltipBaseClasses}>Otros: 107 (3%)</span>
+            </div>
+          </div>
+          <div className="flex justify-between text-xs text-text-muted mt-2 font-medium">
+            <span style={{width: "35%"}} className="text-center">35%</span>
+            <span style={{width: "42%"}} className="text-center">42%</span>
+            <span style={{width: "20%"}} className="text-center">20%</span>
+            <span style={{width: "3%"}} className="text-center">3%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Buscador y Filtros */} 
+      <ToolBar 
+        filtro={filtro}
+        setFiltro={setFiltro}
+        opcionesFiltro={opcionesFiltroProductos}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        placeholderBuscar="Buscar por SKU, nombre, categoría..."
+        textoBoton="+ Producto"
+        accionBoton={() => console.log("Clic en agregar producto")}
+      />
+
+      {/* Tabla */}
+      <div className="bg-bg-card rounded-xl border border-lila/20 shadow-lg relative overflow-x-auto w-full">
+        <table className="w-full border-collapse min-w-max">
+          <thead>
+            <tr className="bg-black/20">
+              {[ "Sku", "Nombre", "Categoría", "Marca", "Modelo", "P. venta", "Stock", "Estado", "Acciones" ].map((col) => (
+                <th key={col} className="p-4 text-center text-base font-bold text-lila-soft whitespace-nowrap">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {mockData
+              .filter((row) => filtro === "" || row.estado === filtro)
+              .filter((row) => busqueda === "" || row.nombre.toLowerCase().includes(busqueda.toLowerCase()) || row.sku.toLowerCase().includes(busqueda.toLowerCase()))
+              .map((row, i) => (
+                <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.sku}</td>
+                  <td className="p-4 text-center text-sm font-medium text-blanco whitespace-nowrap">{row.nombre}</td>
+                  <td className="p-4 text-center whitespace-nowrap">
+                    <span style={categoriaStyle}>{row.categoria}</span>
+                  </td>
+                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.marca}</td>
+                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.modelo}</td>
+                  <td className="p-4 text-center text-[#88E06A] font-semibold text-sm whitespace-nowrap">${row.pVenta}</td>
+                  <td className="p-4 text-center text-sm whitespace-nowrap" style={{ color: getStockColor(row.stock), fontWeight: row.stock <= 5 ? 700 : 400 }}>
+                    {row.stock}
+                  </td>
+                  <td className="p-4 text-center whitespace-nowrap">
+                    <Etiquetas contenido={row.estado} />
+                  </td>
+                  <td className="p-4 align-middle">
+                    <AccionesTabla 
+                      onVer={() => console.log("Ver producto", row.sku)}
+                      onEditar={() => console.log("Editar producto", row.sku)}
+                      onEliminar={() => console.log("Eliminar producto", row.sku)}
+                    />
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+        <button className="bg-transparent text-lila-soft border border-lila/20 rounded-lg px-5 py-2 font-bold cursor-pointer hover:border-lila-mid hover:text-blanco transition-all active:scale-95 w-full sm:w-auto">
+          Exportar
+        </button>
+        <span className="text-text-muted text-sm font-medium">1 – 5 de 5,000</span>
+        <div className="flex gap-2">
+          {["‹", "1", "2", "3", "4", "›"].map((p) => (
+            <button
+              key={p}
+              className={`w-9 h-9 rounded-lg font-bold cursor-pointer transition-all hover:scale-110 active:scale-90 ${
+                p === "1" ? "bg-lila text-oscuro border-none hover:bg-blanco" : "bg-transparent text-lila-soft border border-lila/20 hover:border-lila-mid hover:text-blanco"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
