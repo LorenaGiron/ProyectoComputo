@@ -1,5 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Tarjetas from "../components/Tarjetas";
+import Etiquetas from "../components/Etiquetas";
+import ToolBar from "../components/ToolBar";
+import AccionesTabla from "../components/AccionesTabla";
 
 const mockData = [
   { sku: "SKU-001", nombre: "Playera Oversize", categoria: "Playeras", marca: "Urban Style", modelo: "Street-2024", pVenta: 200, stock: 50, estado: "Activo" },
@@ -8,11 +11,6 @@ const mockData = [
   { sku: "SKU-004", nombre: "Gorra Clásica", categoria: "Accesorios", marca: "Urban Style", modelo: "Cap-01", pVenta: 150, stock: 15, estado: "Activo" },
   { sku: "SKU-005", nombre: "Tenis Urban", categoria: "Calzado", marca: "Urban Style", modelo: "Sneak-1", pVenta: 800, stock: 25, estado: "Activo" },
 ];
-
-const estadoStyle = {
-  Activo: { background: "#88E06A", color: "#111" },
-  Inactivo: { background: "#C0392B", color: "#fff" },
-};
 
 const categoriaStyle = {
   background: "#7C6AF7",
@@ -32,20 +30,13 @@ const getStockColor = (stock) => {
 export default function Productos() {
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
+
+  const opcionesFiltroProductos = [
+    { value: "", label: "Todos" },
+    { value: "Activo", label: "Activos" },
+    { value: "Inactivo", label: "Inactivos" }
+  ];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -103,46 +94,24 @@ export default function Productos() {
         </div>
       </div>
 
-      {/* Buscador y Filtros */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5 w-full">
-        <div className="flex flex-col sm:flex-row gap-4 w-full lg:flex-1">
-          <div className="relative w-full sm:w-40" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="bg-bg-card text-lila border border-lila/20 rounded-lg px-4 py-2.5 text-sm cursor-pointer outline-none hover:border-lila transition-colors shadow-sm flex items-center justify-between w-full h-full"
-            >
-              <span className="font-medium">
-                {filtro === "" ? "Filtrar por" : filtro === "Activo" ? "Activos" : "Inactivos"}
-              </span>
-              <i className={`bi bi-chevron-down text-xs transition-transform duration-300 ${isDropdownOpen ? "rotate-180" : ""}`}></i>
-            </button>
-            {isDropdownOpen && (
-              <ul className="absolute top-full left-0 mt-2 w-full bg-bg-card border border-lila/20 rounded-lg shadow-xl z-50 overflow-hidden py-1">
-                <li onClick={() => { setFiltro(""); setIsDropdownOpen(false); }} className="px-4 py-2.5 text-sm text-lila hover:bg-lila hover:text-oscuro cursor-pointer transition-colors">Todos</li>
-                <li onClick={() => { setFiltro("Activo"); setIsDropdownOpen(false); }} className="px-4 py-2.5 text-sm text-lila hover:bg-lila hover:text-oscuro cursor-pointer transition-colors">Activos</li>
-                <li onClick={() => { setFiltro("Inactivo"); setIsDropdownOpen(false); }} className="px-4 py-2.5 text-sm text-lila hover:bg-lila hover:text-oscuro cursor-pointer transition-colors">Inactivos</li>
-              </ul>
-            )}
-          </div>
-          <input
-            type="text"
-            placeholder="Buscar por SKU, marca, modelo o nombre..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="bg-bg-card text-lila border border-lila/20 rounded-lg px-4 py-2.5 text-sm w-full sm:w-80 lg:w-96 outline-none hover:border-lila focus:ring-1 focus:ring-lila transition-all shadow-sm placeholder-lila/30"
-          />
-        </div>
-        <button className="bg-lila text-oscuro border-none rounded-lg px-6 py-2.5 font-bold text-sm cursor-pointer hover:bg-blanco hover:scale-105 transition-all active:scale-95 w-full lg:w-auto">
-          + Producto
-        </button>
-      </div>
+      {/* Buscador y Filtros */} 
+      <ToolBar 
+        filtro={filtro}
+        setFiltro={setFiltro}
+        opcionesFiltro={opcionesFiltroProductos}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+        placeholderBuscar="Buscar por SKU, nombre, categoría..."
+        textoBoton="+ Producto"
+        accionBoton={() => console.log("Clic en agregar producto")}
+      />
 
       {/* Tabla */}
       <div className="bg-bg-card rounded-xl border border-lila/20 shadow-lg relative overflow-x-auto w-full">
         <table className="w-full border-collapse min-w-max">
           <thead>
             <tr className="bg-black/20">
-              {[ "Sku", "Nombre", "Categoría", "Marca", "Modelo", "P. venta", "Stok", "Estado", "Acciones" ].map((col) => (
+              {[ "Sku", "Nombre", "Categoría", "Marca", "Modelo", "P. venta", "Stock", "Estado", "Acciones" ].map((col) => (
                 <th key={col} className="p-4 text-center text-base font-bold text-lila-soft whitespace-nowrap">
                   {col}
                 </th>
@@ -167,14 +136,14 @@ export default function Productos() {
                     {row.stock}
                   </td>
                   <td className="p-4 text-center whitespace-nowrap">
-                    <span style={{ ...estadoStyle[row.estado], padding: "4px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 700 }}>
-                      {row.estado}
-                    </span>
+                    <Etiquetas contenido={row.estado} />
                   </td>
-                  <td className="p-4 text-center relative whitespace-nowrap text-lila-soft">
-                    <button className="bg-transparent border-none cursor-pointer text-lg mx-1 opacity-70 hover:opacity-100 hover:text-lila hover:scale-125 transition-all" title="Ver Historial"><i className="bi bi-eye"></i></button>
-                    <button className="bg-transparent border-none cursor-pointer text-lg mx-1 opacity-70 hover:opacity-100 hover:text-[#F0C040] hover:scale-125 transition-all" title="Editar"><i className="bi bi-pencil"></i></button>
-                    <button className="bg-transparent border-none cursor-pointer text-lg mx-1 opacity-70 hover:opacity-100 hover:text-[#C0392B] hover:scale-125 transition-all" title="Eliminar"><i className="bi bi-trash"></i></button>
+                  <td className="p-4 align-middle">
+                    <AccionesTabla 
+                      onVer={() => console.log("Ver producto", row.sku)}
+                      onEditar={() => console.log("Editar producto", row.sku)}
+                      onEliminar={() => console.log("Eliminar producto", row.sku)}
+                    />
                   </td>
                 </tr>
               ))}
