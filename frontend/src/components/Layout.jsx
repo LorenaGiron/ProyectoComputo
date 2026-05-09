@@ -1,10 +1,15 @@
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 export default function Layout({ children }) {
   return (
-    <div className="flex min-h-screen" style={{ background: "#1A1730" }}>
+    <div className="flex h-screen bg-oscuro font-poppins overflow-hidden w-full">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+
+      <div className="flex-1 flex flex-col relative w-full overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }
