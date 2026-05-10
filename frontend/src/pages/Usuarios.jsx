@@ -1,35 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../services/api";
+import Etiquetas from "../components/Etiquetas";
 import {
   Eye, Pencil, Trash2, Plus, Filter, Download,
   ChevronLeft, ChevronRight, Users, CheckCircle,
   XCircle, X, User, ArrowUp, ArrowDown,
 } from "lucide-react";
 
-const BADGE_STYLES = {
-  ACTIVO: { backgroundColor: "#6cc94b", color: "#ffffff", label: "Activo" },
-  INACTIVO: { backgroundColor: "#cf3838", color: "#ffffff", label: "Inactivo" },
-  Admin: { backgroundColor: "#A68DC8", color: "#ffffff", label: "Admin" },
-  Bodeguero: { backgroundColor: "#64A8BD", color: "#ffffff", label: "Bodeguero" },
-  Vendedor: { backgroundColor: "#8DB051", color: "#ffffff", label: "Vendedor" },
-};
-
 /* ─── Input de búsqueda por texto ─── */
 function FiltroTexto({ value, onChange }) {
   return (
     <div className="relative w-80">
-      <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#5A5870" }} />
+      <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lila-soft" />
       <input
         type="text" value={value} placeholder="Buscar por nombre o email..."
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl text-sm font-semibold pl-9 pr-8 py-2.5 outline-none transition-colors"
-        style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", color: value ? "#E7D6FF" : "#5A5870" }}
+        className="w-full rounded-xl text-sm font-semibold pl-9 pr-8 py-2.5 outline-none transition-colors bg-oscuro-card border border-lila-mid text-lila placeholder-lila-soft"
       />
       {value && (
         <button onClick={() => onChange("")}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2" style={{ color: "#5A5870" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#E7D6FF")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#5A5870")}>
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-lila-soft hover:text-lila transition-colors"
+          >
           <X size={13} />
         </button>
       )}
@@ -41,17 +32,17 @@ function FiltroTexto({ value, onChange }) {
 function SelectorEstado({ value, onChange }) {
   return (
     <div className="relative w-56">
-      <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#5A5870" }} />
+      <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-lila-soft" />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl text-sm font-semibold pl-9 pr-4 py-2.5 outline-none transition-colors appearance-none cursor-pointer"
-        style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", color: "#E7D6FF" }}>
+        className="w-full rounded-xl text-sm font-semibold pl-9 pr-4 py-2.5 outline-none transition-colors appearance-none cursor-pointer bg-oscuro-card border border-lila-mid text-lila"
+      >
         <option value="">Todos los estados</option>
         <option value="ACTIVO">Activo</option>
         <option value="INACTIVO">Inactivo</option>
       </select>
-      <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#5A5870" }} />
+      <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-lila-soft" />
     </div>
   );
 }
@@ -64,73 +55,52 @@ function ModalDetalle({ row, onClose }) {
     return () => document.removeEventListener("keydown", h);
   }, [onClose]);
 
-  const badgeStatus = BADGE_STYLES[row.status] ?? { backgroundColor: "#5A5870", color: "#fff", label: row.status };
-  const badgeRol = BADGE_STYLES[row.role] ?? { backgroundColor: "#5A5870", color: "#fff", label: row.role };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={onClose}>
-      <div className="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl"
-        style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", maxHeight: "90vh", overflowY: "auto" }}
+      <div className="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl bg-oscuro-card border border-lila-mid"
+        style={{ maxHeight: "90vh", overflowY: "auto" }}
         onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <span className="px-4 py-1.5 rounded-full text-xs font-bold"
-                style={{ backgroundColor: badgeRol.backgroundColor, color: badgeRol.color }}>
-                {badgeRol.label}
-              </span>
-              <span className="px-4 py-1.5 rounded-full text-xs font-bold"
-                style={{ backgroundColor: badgeStatus.backgroundColor, color: badgeStatus.color }}>
-                {badgeStatus.label}
-              </span>
+              <Etiquetas contenido={row.role} />
+              <Etiquetas contenido={row.status === "ACTIVO" ? "Confirmado" : "Cancelado"} />
             </div>
             <button onClick={onClose}
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-              style={{ backgroundColor: "rgba(166,141,200,0.15)", color: "#E7D6FF" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(166,141,200,0.3)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(166,141,200,0.15)")}>
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors bg-lila-mid/15 text-lila hover:bg-lila-mid/30"
+              >
               <X size={16} />
             </button>
           </div>
 
-          <h2 className="text-xl font-extrabold text-white mb-2">{row.name}</h2>
-          <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5 text-sm" style={{ color: "#C9B8E8" }}>
-              <User size={13} style={{ color: "#A68DC8" }} />{row.username || "—"}
-            </span>
+          <h2 className="text-xl font-extrabold text-blanco mb-2">{row.name}</h2>
+          <div className="flex items-center gap-1.5 text-sm text-lila-soft">
+            <User size={13} className="text-lila-mid" />{row.username || "—"}
           </div>
         </div>
 
         {/* Info del usuario */}
-        <div className="mx-6 mb-4 rounded-xl overflow-hidden" style={{ border: "1px solid #A68DC8", backgroundColor: "#2C2A48" }}>
+        <div className="mx-6 mb-4 rounded-xl overflow-hidden border border-lila-mid bg-oscuro">
           <div className="px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#5A5870" }}>Email</p>
-            <p className="text-sm font-semibold text-white">{row.email || "—"}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-lila-soft mb-2">Email</p>
+            <p className="text-sm font-semibold text-blanco">{row.email || "—"}</p>
           </div>
         </div>
 
         {/* Footer modal */}
-        <div className="px-6 py-4 flex items-center justify-between"
-          style={{ borderTop: "1px solid rgba(166,141,200,0.15)" }}>
+        <div className="px-6 py-4 flex items-center justify-between border-t border-lila-mid/15">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "#5A5870" }}>Rol</p>
-            <p className="text-sm font-semibold" style={{ color: "#A68DC8" }}>{row.role || "—"}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-lila-soft">Rol</p>
+            <p className="text-sm font-semibold text-lila-mid">{row.role || "—"}</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="p-2 rounded-lg transition-colors"
-              style={{ color: "#ffffff", backgroundColor: "rgba(166,141,200,0.1)", border: "1px solid rgba(166,141,200,0.2)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#e05c5c"; e.currentTarget.style.borderColor = "#e05c5c"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.borderColor = "rgba(166,141,200,0.2)"; }}>
+            <button className="p-2 rounded-lg transition-colors text-blanco bg-lila-mid/10 border border-lila-mid/20 hover:border-rojo hover:bg-rojo/20 hover:text-rojo">
               <Trash2 size={16} />
             </button>
-            <button className="p-2 rounded-lg transition-colors"
-              style={{ color: "#ffffff", backgroundColor: "rgba(166,141,200,0.1)", border: "1px solid rgba(166,141,200,0.2)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#8DB051"; e.currentTarget.style.borderColor = "#8DB051"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.borderColor = "rgba(166,141,200,0.2)"; }}>
+            <button className="p-2 rounded-lg transition-colors text-blanco bg-lila-mid/10 border border-lila-mid/20 hover:border-verde hover:bg-verde/20 hover:text-verde">
               <Pencil size={16} />
             </button>
           </div>
@@ -143,22 +113,23 @@ function ModalDetalle({ row, onClose }) {
 /* ─── Componentes auxiliares ─── */
 function StatCard({ label, value, sub, color, icon }) {
   return (
-    <div className="rounded-2xl p-5 transition-transform hover:-translate-y-1 hover:shadow-xl"
-      style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", borderLeft: `6px solid ${color}` }}>
+    <div className={`rounded-2xl p-5 transition-transform hover:-translate-y-1 hover:shadow-xl bg-oscuro-card border border-lila-mid`}
+      style={{ borderLeft: `6px solid ${color}` }}>
       <div className="flex justify-between items-start mb-2">
-        <span className="text-sm font-semibold" style={{ color: "#C9B8E8" }}>{label}</span>
+        <span className="text-sm font-semibold text-lila-soft">{label}</span>
         <span className="w-9 h-9 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: `${color}33`, color }}>{icon}</span>
       </div>
       <p className="font-extrabold leading-tight mb-1" style={{ fontSize: "2.6rem", color }}>{value}</p>
-      <p className="text-xs font-semibold" style={{ color: "#5A5870" }}>{sub}</p>
+      <p className="text-xs font-semibold text-lila-soft">{sub}</p>
     </div>
   );
 }
 
 function ActionBtn({ onClick, hoverColor, children }) {
   return (
-    <button onClick={onClick} className="p-1 rounded-md transition-colors" style={{ color: "#ffffff" }}
+    <button onClick={onClick} className="p-1 rounded-md transition-colors text-blanco hover:bg-opacity-20"
+      style={{ "--hover-color": hoverColor }}
       onMouseEnter={(e) => { e.currentTarget.style.color = hoverColor; e.currentTarget.style.backgroundColor = `${hoverColor}26`; }}
       onMouseLeave={(e) => { e.currentTarget.style.color = "#ffffff"; e.currentTarget.style.backgroundColor = "transparent"; }}>
       {children}
@@ -277,10 +248,10 @@ export default function Usuarios() {
   const sortedRows = getSortedRows();
 
   return (
-    <div className="min-h-screen p-7" style={{ backgroundColor: "#2C2A48", color: "#E7D6FF" }}>
+    <div className="min-h-screen p-7 bg-oscuro text-lila">
 
       {/* TÍTULO */}
-      <h1 className="text-3xl font-extrabold tracking-widest mb-6 text-white">USUARIOS</h1>
+      <h1 className="text-3xl font-extrabold tracking-widest mb-6 text-blanco">USUARIOS</h1>
 
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-7">
@@ -295,18 +266,17 @@ export default function Usuarios() {
           <FiltroTexto value={filtroTexto} onChange={(v) => { setFiltroTexto(v); setPaginaActiva(1); }} />
           <SelectorEstado value={filtroEstado} onChange={(v) => { setFiltroEstado(v); setPaginaActiva(1); }} />
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all hover:opacity-90 hover:-translate-y-0.5"
-          style={{ backgroundColor: "#E7D6FF", color: "#221E3A" }}>
+        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all hover:opacity-90 hover:-translate-y-0.5 bg-lila text-oscuro">
           <Plus size={15} strokeWidth={3} />
           Usuarlo
         </button>
       </div>
 
       {/* TABLA */}
-      <div className="rounded-2xl overflow-hidden mb-5" style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8" }}>
+      <div className="rounded-2xl overflow-hidden mb-5 bg-oscuro-card border border-lila-mid">
         <table className="w-full">
           <thead>
-            <tr style={{ backgroundColor: "rgba(0,0,0,0.18)" }}>
+            <tr className="bg-black/30">
               {[
                 { label: "Usuario", key: "username", sortable: true },
                 { label: "Nombre", key: "name", sortable: true },
@@ -316,8 +286,7 @@ export default function Usuarios() {
                 { label: "Acciones", key: null, sortable: false },
               ].map((h) => (
                 <th key={h.label} onClick={() => h.sortable && handleSort(h.key)}
-                  className={`px-5 py-3.5 text-left text-xs font-bold tracking-wide ${h.sortable ? "cursor-pointer hover:opacity-80" : ""}`}
-                  style={{ color: "#E7D6FF" }}>
+                  className={`px-5 py-3.5 text-left text-xs font-bold tracking-wide text-lila ${h.sortable ? "cursor-pointer hover:opacity-80" : ""}`}>
                   <div className="flex items-center gap-2">
                     {h.label}
                     {h.sortable && sortField === h.key && (
@@ -334,31 +303,21 @@ export default function Usuarios() {
             ) : sortedRows.length === 0 ? (
               <tr><td colSpan={6} className="text-center py-10 text-sm opacity-50">Sin resultados</td></tr>
             ) : sortedRows.map((row) => {
-              const badgeStatus = BADGE_STYLES[row.status] ?? { backgroundColor: "#5A5870", color: "#fff", label: row.status };
-              const badgeRol = BADGE_STYLES[row.role] ?? { backgroundColor: "#5A5870", color: "#fff", label: row.role };
               return (
-                <tr key={row.id} className="transition-colors" style={{ borderTop: "1px solid rgba(166,141,200,0.15)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(166,141,200,0.06)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
-                  <td className="px-5 py-3.5 text-sm font-bold text-white">
+                <tr key={row.id} className="transition-colors border-t border-lila-mid/15 hover:bg-lila-mid/10">
+                  <td className="px-5 py-3.5 text-sm font-bold text-blanco">
                     <div className="flex items-center gap-2">
                       <UserAvatar name={row.name} />
                       <span>{row.username || "—"}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 text-sm font-semibold text-white">{row.name || "—"}</td>
-                  <td className="px-5 py-3.5 text-sm text-white">{row.email || "—"}</td>
+                  <td className="px-5 py-3.5 text-sm font-semibold text-blanco">{row.name || "—"}</td>
+                  <td className="px-5 py-3.5 text-sm text-blanco">{row.email || "—"}</td>
                   <td className="px-5 py-3.5">
-                    <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold"
-                      style={{ backgroundColor: badgeRol.backgroundColor, color: badgeRol.color }}>
-                      {badgeRol.label}
-                    </span>
+                    <Etiquetas contenido={row.role} />
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold"
-                      style={{ backgroundColor: badgeStatus.backgroundColor, color: badgeStatus.color }}>
-                      {badgeStatus.label}
-                    </span>
+                    <Etiquetas contenido={row.status === "ACTIVO" ? "Confirmado" : "Cancelado"} />
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2.5">
@@ -376,20 +335,18 @@ export default function Usuarios() {
 
       {/* FOOTER */}
       <div className="flex justify-between items-center px-1">
-        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-80"
-          style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", color: "#E7D6FF" }}>
+        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-80 bg-oscuro-card border border-lila-mid text-lila">
           <Download size={14} />
           Exportar
         </button>
-        <span className="text-xs font-semibold" style={{ color: "#5A5870" }}>
+        <span className="text-xs font-semibold text-lila-soft">
           {totalRegistros === 0
             ? "Sin resultados"
             : `${(paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)} de ${totalRegistros}`}
         </span>
         <div className="flex items-center gap-1.5">
           <button onClick={() => setPaginaActiva((p) => Math.max(1, p - 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all hover:opacity-80"
-            style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", color: "#A68DC8" }}>
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all hover:opacity-80 bg-oscuro-card border border-lila-mid text-lila-mid">
             <ChevronLeft size={14} />
           </button>
           {Array.from({ length: Math.min(totalPaginas, 4) }, (_, i) => i + 1).map((n) => (
@@ -402,8 +359,7 @@ export default function Usuarios() {
             </button>
           ))}
           <button onClick={() => setPaginaActiva((p) => Math.min(totalPaginas, p + 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all hover:opacity-80"
-            style={{ backgroundColor: "#221E3A", border: "1px solid #A68DC8", color: "#A68DC8" }}>
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold transition-all hover:opacity-80 bg-oscuro-card border border-lila-mid text-lila-mid">
             <ChevronRight size={14} />
           </button>
         </div>
