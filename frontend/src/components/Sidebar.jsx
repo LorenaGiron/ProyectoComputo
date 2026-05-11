@@ -1,40 +1,57 @@
 import { useNavigate, useLocation } from "react-router-dom";
 
+import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut } from "lucide-react";
+
 const navItems = [
   {
-    label: "Dashboard",
-    ruta: "/dashboard",
-    icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+    section: "GENERAL",
+    items: [
+      {
+        label: "Dashboard",
+        ruta: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        label: "Productos",
+        ruta: "/productos",
+        icon: Package,
+      },
+    ],
   },
   {
-    label: "Productos",
-    ruta: "/productos",
-    icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+    section: "GESTIÓN",
+    items: [
+      {
+        label: "Recepciones",
+        ruta: "/recepciones",
+        icon: ClipboardList,
+      },
+      {
+        label: "Clientes",
+        ruta: "/clientes",
+        icon: Users,
+      },
+      {
+        label: "Proveedores",
+        ruta: "/proveedores",
+        icon: Truck,
+      },
+      {
+        label: "Usuarios",
+        ruta: "/usuarios",
+        icon: UserCog,
+      },
+    ],
   },
   {
-    label: "Recepciones",
-    ruta: "/recepciones",
-    icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-  },
-  {
-    label: "Clientes",
-    ruta: "/clientes",
-    icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
-  },
-  {
-    label: "Proveedores",
-    ruta: "/proveedores",
-    icon: "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z",
-  },
-  {
-    label: "Usuarios",
-    ruta: "/usuarios",
-    icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-  },
-  {
-    label: "Auditoría",
-    ruta: "/auditoria",
-    icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    section: "CONTROL",
+    items: [
+      {
+        label: "Auditoría",
+        ruta: "/auditoria",
+        icon: ShieldCheck,
+      },
+    ],
   },
 ];
 
@@ -44,88 +61,119 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="flex flex-col min-h-screen w-[237px] shrink-0 pb-10 shadow-2xl"
+      className="relative flex flex-col h-screen w-[260px] shrink-0 overflow-hidden border-r border-white/5"
       style={{ background: "#221E3A" }}
     >
-      {/* Logo */}
-      <div className="flex items-center h-[70px] ml-8 mt-3 mb-12">
-        <span
-          className="text-[#E7D6FF] text-6xl tracking-tight"
+      {/* Glow decorativo */}
+      <div className="absolute top-[-120px] left-[-100px] w-[250px] h-[250px] bg-purple-500/10 blur-3xl rounded-full pointer-events-none" />
+
+      {/* Header */}
+      <div className="px-8 pt-8 pb-10 shrink-0 text-center">
+        {/* Logo */}
+        <h1
+          className="text-[#E7D6FF] text-6xl tracking-tight leading-none drop-shadow-[0_0_12px_rgba(231,214,255,0.15)]"
           style={{ fontFamily: "'Cinzel Decorative', serif" }}
         >
           AURA
-        </span>
+        </h1>
+
+        {/* Línea decorativa */}
+        <div className="relative mt-7 flex items-center justify-center">
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[#A78BFA]/50 to-transparent" />
+
+          <div className="absolute w-2.5 h-2.5 rounded-full bg-[#C4B5FD] shadow-[0_0_15px_4px_rgba(196,181,253,0.6)]" />
+        </div>
+
+        {/* Badge */}
+        {/* Badge */}
+        <div className="mt-7 flex justify-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#C4B5FD]/20 bg-white/[0.03] backdrop-blur-sm">
+            
+            <div className="w-2 h-2 rounded-full bg-green-400" />
+
+            <span
+              className="text-[#D8C8FF] text-sm tracking-[2px] font-medium"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              ONLINE
+            </span>
+
+          </div>
+        </div>
       </div>
 
-      {/* Nav items */}
-      <nav className="flex flex-col flex-1">
-        {navItems.map(({ label, ruta, icon }) => {
-          const isActive = location.pathname === ruta;
-          return (
-            <div key={label} className="relative">
-              {isActive && (
-                <div
-                  className="absolute top-0 right-0 h-[60px] rounded-tl-lg rounded-bl-lg"
-                  style={{
-                    left: "29px",
-                    background: "#2C2A4A",
-                    pointerEvents: "none",
-                  }}
-                />
-              )}
-              <button
-                onClick={() => navigate(ruta)}
-                className={`relative flex items-center gap-3 w-full h-[60px] pl-10 pr-6 border-none bg-transparent cursor-pointer text-left text-[#E7D6FF] text-lg font-bold transition-opacity duration-150 hover:opacity-90 ${
-                  isActive ? "opacity-100" : "opacity-55"
-                }`}
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="#E7D6FF"
-                  strokeWidth={isActive ? 2.2 : 1.8}
-                  className="shrink-0"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-                </svg>
-                {label}
-              </button>
+      {/* Nav */}
+      <nav className="flex-1 px-4 overflow-y-auto">
+        {navItems.map((group) => (
+          <div key={group.section} className="mb-8">
+            {/* Section title */}
+            <h2
+              className="px-4 mb-4 text-[12px] tracking-[4px] text-[#B9A7F5]/60 font-medium"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              {group.section}
+            </h2>
+
+            <div className="flex flex-col gap-2">
+              {group.items.map(({ label, ruta, icon: Icon }) => {
+                const isActive = location.pathname === ruta;
+
+                return (
+                  <button
+                    key={label}
+                    onClick={() => navigate(ruta)}
+                    className={`group relative flex items-center gap-4 w-full h-[58px] px-5 rounded-2xl transition-all duration-300 overflow-hidden ${
+                      isActive
+                        ? "bg-[#31275E] shadow-[0_0_20px_rgba(139,92,246,0.18)]"
+                        : "hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    {/* Barra activa */}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-[70%] rounded-r-full bg-[#BFA7FF] shadow-[0_0_15px_rgba(191,167,255,0.9)]" />
+                    )}
+
+                    {/* Icon */}
+                    <div className="transition-all duration-300 group-hover:translate-x-1">
+                      <Icon
+                        size={22}
+                        strokeWidth={isActive ? 2.4 : 2}
+                        color={isActive ? "#FFFFFF" : "#E7D6FF"}
+                      />
+                    </div>
+
+                    {/* Text */}
+                    <span
+                      className={`text-[17px] transition-all duration-300 group-hover:translate-x-1 ${
+                        isActive
+                          ? "text-white font-semibold"
+                          : "text-[#E7D6FF]/80 font-medium"
+                      }`}
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </nav>
 
-      {/* Logout */}
-      <div className="px-6 mt-2">
+      {/* Footer */}
+      <div className="shrink-0 p-5 border-t border-white/5 bg-black/10 backdrop-blur-sm">
         <button
           onClick={() => navigate("/login")}
-          className="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-xl font-bold text-[17px] cursor-pointer transition-opacity duration-150 hover:opacity-100 opacity-85"
-          style={{
-            fontFamily: "'Poppins', sans-serif",
-            background: "#E7D6FF",
-            color: "#221E3A",
-            border: "2px solid #E7D6FF",
-          }}
+          className="group flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-[#E7D6FF] text-[#221E3A] font-semibold text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)]"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="#221E3A"
-            strokeWidth="2.2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-            />
-          </svg>
+          <LogOut
+            size={21}
+            strokeWidth={2.5}
+            className="transition-transform duration-300 group-hover:-translate-x-1"
+          />
+
           Logout
         </button>
       </div>
