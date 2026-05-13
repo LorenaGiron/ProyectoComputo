@@ -5,18 +5,91 @@ import ToolBar from "../components/ToolBar";
 import AccionesTabla from "../components/AccionesTabla";
 import Paginacion from "../components/Paginacion";
 import Tabla from "../components/Tabla";
+import Modal from "../components/Modal"; 
+import ModalProductos from "../components/ModalProductos";
 
 const mockData = [
-  { sku: "SKU-001", nombre: "Playera Oversize", categoria: "Playeras", marca: "Urban Style", modelo: "Street-2024", pVenta: 200, stock: 50, estado: "Activo" },
-  { sku: "SKU-002", nombre: "Pantalón Cargo", categoria: "Pantalones", marca: "Urban Style", modelo: "Cargo-X", pVenta: 450, stock: 3, estado: "Activo" },
-  { sku: "SKU-003", nombre: "Sudadera Hoodie", categoria: "Sudaderas", marca: "Urban Style", modelo: "Hood-W", pVenta: 600, stock: 0, estado: "Inactivo" },
-  { sku: "SKU-004", nombre: "Gorra Clásica", categoria: "Accesorios", marca: "Urban Style", modelo: "Cap-01", pVenta: 150, stock: 15, estado: "Activo" },
-  { sku: "SKU-005", nombre: "Tenis Urban", categoria: "Calzado", marca: "Urban Style", modelo: "Sneak-1", pVenta: 800, stock: 25, estado: "Activo" },
+  { 
+    sku: "SKU-001", 
+    nombre: "Playera Oversize", 
+    departamento: "Caballero", 
+    categoria: "Playeras", 
+    marca: "Urban Style", 
+    modelo: "Street-2024",
+    descripcion: "Playera de corte relajado confeccionada en algodón premium de 250g. Ideal para un look urbano y cómodo.",
+    pVenta: 200, 
+    pCompra: 100, 
+    estado: "Activo",
+    inventario: [
+      { talla: "XS", stock: 5 }, { talla: "S", stock: 15 }, { talla: "M", stock: 20 }, 
+      { talla: "L", stock: 10 }, { talla: "XL", stock: 0 }
+    ]
+  },
+  { 
+    sku: "SKU-002", 
+    nombre: "Pantalón Cargo", 
+    departamento: "Caballero", 
+    categoria: "Pantalones", 
+    marca: "Urban Style", 
+    modelo: "Cargo-X", 
+    descripcion: "Pantalón técnico con múltiples bolsillos funcionales y ajuste en tobillos. Resistente y versátil.",
+    pVenta: 450, 
+    pCompra: 200, 
+    estado: "Activo",
+    inventario: [
+      { talla: "28", stock: 0 }, { talla: "30", stock: 1 }, { talla: "32", stock: 2 }
+    ]
+  },
+  { 
+    sku: "SKU-003", 
+    nombre: "Sudadera Hoodie", 
+    departamento: "Unisex", 
+    categoria: "Sudaderas", 
+    marca: "Urban Style", 
+    modelo: "Hood-W", 
+    descripcion: "Sudadera con capucha y forro térmico. Diseño minimalista con bolsillo frontal tipo canguro.",
+    pVenta: 600, 
+    pCompra: 300, 
+    estado: "Inactivo",
+    inventario: [
+      { talla: "S", stock: 0 }, { talla: "M", stock: 0 }, { talla: "L", stock: 0 }
+    ]
+  },
+  { 
+    sku: "SKU-004", 
+    nombre: "Gorra Clásica", 
+    departamento: "Unisex", 
+    categoria: "Accesorios", 
+    marca: "Urban Style", 
+    modelo: "Cap-01", 
+    descripcion: "Gorra de 6 paneles con visera curva y ajuste de hebilla metálica. Bordado frontal de alta calidad.",
+    pVenta: 150, 
+    pCompra: 70, 
+    estado: "Activo",
+    inventario: [{ talla: "Unitalla", stock: 15 }]
+  },
+  { 
+    sku: "SKU-005", 
+    nombre: "Tenis Urban", 
+    departamento: "Dama", 
+    categoria: "Calzado", 
+    marca: "Urban Style", 
+    modelo: "Sneak-1", 
+    descripcion: "Calzado deportivo con suela de alta tracción y detalles en gamuza sintética. Estilo y confort diario.",
+    pVenta: 800, 
+    pCompra: 400, 
+    estado: "Activo",
+    inventario: [
+      { talla: "22", stock: 4 }, { talla: "24", stock: 8 }, { talla: "26", stock: 2 }
+    ]
+  },
 ];
 
 export default function Productos() {
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [isModalVerAbierto, setIsModalVerAbierto] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   
   const opcionesFiltroProductos = [
     { value: "", label: "Todos" },
@@ -25,19 +98,33 @@ export default function Productos() {
   ];
 
   const encabezadosProductos = [
-    "Sku", "Nombre", "Categoría", "Marca", "Modelo", "Precio", "Stock", "Estado", "Acciones"
+    "Sku", "Nombre", "Departamento", "Categoría", "Precio", "Stock", "Estado", "Acciones"
   ];
 
   const datosFiltrados = mockData
     .filter((row) => filtro === "" || row.estado === filtro)
-    .filter((row) => busqueda === "" || row.nombre.toLowerCase().includes(busqueda.toLowerCase()) || row.sku.toLowerCase().includes(busqueda.toLowerCase()));
+    .filter((row) => (
+      busqueda === "" || 
+      row.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+      row.sku.toLowerCase().includes(busqueda.toLowerCase())
+    ));
 
   const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
+
+  // Función matemática para sumar el stock de todas las tallas
+  const calcularStockTotal = (inventario) => {
+    return inventario.reduce((acc, item) => acc + item.stock, 0);
+  };
 
   const getColorStock = (stock) => {
     if (stock <= 10) return "text-rojo";       
     if (stock <= 30) return "text-amarillo";  
     return "text-verde";                      
+  };
+
+  const handleVerDetalles = (producto) => {
+    setProductoSeleccionado(producto);
+    setIsModalVerAbierto(true);
   };
 
   return (
@@ -46,29 +133,11 @@ export default function Productos() {
         Catálogo de Productos
       </h1>
 
-      {/* Tarjetas y Gráfica */}
       <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
         <div className="flex flex-col sm:flex-row gap-6 w-full xl:w-7/12">
-          <Tarjetas 
-            label="Total productos" 
-            value="5,000" 
-            sub="+124 este mes" 
-            icon="bi bi-box-seam"
-          />
-          <Tarjetas 
-            label="Productos Activos" 
-            value="4,850" 
-            sub="97% del catálogo" 
-            accent="#28B463" 
-            icon="bi bi-check-circle" 
-          />
-          <Tarjetas 
-            label="Productos Inactivos" 
-            value="150" 
-            sub="3% del catálogo" 
-            accent="#C0392B" 
-            icon="bi bi-x-circle" 
-          />
+          <Tarjetas label="Total productos" value="5,000" sub="+124 este mes" icon="bi bi-box-seam" />
+          <Tarjetas label="Productos Activos" value="4,850" sub="97% del catálogo" accent="#28B463" icon="bi bi-check-circle" />
+          <Tarjetas label="Productos Inactivos" value="150" sub="3% del catálogo" accent="#C0392B" icon="bi bi-x-circle" />
         </div>
 
         <div className="bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg relative w-full xl:w-5/12 text-white">
@@ -96,59 +165,63 @@ export default function Productos() {
         </div>
       </div>
 
-      {/* Buscador y Filtros */} 
       <ToolBar 
-        filtro={filtro}
-        setFiltro={setFiltro}
-        opcionesFiltro={opcionesFiltroProductos}
-        busqueda={busqueda}
-        setBusqueda={setBusqueda}
-        placeholderBuscar="Buscar por SKU, nombre, categoría..."
-        textoBoton="+ Producto"
-        accionBoton={() => console.log("Clic en agregar producto")}
+        filtro={filtro} setFiltro={setFiltro} opcionesFiltro={opcionesFiltroProductos}
+        busqueda={busqueda} setBusqueda={setBusqueda}
+        placeholderBuscar="Buscar por SKU, nombre..." textoBoton="+ Producto"
+        accionBoton={() => console.log("Nuevo producto")}
       />
 
-      {/* Tabla */}
       <Tabla encabezados={encabezadosProductos}>
-        {datosFiltrados.map((row, i) => (
-          <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
-            
-            <td className="p-4 text-center text-sm whitespace-nowrap">{row.sku}</td>
-            <td className="p-4 text-center text-sm font-medium text-blanco whitespace-nowrap">{row.nombre}</td>
-            
-            <td className="p-4 text-center whitespace-nowrap">
-              <span className="inline-block w-28 text-center uppercase py-1 rounded-full text-xs font-medium tracking-wide bg-lila-soft/20 text-lila-soft border border-lila-soft/30 shadow-sm">
-                {row.categoria}
-              </span>
-            </td>
-            
-            <td className="p-4 text-center text-sm whitespace-nowrap">{row.marca}</td>
-            <td className="p-4 text-center text-sm whitespace-nowrap">{row.modelo}</td>
-            
-            <td className="p-4 text-center whitespace-nowrap">${row.pVenta}</td>
-            
-            <td className={`p-4 text-center text-sm font-bold whitespace-nowrap ${getColorStock(row.stock)}`}>
-              {row.stock}
-            </td>
-            
-            <td className="p-4 text-center whitespace-nowrap">
-              <Etiquetas contenido={row.estado} />
-            </td>
-            
-            <td className="p-4 align-middle whitespace-nowrap">
-              <AccionesTabla 
-                onVer={() => console.log("Ver producto", row.sku)}
-                onEditar={() => console.log("Editar producto", row.sku)}
-                onEliminar={() => console.log("Eliminar producto", row.sku)}
-              />
-            </td>
-
-          </tr>
-        ))}
+        {datosFiltrados.map((row, i) => {
+          // Calculamos el stock total en tiempo real para cada fila
+          const stockTotal = calcularStockTotal(row.inventario);
+          
+          return (
+            <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+              <td className="p-4 text-center text-sm font-mono">{row.sku}</td>
+              <td className="p-4 text-center text-sm font-medium text-blanco">{row.nombre}</td>
+              <td className="p-4 text-center text-xs font-bold text-lila-soft uppercase tracking-wider">
+                {row.departamento}
+              </td>
+              <td className="p-4 text-center">
+                <Etiquetas contenido={row.categoria} />
+              </td>
+              <td className="p-4 text-center">${row.pVenta}</td>
+              <td className={`p-4 text-center text-sm font-bold ${getColorStock(stockTotal)}`}>
+                {stockTotal}
+              </td>
+              <td className="p-4 text-center">
+                <Etiquetas contenido={row.estado} />
+              </td>
+              <td className="p-4 align-middle">
+                <AccionesTabla 
+                  onVer={() => handleVerDetalles(row)}
+                  onEditar={() => console.log("Editar", row.sku)}
+                  onEliminar={() => console.log("Eliminar", row.sku)}
+                />
+              </td>
+            </tr>
+          );
+        })}
       </Tabla>
  
-      {/* Footer */}
       <Paginacion totalRegistros={5000} onExportar={() => console.log("Exportando...")} />
+
+      <Modal 
+        isOpen={isModalVerAbierto} 
+        onClose={() => setIsModalVerAbierto(false)} 
+        ancho="max-w-4xl" 
+      >
+        {productoSeleccionado && (
+          <ModalProductos 
+            data={productoSeleccionado} 
+            onEdit={() => console.log("Editar", productoSeleccionado.sku)}
+            onDelete={() => console.log("Eliminar", productoSeleccionado.sku)}
+          />
+        )}
+      </Modal>
+
     </div>
   );
 }
