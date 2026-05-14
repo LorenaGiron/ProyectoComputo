@@ -7,6 +7,7 @@ import Paginacion from "../components/Paginacion";
 import Tabla from "../components/Tabla";
 import Modal from "../components/Modal"; 
 import ModalProductos from "../components/ModalProductos";
+import FormProducto from "../components/FormProductos";
 
 const mockData = [
   { 
@@ -90,6 +91,8 @@ export default function Productos() {
   const [busqueda, setBusqueda] = useState("");
   const [isModalVerAbierto, setIsModalVerAbierto] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [isModalFormAbierto, setIsModalFormAbierto] = useState(false);
+  const [productoAEditar, setProductoAEditar] = useState(null);
   
   const opcionesFiltroProductos = [
     { value: "", label: "Todos" },
@@ -111,7 +114,6 @@ export default function Productos() {
 
   const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
 
-  // Función matemática para sumar el stock de todas las tallas
   const calcularStockTotal = (inventario) => {
     return inventario.reduce((acc, item) => acc + item.stock, 0);
   };
@@ -125,6 +127,22 @@ export default function Productos() {
   const handleVerDetalles = (producto) => {
     setProductoSeleccionado(producto);
     setIsModalVerAbierto(true);
+  };
+
+  const handleNuevoProducto = () => {
+    setProductoAEditar(null);
+    setIsModalFormAbierto(true);
+  };
+
+  const handleEditarProducto = (producto) => {
+    setProductoAEditar(producto);
+    setIsModalVerAbierto(false); 
+    setIsModalFormAbierto(true);
+  };
+
+  const handleGuardarProducto = (datos) => {
+    console.log("Datos enviados al servidor:", datos);
+    setIsModalFormAbierto(false);
   };
 
   return (
@@ -169,12 +187,11 @@ export default function Productos() {
         filtro={filtro} setFiltro={setFiltro} opcionesFiltro={opcionesFiltroProductos}
         busqueda={busqueda} setBusqueda={setBusqueda}
         placeholderBuscar="Buscar por SKU, nombre..." textoBoton="+ Producto"
-        accionBoton={() => console.log("Nuevo producto")}
+        accionBoton={handleNuevoProducto}
       />
 
       <Tabla encabezados={encabezadosProductos}>
         {datosFiltrados.map((row, i) => {
-          // Calculamos el stock total en tiempo real para cada fila
           const stockTotal = calcularStockTotal(row.inventario);
           
           return (
@@ -197,7 +214,7 @@ export default function Productos() {
               <td className="p-4 align-middle">
                 <AccionesTabla 
                   onVer={() => handleVerDetalles(row)}
-                  onEditar={() => console.log("Editar", row.sku)}
+                  onEditar={() => handleEditarProducto(row)}
                   onEliminar={() => console.log("Eliminar", row.sku)}
                 />
               </td>
@@ -216,10 +233,22 @@ export default function Productos() {
         {productoSeleccionado && (
           <ModalProductos 
             data={productoSeleccionado} 
-            onEdit={() => console.log("Editar", productoSeleccionado.sku)}
+            onEdit={() => handleEditarProducto(productoSeleccionado)}
             onDelete={() => console.log("Eliminar", productoSeleccionado.sku)}
           />
         )}
+      </Modal>
+
+      <Modal 
+        isOpen={isModalFormAbierto} 
+        onClose={() => setIsModalFormAbierto(false)} 
+        ancho="max-w-3xl"
+      >
+        <FormProducto 
+          data={productoAEditar} 
+          onGuardar={handleGuardarProducto}
+          onCancelar={() => setIsModalFormAbierto(false)}
+        />
       </Modal>
 
     </div>

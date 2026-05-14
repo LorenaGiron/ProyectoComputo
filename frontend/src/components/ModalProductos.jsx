@@ -6,7 +6,7 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
   const stockTotal = data.inventario.reduce((acc, item) => acc + item.stock, 0);
 
   return (
-    <div className="p-4 md:p-6 text-blanco font-poppins h-full max-h-[95vh] overflow-y-auto md:overflow-visible">
+    <div className="p-4 md:p-6 text-blanco font-poppins h-full">
       
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-stretch">
         
