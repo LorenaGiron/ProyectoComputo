@@ -84,7 +84,7 @@ const s = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "8px 40px",
-    background: "var(--color-bg)",        // #F8F5F2
+    background: "var(--color-bg)",        
     width: "100%",
     boxSizing: "border-box",
   },
@@ -95,9 +95,9 @@ const s = {
     justifyContent: "center",
     padding: "8px 10px",
     background: "rgba(201,184,232,0.35)",
-    border: "0.5px solid var(--color-oscuro-card)",  // #A68DC8
+    border: "0.5px solid var(--color-oscuro-card)",  
     borderRadius: "10px",
-    color: "var(--color-oscuro)",                 // #2C2A4A
+    color: "var(--color-oscuro)",                 
     fontFamily: "var(--font-tag)",
     fontSize: "13px",
     letterSpacing: "0.08em",
@@ -112,7 +112,7 @@ const s = {
     display: "flex",
     flexWrap: "wrap",
     minHeight: "520px",
-    background: "var(--color-lila-soft)",  // #C9B8E8
+    background: "var(--color-lila-soft)",  
     width: "100%",
   },
   heroLeft: {
@@ -127,7 +127,7 @@ const s = {
   tagline: {
     fontFamily: "var(--font-tag)",
     fontSize: "clamp(16px, 2vw, 24px)",
-    color: "var(--color-oscuro)",          // #2C2A4A
+    color: "var(--color-oscuro)",         
     letterSpacing: "0.15em",
     textTransform: "uppercase",
     textAlign: "center",
@@ -135,7 +135,7 @@ const s = {
   heroHeading: {
     fontFamily: "var(--font-display)",
     fontSize: "clamp(32px, 5vw, 55px)",
-    color: "var(--color-oscuro)",          // #2C2A4A
+    color: "var(--color-oscuro)",          
     lineHeight: 1.15,
     fontWeight: 400,
     textAlign: "center",
@@ -143,7 +143,7 @@ const s = {
   heroParagraph: {
     fontFamily: "var(--font-body)",
     fontSize: "clamp(16px, 1.8vw, 22px)",
-    color: "var(--color-oscuro)",          // #2C2A4A
+    color: "var(--color-oscuro)",          
     lineHeight: 1.7,
     maxWidth: "420px",
     margin: "0 auto",
@@ -165,7 +165,7 @@ const s = {
   statsBar: {
     display: "flex",
     flexWrap: "wrap",
-    background: "var(--color-oscuro)",     // #2C2A4A — fondo navy
+    background: "var(--color-oscuro)",     
     width: "100%",
   },
   statItem: {
@@ -238,7 +238,7 @@ const s = {
   },
   //esencia card 
   identityLavenderCard: {
-    background: "var(--color-lila-mid)", // #C9B8E8
+    background: "var(--color-lila-mid)", 
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -248,7 +248,7 @@ const s = {
   identityLavenderLabel: {
     fontFamily: "var(--font-tag)",
     fontSize: "clamp(28px, 2.5vw, 38px)",
-    color: "rgba(44, 40, 105, 0.5)",         // #2C2A4A 
+    color: "rgba(44, 40, 105, 0.5)",         
     letterSpacing: "0.1em",
     textTransform: "uppercase",
   },
@@ -261,20 +261,20 @@ const s = {
     justifyContent: "center",
     alignItems: "center",
     gap: "30px",
-    background: "var(--color-blanco)",    // #FFFFFF — fondo BLANCO
+    background: "var(--color-blanco)",   
   },
   sectionEyebrow: {
     fontFamily: "var(--font-tag)",
     fontSize: "clamp(12px, 3vw, 14px)",
     letterSpacing: "0.1em",
-    color: "var(--color-oscuro)",        // #A68DC8
+    color: "var(--color-oscuro)",        
     textTransform: "uppercase",
      textAlign: "center", 
   },
   sectionHeading: {
     fontFamily: "var(--font-display)",
     fontSize: "clamp(15px, 3vw, 28px)",
-    color: "var(--color-oscuro)",          // #2C2A4A
+    color: "var(--color-oscuro)",          
     lineHeight: 1.25,
     fontWeight: 400,
     textAlign: "center", 
@@ -283,7 +283,7 @@ const s = {
   sectionParagraph: {
     fontFamily: "var(--font-body)",
     fontSize: "clamp(15px, 1.5vw, 18px)",
-    color: "var(--color-text-muted)",      // #5A5870
+    color: "var(--color-text-muted)",      
     lineHeight: 1.75,
      textAlign: "center", 
     
@@ -344,8 +344,7 @@ const s = {
 
   /* MANUFACTURE SECTION */
   manufactureSection: {
-    background: "var(--color-bg)",         // #F8F5F2
-    padding: "80px 60px",
+    background: "var(--color-bg)",        
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
@@ -357,7 +356,7 @@ const s = {
   manufactureHeading: {
     fontFamily: "var(--font-display)",
     fontSize: "clamp(24px, 4vw, 38px)",
-    color: "var(--color-oscuro)",          // #2C2A4A
+    color: "var(--color-oscuro)",          
     lineHeight: 1.25,
     fontWeight: 400,
     maxWidth: "600px",
@@ -365,7 +364,7 @@ const s = {
   manufactureParagraph: {
     fontFamily: "var(--font-body)",
     fontSize: "clamp(15px, 1.6vw, 20px)",
-    color: "var(--color-text-muted)",      // #5A5870
+    color: "var(--color-text-muted)",      
     lineHeight: 1.75,
     maxWidth: "700px",
   },
@@ -376,14 +375,14 @@ const s = {
     flexWrap: "wrap",
     gap: "0",
     padding: "0 60px 80px",
-    background: "var(--color-bg)",         // #F8F5F2
+    background: "var(--color-bg)",         
     justifyContent: "center",
     width: "100%",
     boxSizing: "border-box",
   },
   card: {
     flex: "1 1 220px",
-    background: "rgba(204, 183, 244, 0.35)",  // lila muy suave
+    background: "rgba(204, 183, 244, 0.35)",  
     border: "1px solid rgba(166,141,200,0.3)",
     borderRadius: "4px",
     padding: "32px 28px",
@@ -396,21 +395,21 @@ const s = {
     fontFamily: "var(--font-tag)",
     fontSize: "15px",
     letterSpacing: "0.1em",
-    color: "var(--color-oscuro)",          // #2C2A4A — visible sobre fondo claro
+    color: "var(--color-oscuro)",          
     textTransform: "uppercase",
     marginBottom: "14px",
   },
   cardText: {
     fontFamily: "var(--font-body)",
     fontSize: "14.5px",
-    color: "var(--color-text-muted)",      // #5A5870 — visible sobre fondo claro
+    color: "var(--color-text-muted)",      
     lineHeight: 1.5,
     
   },
 
   /* FOOTER */
   footer: {
-    background: "var(--color-oscuro)",     // #2C2A4A
+    background: "var(--color-oscuro)",     
     padding: "40px 50px",
     display: "flex",
     flexWrap: "wrap",
@@ -474,7 +473,7 @@ const AuraLogo = ({ size = 45, color = "#000" }) => {
         fontFamily: "var(--font-display)",
         fontSize: size,
         letterSpacing: "5px",
-        color: color, // ← aquí está la clave
+        color: color, 
       }}
     >
       AURA
@@ -688,7 +687,7 @@ export default function Home() {
         </nav>
         <div style={s.footerSocial}>
           <a
-            href="https://www.instagram.com"
+            href="https://www.instagram.com/softaura.bliss/"
             target="_blank"
             rel="noreferrer"
             style={{ display: "inline-flex", padding: 0 }}
