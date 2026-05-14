@@ -16,16 +16,16 @@ export function validate(schema, target = 'body') {
           errors
         })
       }
-      if (target === 'body') {
-        req.body = result.data
-      } else {
+
+      if (target === 'query' || target === 'params') {
+        for (const key in req[target]) {
+          delete req[target][key]
+        }
         Object.assign(req[target], result.data)
-      }
-      if (target === 'query') {
-        Object.assign(req.query, result.data)
       } else {
         req[target] = result.data
       }
+
       next()
     } catch (error) {
       next(error)
