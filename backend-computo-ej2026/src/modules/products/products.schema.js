@@ -10,6 +10,11 @@ const booleanLike = z.union([
 
 const nullableString = z.string().optional().nullable()
 
+const inventarioSchema = z.object({
+  talla: z.string(),
+  stock: z.coerce.number().min(0)
+});
+
 export const listProductsQuerySchema = z.object({
   q: z.string().optional().default(''),
   activo: booleanLike.optional(),
@@ -30,6 +35,7 @@ export const createProductSchema = z.object({
     .min(2, 'El nombre debe tener al menos 2 caracteres'),
   descripcion: nullableString,
   categoria: nullableString,
+  departamento: nullableString,
   unidad: nullableString,
   marca: nullableString,
   modelo: nullableString,
@@ -37,7 +43,9 @@ export const createProductSchema = z.object({
   precioVenta: z.coerce.number().min(0, 'El precio de venta no puede ser negativo').optional().default(0),
   stock: z.coerce.number().min(0, 'El stock no puede ser negativo').optional().default(0),
   stockMinimo: z.coerce.number().min(0, 'El stock mínimo no puede ser negativo').optional().default(0),
-  activo: z.boolean().optional().default(true)
+  activo: z.boolean().optional().default(true),
+  imagen: z.string().optional().nullable(),
+  inventario: z.array(inventarioSchema).optional().default([])
 })
 
 export const updateProductSchema = z.object({
@@ -45,6 +53,7 @@ export const updateProductSchema = z.object({
   nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').optional(),
   descripcion: z.string().nullable().optional(),
   categoria: z.string().nullable().optional(),
+  departamento: z.string().nullable().optional(),
   unidad: z.string().nullable().optional(),
   marca: z.string().nullable().optional(),
   modelo: z.string().nullable().optional(),
@@ -52,7 +61,9 @@ export const updateProductSchema = z.object({
   precioVenta: z.coerce.number().min(0, 'El precio de venta no puede ser negativo').optional(),
   stock: z.coerce.number().min(0, 'El stock no puede ser negativo').optional(),
   stockMinimo: z.coerce.number().min(0, 'El stock mínimo no puede ser negativo').optional(),
-  activo: z.boolean().optional()
+  activo: z.boolean().optional(),
+  imagen: z.string().nullable().optional(),
+  inventario: z.array(inventarioSchema).optional()
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'Debes enviar al menos un campo para actualizar'
 })

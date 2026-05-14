@@ -93,6 +93,7 @@ export class ProductsService {
       nombre: payload.nombre.trim(),
       descripcion: normalizeOptionalText(payload.descripcion) || '',
       categoria: normalizeOptionalText(payload.categoria) || '',
+      departamento: normalizeOptionalText(payload.departamento) || '',
       unidad: normalizeOptionalText(payload.unidad) || '',
       marca: normalizeOptionalText(payload.marca) || '',
       modelo: normalizeOptionalText(payload.modelo) || '',
@@ -100,6 +101,8 @@ export class ProductsService {
       precioVenta: Number(payload.precioVenta ?? 0),
       stock: Number(payload.stock ?? 0),
       stockMinimo: Number(payload.stockMinimo ?? 0),
+      imagen: payload.imagen || null,
+      inventario: Array.isArray(payload.inventario) ? payload.inventario : [],
       activo: payload.activo ?? true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -156,11 +159,14 @@ export class ProductsService {
     if (payload.nombre !== undefined) data.nombre = payload.nombre.trim()
     if (payload.descripcion !== undefined) data.descripcion = normalizeOptionalText(payload.descripcion) || ''
     if (payload.categoria !== undefined) data.categoria = normalizeOptionalText(payload.categoria) || ''
+    if (payload.departamento !== undefined) data.departamento = normalizeOptionalText(payload.departamento) || ''
     if (payload.unidad !== undefined) data.unidad = normalizeOptionalText(payload.unidad) || ''
     if (payload.marca !== undefined) data.marca = normalizeOptionalText(payload.marca) || ''
     if (payload.modelo !== undefined) data.modelo = normalizeOptionalText(payload.modelo) || ''
     if (payload.precioCompra !== undefined) data.precioCompra = Number(payload.precioCompra)
     if (payload.precioVenta !== undefined) data.precioVenta = Number(payload.precioVenta)
+    if (payload.imagen !== undefined) data.imagen = payload.imagen || null
+    if (payload.inventario !== undefined) data.inventario = Array.isArray(payload.inventario) ? payload.inventario : []
     if (payload.stock !== undefined) data.stock = Number(payload.stock)
     if (payload.stockMinimo !== undefined) data.stockMinimo = Number(payload.stockMinimo)
     if (payload.activo !== undefined) data.activo = payload.activo
@@ -251,6 +257,7 @@ export class ProductsService {
       nombre: product.nombre || '',
       descripcion: product.descripcion || '',
       categoria: product.categoria || '',
+      departamento: product.departamento || '',
       unidad: product.unidad || '',
       marca: product.marca || '',
       modelo: product.modelo || '',
@@ -258,6 +265,8 @@ export class ProductsService {
       precioVenta: Number(product.precioVenta || 0),
       stock: Number(product.stock || 0),
       stockMinimo: Number(product.stockMinimo || 0),
+      imagen: product.imagen || null,
+      inventario: Array.isArray(product.inventario) ? product.inventario : [],
       activo: product.activo ?? true,
       createdAt: product.createdAt || null,
       updatedAt: product.updatedAt || null

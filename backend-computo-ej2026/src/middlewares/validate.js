@@ -17,7 +17,15 @@ export function validate(schema, target = 'body') {
         })
       }
 
-      req[target] = result.data
+      if (target === 'query' || target === 'params') {
+        for (const key in req[target]) {
+          delete req[target][key]
+        }
+        Object.assign(req[target], result.data)
+      } else {
+        req[target] = result.data
+      }
+
       next()
     } catch (error) {
       next(error)
