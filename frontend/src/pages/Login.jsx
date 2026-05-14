@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import bgImage from '../assets/login.png';
 import Toast from '../components/Toast';
+import { useAuth } from '../hooks/useAuth';
 
 const loginSchema = z.object({
   usuario: z.string().min(1, 'El usuario es obligatorio'),
@@ -13,6 +14,7 @@ const loginSchema = z.object({
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [serverError, setServerError] = useState('');
 
   const {
@@ -50,8 +52,8 @@ export default function Login() {
         throw new Error(result.message || 'Credenciales incorrectas. Verifica tus datos.');
       }
 
-      localStorage.setItem('token', result.token);
-      navigate('/dashboard'); 
+      login(result.token, result.usuario ?? {});
+      navigate('/dashboard');
 
     } catch (error) {
       setServerError(error.message);
