@@ -17,7 +17,12 @@ export function validate(schema, target = 'body') {
         })
       }
 
-      req[target] = result.data
+      if (target === 'body') {
+        req.body = result.data
+      } else {
+        Object.assign(req[target], result.data)
+      }
+
       next()
     } catch (error) {
       next(error)
