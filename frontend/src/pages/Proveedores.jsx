@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
 import Etiquetas from "../components/Etiquetas";
 import Tarjetas from "../components/Tarjetas";
 import Tabla from "../components/Tabla";
@@ -10,29 +9,62 @@ import Paginacion from "../components/Paginacion";
 const LIMIT = 10;
 
 const USUARIOS_MOCK = [
-  { id: 1, nombre: "Ana Morales", rfc: "RFCA1234567B8C", email: "ana.morales@email.com", telefono: "554 123 789", estado: "Activo" },
-  { id: 2, nombre: "Jorge Herrera", rfc: "RFCJ2345678D9E", email: "jorge.herrerra@email.com", telefono: "551 987 321", estado: "Inactivo" },
-  { id: 3, nombre: "Carla Sánchez", rfc: "RFCC3456789F0G", email: "carla.sanchez@email.com", telefono: "556 321 654", estado: "Activo" },
-  { id: 4, nombre: "María López", rfc: "RFCM4567890H1I", email: "maria.lopez@email.com", telefono: "557 654 123", estado: "Activo" },
-  { id: 5, nombre: "Luis Martínez", rfc: "RFCL5678901J2K", email: "luis.martinez@email.com", telefono: "553 111 222", estado: "Activo" },
-  { id: 6, nombre: "Sofía Torres", rfc: "RFCS6789012L3M", email: "sofia.torres@email.com", telefono: "558 444 555", estado: "Activo" },
-  { id: 7, nombre: "Héctor Delgado", rfc: "RFCH7890123N4O", email: "hector.delgado@email.com", telefono: "559 888 777", estado: "Inactivo" },
-  { id: 8, nombre: "Patricia Vega", rfc: "RFCP8901234P5Q", email: "patricia.vega@email.com", telefono: "552 666 333", estado: "Activo" },
-  { id: 9, nombre: "Diego Ramírez", rfc: "RFCD9012345Q6R", email: "diego.ramirez@email.com", telefono: "554 222 888", estado: "Activo" },
-  { id: 10, nombre: "Verónica Ríos", rfc: "RFCV0123456R7S", email: "veronica.rios@email.com", telefono: "551 333 999", estado: "Inactivo" },
-  { id: 11, nombre: "Ricardo Paredes", rfc: "RFCR1234567S8T", email: "ricardo.paredes@email.com", telefono: "556 777 000", estado: "Activo" },
-  { id: 12, nombre: "Natalia Cruz", rfc: "RFCN2345678T9U", email: "natalia.cruz@email.com", telefono: "557 555 444", estado: "Activo" },
+  {
+    id: 1,
+    nombre: "Textiles del Norte S.A. de C.V.",
+    rfc: "TNO240315AB1",
+    giro: "Fabricación Textil",
+    email: "ventas@textilesnorte.com",
+    telefono: "55 4123 7890",
+    estado: "Activo",
+  },
+  {
+    id: 2,
+    nombre: "Distribuidora NovaPack",
+    rfc: "DNP190827CD2",
+    giro: "Empaques y Embalajes",
+    email: "contacto@novapack.com",
+    telefono: "55 1987 6543",
+    estado: "Activo",
+  },
+  {
+    id: 3,
+    nombre: "Suministros Industriales MX",
+    rfc: "SIM210412EF3",
+    giro: "Material Industrial",
+    email: "proveedores@simx.com",
+    telefono: "56 3321 8877",
+    estado: "Inactivo",
+  },
+  {
+    id: 4,
+    nombre: "Global Print Solutions",
+    rfc: "GPS180901GH4",
+    giro: "Impresión y Serigrafía",
+    email: "ventas@globalprint.com",
+    telefono: "55 7654 1122",
+    estado: "Activo",
+  },
+  {
+    id: 5,
+    nombre: "Comercializadora Velkan",
+    rfc: "CVE220614IJ5",
+    giro: "Distribución Mayorista",
+    email: "info@velkan.com",
+    telefono: "55 4433 2211",
+    estado: "Activo",
+  },
 ];
 
-const opcionesFiltroClientes = [
+const opcionesFiltroProv = [
   { value: "", label: "Todos" },
   { value: "Activo", label: "Activos" },
   { value: "Inactivo", label: "Inactivos" }
 ];
 
-const encabezadosClientes = ["Nombre", "RFC", "Email", "Teléfono", "Estado", "Acciones"];
+const encabezadosProveedores = ["Nombre", "RFC", "Giro", "Teléfono", "Estado", "Acciones"];
 
-export default function Clientes() {
+export default function Proveedores() {
   const [rows, setRows] = useState([]);
   const [stats, setStats] = useState({ total: 0, activos: 0, inactivos: 0 });
   const [statusFilter, setStatusFilter] = useState("");
@@ -51,7 +83,7 @@ export default function Clientes() {
     const filtered = USUARIOS_MOCK.filter((usuario) => {
       const matchesStatus = statusFilter ? usuario.estado.toLowerCase() === statusFilter.toLowerCase() : true;
       const matchesSearch = keyword
-        ? [usuario.nombre, usuario.rfc, usuario.email, usuario.telefono]
+        ? [usuario.nombre, usuario.rfc, usuario.giro, usuario.email, usuario.telefono]
             .some((value) => value.toLowerCase().includes(keyword))
         : true;
       return matchesStatus && matchesSearch;
@@ -80,25 +112,25 @@ export default function Clientes() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Clientes
+        Proveedores
       </h1>
 
       <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
         <Tarjetas
-          label="Total de clientes"
+          label="Total de proveedores"
           value={stats.total}
-          sub="Todos los clientes"
-          icon="bi bi-people"
+          sub="Todos los proveedores"
+          icon="bi bi-building"
         />
         <Tarjetas
-          label="Clientes activos"
+          label="Proveedores activos"
           value={stats.activos}
           sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
           accent="#22C55E"
           icon="bi bi-check-circle"
         />
         <Tarjetas
-          label="Clientes inactivos"
+          label="Proveedores inactivos"
           value={stats.inactivos}
           sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
           accent="#EF4444"
@@ -109,15 +141,15 @@ export default function Clientes() {
       <ToolBar
         filtro={statusFilter}
         setFiltro={setStatusFilter}
-        opcionesFiltro={opcionesFiltroClientes}
+        opcionesFiltro={opcionesFiltroProv}
         busqueda={search}
         setBusqueda={setSearch}
-        placeholderBuscar="Buscar por nombre, RFC, email o teléfono..."
-        textoBoton="+ Cliente"
-        accionBoton={() => console.log("Agregar cliente")}
+        placeholderBuscar="Buscar por nombre, RFC, giro o teléfono..."
+        textoBoton="+ Proveedor"
+        accionBoton={() => console.log("Agregar proveedor")}
       />
 
-      <Tabla encabezados={encabezadosClientes}>
+      <Tabla encabezados={encabezadosProveedores}>
         {rows.length === 0 ? (
           <tr>
             <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-lila">
@@ -132,16 +164,16 @@ export default function Clientes() {
             >
               <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{usuario.nombre}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.rfc}</td>
-              <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.email}</td>
+              <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.giro}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.telefono}</td>
               <td className="p-4 text-center whitespace-nowrap">
                 <Etiquetas contenido={usuario.estado} />
               </td>
               <td className="p-4 align-middle whitespace-nowrap">
                 <AccionesTabla
-                  onVer={() => console.log("Ver cliente", usuario.id)}
-                  onEditar={() => console.log("Editar cliente", usuario.id)}
-                  onEliminar={() => console.log("Eliminar cliente", usuario.id)}
+                  onVer={() => console.log("Ver proveedor", usuario.id)}
+                  onEditar={() => console.log("Editar proveedor", usuario.id)}
+                  onEliminar={() => console.log("Eliminar proveedor", usuario.id)}
                 />
               </td>
             </tr>
@@ -153,7 +185,7 @@ export default function Clientes() {
         paginaActual={paginaActiva}
         totalRegistros={totalRegistros}
         rangoSiguiente={`${totalRegistros === 0 ? 0 : (paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`}
-        onExportar={() => console.log("Exportando clientes...")}
+        onExportar={() => console.log("Exportando proveedores...")}
         onCambiarPagina={handleCambiarPagina}
       />
     </div>

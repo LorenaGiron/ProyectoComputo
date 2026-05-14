@@ -11,7 +11,11 @@ export default function Tarjetas({ label, value, sub, accent = "#7C6AF7", icon }
         </p>
         
         {icon && (
-          <i className={`${icon} text-xl text-lila-mid`}></i>
+          typeof icon === "string" ? (
+            <i className={`${icon} text-xl text-lila-mid`}></i>
+          ) : (
+            icon
+          )
         )}
       </div>
       
