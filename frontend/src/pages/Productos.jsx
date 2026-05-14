@@ -11,6 +11,7 @@ import Tabla from "../components/Tabla";
 import Modal from "../components/Modal"; 
 import ModalProductos from "../components/ModalProductos";
 import FormProducto from "../components/FormProductos";
+import ModalConfirmacion from "../components/ModalConfirmacion";
 
 
 export default function Productos() {
@@ -28,6 +29,15 @@ export default function Productos() {
   const [isModalFormAbierto, setIsModalFormAbierto] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState(null);
 
+  const [modalConf, setModalConf] = useState({
+    isOpen: false,
+    tipo: "confirmar",
+    titulo: "",
+    mensaje: "",
+    textoConfirmar: "",
+    onConfirmar: () => {}
+  });
+
   const opcionesFiltroProductos = [
     { value: "", label: "Todos" },
     { value: "Activo", label: "Activos" },
@@ -38,9 +48,10 @@ export default function Productos() {
     "Sku", "Nombre", "Departamento", "Categoría", "Precio", "Stock", "Estado", "Acciones"
   ];
 
-  const fetchProductos = async () => {
+  const fetchProductos = async (silencioso = false) => {
     try {
-      setCargando(true);
+      if (!silencioso) setCargando(true); 
+      
       const result = await api.get('/products');
       const datosReales = result.items || result.data?.items || (Array.isArray(result) ? result : []);
       setProductosDB(datosReales);
@@ -75,18 +86,21 @@ export default function Productos() {
   const inactivosPorc = totalProd > 0 ? Math.round((inactivosProd / totalProd) * 100) : 0;
 
   // Cálculo de porcentajes para la barra de categorías
-  const getStatsCategoria = (nomCat) => {
-    const cant = productosDB.filter(p => p.categoria === nomCat).length;
-    const porc = totalProd > 0 ? Math.round((cant / totalProd) * 100) : 0;
-    return { cant, porc };
-  };
+  const superioresCant = productosDB.filter(p => 
+    ["Playeras", "Blusas", "Camisas", "Suéteres", "Sudaderas", "Chamarras", "Abrigos", "Vestidos"].includes(p.categoria)
+  ).length;
 
-  const catPlayeras = getStatsCategoria("Playeras");
-  const catPantalones = getStatsCategoria("Pantalones");
-  const catSudaderas = getStatsCategoria("Sudaderas");
-  const catOtrosPorc = Math.max(0, 100 - (catPlayeras.porc + catPantalones.porc + catSudaderas.porc));
-  const catOtrosCant = Math.max(0, totalProd - (catPlayeras.cant + catPantalones.cant + catSudaderas.cant));
+  const inferioresCant = productosDB.filter(p => 
+    ["Pantalones", "Faldas", "Shorts"].includes(p.categoria)
+  ).length;
 
+  const calzadoCant = productosDB.filter(p => p.categoria === "Calzado").length;
+  const accesoriosCant = productosDB.filter(p => p.categoria === "Accesorios").length;
+
+  const superioresPorc = totalProd > 0 ? Math.round((superioresCant / totalProd) * 100) : 0;
+  const inferioresPorc = totalProd > 0 ? Math.round((inferioresCant / totalProd) * 100) : 0;
+  const calzadoPorc = totalProd > 0 ? Math.round((calzadoCant / totalProd) * 100) : 0;
+  const accesoriosPorc = Math.max(0, 100 - (superioresPorc + inferioresPorc + calzadoPorc));
   const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
 
   const calcularStockTotal = (inventario) => {
@@ -113,6 +127,8 @@ export default function Productos() {
   const handleEditarProducto = (producto) => {
     const productoMapeado = {
       ...producto,
+      pCompra: producto.precioCompra, 
+      pVenta: producto.precioVenta,
       estado: producto.activo !== false ? "Activo" : "Inactivo"
     };
     setProductoAEditar(productoMapeado);
@@ -155,25 +171,59 @@ export default function Productos() {
       }
 
       setIsModalFormAbierto(false);
-      await fetchProductos();
-      alert("¡Producto guardado exitosamente!");
+      await fetchProductos(true);
+      
+      setModalConf({
+        isOpen: true,
+        tipo: "exito",
+        titulo: "Operación Exitosa",
+        mensaje: "El producto se ha guardado correctamente.",
+      });
+
     } catch (error) {
       console.error("Error:", error);
-      alert(`Error: ${error.message}`);
+      
+      setModalConf({
+        isOpen: true,
+        tipo: "confirmar",
+        titulo: "Error al guardar",
+        mensaje: `No se pudo guardar: ${error.message}`,
+        textoConfirmar: "Entendido",
+        onConfirmar: () => setModalConf({ isOpen: false })
+      });
+
     } finally {
       setGuardando(false);
     }
   };
 
-  const handleEliminarProducto = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-      try {
-        await api.delete(`/products/${id}`);
-        await fetchProductos(); 
-      } catch (error) {
-        console.error("Error al eliminar:", error);
+  const handleEliminarProducto = (id) => {
+    setIsModalVerAbierto(false);
+
+    setModalConf({
+      isOpen: true,
+      tipo: "eliminar",
+      titulo: "Eliminar Producto",
+      mensaje: "¿Estás seguro de que deseas eliminar este producto de forma permanente? Esta acción no se puede deshacer.",
+      textoConfirmar: "Eliminar",
+      onConfirmar: async () => {
+        try {
+          await api.delete(`/products/${id}`);
+          await fetchProductos(true); 
+          setModalConf({ isOpen: false }); 
+        } catch (error) {
+          console.error("Error al eliminar:", error);
+          setModalConf({
+            isOpen: true,
+            tipo: "confirmar",
+            titulo: "Error",
+            mensaje: "No se pudo eliminar el producto.",
+            textoConfirmar: "Entendido",
+            onConfirmar: () => setModalConf({ isOpen: false })
+          });
+        }
       }
-    }
+    });
   };
 
   return (
@@ -203,26 +253,18 @@ export default function Productos() {
         </div>
 
         <div className="bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg relative w-full xl:w-5/12 text-white">
-          <p className="m-0 text-sm text-lila-soft">Distribución por Categoría</p>
-          <div className="flex h-7 mt-4 w-full relative overflow-visible font-medium text-white">
-            <div style={{width: `${catPlayeras.porc}%`}} className="bg-[#7C6AF7] rounded-l-md hover:opacity-80 transition-opacity cursor-help relative group">
-              <span className={tooltipBaseClasses}>Playeras: {catPlayeras.cant} ({catPlayeras.porc}%)</span>
-            </div>
-            <div style={{width: `${catPantalones.porc}%`}} className="bg-[#9D4A70] hover:opacity-80 transition-opacity cursor-help relative group">
-              <span className={tooltipBaseClasses}>Pantalones: {catPantalones.cant} ({catPantalones.porc}%)</span>
-            </div>
-            <div style={{width: `${catSudaderas.porc}%`}} className="bg-[#4A55A2] hover:opacity-80 transition-opacity cursor-help relative group">
-              <span className={tooltipBaseClasses}>Sudaderas: {catSudaderas.cant} ({catSudaderas.porc}%)</span>
-            </div>
-            <div style={{width: `${catOtrosPorc}%`}} className="bg-[#4AC0B6] rounded-r-md hover:opacity-80 transition-opacity cursor-help relative group">
-              <span className={tooltipBaseClasses}>Otros: {catOtrosCant} ({catOtrosPorc}%)</span>
-            </div>
-          </div>
-          <div className="flex justify-between text-xs text-text-muted mt-2 font-medium">
-            <span style={{width: `${catPlayeras.porc}%`}} className="text-center">{catPlayeras.porc}%</span>
-            <span style={{width: `${catPantalones.porc}%`}} className="text-center">{catPantalones.porc}%</span>
-            <span style={{width: `${catSudaderas.porc}%`}} className="text-center">{catSudaderas.porc}%</span>
-            <span style={{width: `${catOtrosPorc}%`}} className="text-center">{catOtrosPorc}%</span>
+          <p className="m-0 text-sm text-lila-soft uppercase">Productos por Categoría</p>
+          <div className="flex h-7 mt-4 w-full overflow-visible font-medium text-white">
+            {[
+              { width: superioresPorc, color: "bg-[#7C6AF7]", label: `Superiores: ${superioresCant} (${superioresPorc}%)` },
+              { width: inferioresPorc, color: "bg-[#9D4A70]", label: `Inferiores: ${inferioresCant} (${inferioresPorc}%)` },
+              { width: calzadoPorc, color: "bg-[#4A55A2]", label: `Calzado: ${calzadoCant} (${calzadoPorc}%)` },
+              { width: accesoriosPorc, color: "bg-[#4AC0B6]", label: `Accesorios/Otros: ${accesoriosCant} (${accesoriosPorc}%)` }
+            ].map((segment, idx) => (
+              <div key={idx} style={{ width: `${segment.width}%` }} className={`${segment.color} group relative`}>
+                <span className={tooltipBaseClasses}>{segment.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -300,6 +342,18 @@ export default function Productos() {
           />
         </div>
       </Modal>
+
+      {modalConf.isOpen && (
+        <ModalConfirmacion
+          tipo={modalConf.tipo}
+          titulo={modalConf.titulo}
+          mensaje={modalConf.mensaje}
+          textoConfirmar={modalConf.textoConfirmar}
+          onConfirmar={modalConf.onConfirmar}
+          onCancelar={() => setModalConf({ ...modalConf, isOpen: false })}
+        />
+      )}
+
     </div>
   );
 }

@@ -44,18 +44,20 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
   };
 
   const obtenerTallasPorCategoria = (categoria) => {
-    switch(categoria) {
-      case "Calzado":
-        return ["22", "22.5", "23", "23.5", "24", "24.5", "25", "25.5", "26", "26.5", "27", "27.5", "28", "28.5", "29", "30"];
-      case "Pantalones":
-        return ["28", "30", "32", "34", "36", "38", "40"];
-      case "Playeras":
-      case "Sudaderas":
-        return ["XXS", "XS", "S", "M", "L", "XL", "XXL"];
-      case "Accesorios":
-      default:
-        return ["Unitalla"];
+    const superiores = ["Playeras", "Blusas", "Camisas", "Suéteres", "Sudaderas", "Chamarras", "Abrigos", "Vestidos"];
+    const inferiores = ["Pantalones", "Faldas", "Shorts"];
+
+    if (superiores.includes(categoria)) {
+      return ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
     }
+    if (inferiores.includes(categoria)) {
+      return ["24", "26", "28", "30", "32", "34", "36", "38", "40", "42", "44", "XXS", "XS", "S", "M", "L", "XL", "XXL"];
+    }
+    if (categoria === "Calzado") {
+      return ["22", "22.5", "23", "23.5", "24", "24.5", "25", "25.5", "26", "26.5", "27", "27.5", "28", "28.5", "29", "29.5", "30", "31"];
+    }
+    
+    return ["Unitalla"]; 
   };
 
   const opcionesTallasActuales = obtenerTallasPorCategoria(formData.categoria);
@@ -164,12 +166,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
             
             <Input 
               label="Departamento" name="departamento" tipo="select" 
-              opciones={["Dama", "Caballero", "Unisex", "Kids"]} 
+              opciones={["Dama", "Caballero", "Unisex"]} 
               value={formData.departamento} onChange={handleChange} requerido 
             />
+            
             <Input 
               label="Categoría" name="categoria" tipo="select" 
-              opciones={["Playeras", "Pantalones", "Sudaderas", "Calzado", "Accesorios"]} 
+              opciones={[
+                "Playeras", "Blusas", "Camisas", "Suéteres", "Sudaderas", 
+                "Chamarras", "Abrigos", "Vestidos", "Faldas", "Shorts", 
+                "Pantalones", "Calzado", "Accesorios"
+              ]} 
               value={formData.categoria} onChange={handleChange} requerido 
             />
             
