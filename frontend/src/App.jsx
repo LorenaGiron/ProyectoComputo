@@ -8,6 +8,7 @@ import Clientes from "./pages/Clientes";
 import Productos from './pages/Productos'
 import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
+import Dashboard from "./pages/Dashboard";
 
 import "./App.css";
 
@@ -36,10 +37,10 @@ function App() {
 
         {/* Dashboard */}
         <Route
-          path="/dashboard"
+          path="/Dashboard"
           element={
             <Layout>
-              <Placeholder titulo="DASHBOARD" />
+              <Dashboard />
             </Layout>
           }
         />
