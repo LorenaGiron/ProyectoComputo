@@ -91,7 +91,7 @@ function ModalForm({ row, esNuevo, onClose, onGuardar }) {
         if (i !== idx) return item;
         const costoUnitario = prod ? prod.precioCompra : 0;
         const cantidad = item.cantidad || 1;
-        return { ...item, productId, sku: prod?.sku || "", productNombre: prod?.nombre || "", costoUnitario, subtotal: cantidad * costoUnitario };
+        return { ...item, productId, sku: prod?.sku || "", productNombre: prod?.nombre || "", imagen: prod?.imagen || "", costoUnitario, subtotal: cantidad * costoUnitario };
       });
       return { ...prev, items };
     });
@@ -112,7 +112,7 @@ function ModalForm({ row, esNuevo, onClose, onGuardar }) {
   const agregarItem = () => {
     setForm((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: "", sku: "", productNombre: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
+      items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
     }));
   };
 
@@ -239,9 +239,11 @@ function ModalForm({ row, esNuevo, onClose, onGuardar }) {
                   style={{ backgroundColor: "#2C2A48", border: "1px solid #56538E" }}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
                         style={{ backgroundColor: "rgba(86,83,142,0.25)", color: "#56538E" }}>
-                        <Package size={15} />
+                        {item.imagen
+                          ? <img src={item.imagen} alt={item.productNombre} className="w-full h-full object-cover" />
+                          : <Package size={15} />}
                       </div>
                       <span className="text-xs font-bold" style={{ color: "#A68DC8" }}>Item {i + 1}</span>
                     </div>
@@ -408,9 +410,11 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
             {row.items.map((item, i) => (
               <div key={i} className="flex items-center gap-4 rounded-xl px-4 py-3"
                 style={{ backgroundColor: "#2C2A48", border: "1px solid #56538E" }}>
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
                   style={{ backgroundColor: "rgba(86,83,142,0.25)", color: "#56538E" }}>
-                  <Package size={20} />
+                  {item.imagen
+                    ? <img src={item.imagen} alt={item.productNombre} className="w-full h-full object-cover" />
+                    : <Package size={20} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-white">{item.sku}</p>
@@ -525,7 +529,7 @@ export default function Recepciones() {
     fecha: new Date().toLocaleDateString("es-MX"),
     comentarios: "", status: "DRAFT", total: 0,
     createdAt: null, updatedAt: null,
-    items: [{ productId: "", sku: "", productNombre: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
+    items: [{ productId: "", sku: "", productNombre: "", imagen: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
   };
 
   const rango = totalRegistros === 0
@@ -541,10 +545,18 @@ export default function Recepciones() {
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Tarjetas label="Recepciones" value={stats.total}       sub="este mes"    accent="#7C6AF7" icon="bi bi-box-seam"      />
-          <Tarjetas label="Confirmadas" value={stats.confirmadas} sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} accent="#8DB051" icon="bi bi-check-circle" />
-          <Tarjetas label="Draft"       value={stats.draft}       sub="en borrador" accent="#c9c225" icon="bi bi-pencil-square" />
-          <Tarjetas label="Total"       value={stats.total}       sub="recepciones" accent="#A68DC8" icon="bi bi-layers"        />
+          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
+            <Tarjetas label="Recepciones" value={stats.total}       sub="este mes"    accent="#7C6AF7" icon="bi bi-box-seam"      />
+          </div>
+          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "CONFIRMED" ? "" : "CONFIRMED"); setPaginaActiva(1); }}>
+            <Tarjetas label="Confirmadas" value={stats.confirmadas} sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} accent="#8DB051" icon="bi bi-check-circle" />
+          </div>
+          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "DRAFT" ? "" : "DRAFT"); setPaginaActiva(1); }}>
+            <Tarjetas label="Draft"       value={stats.draft}       sub="en borrador" accent="#c9c225" icon="bi bi-pencil-square" />
+          </div>
+          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
+            <Tarjetas label="Total"       value={stats.total}       sub="recepciones" accent="#A68DC8" icon="bi bi-layers"        />
+          </div>
         </div>
 
         <ToolBar
