@@ -52,7 +52,7 @@ export default function Login() {
         throw new Error(result.message || 'Credenciales incorrectas. Verifica tus datos.');
       }
 
-      login(result.token, result.usuario ?? {});
+      login(result.token, result.user ?? {});
       navigate('/dashboard');
 
     } catch (error) {
