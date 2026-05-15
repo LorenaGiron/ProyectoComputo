@@ -3,7 +3,7 @@ import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
 import AccionesTabla from "../components/AccionesTabla";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import Tabla from "../components/Tabla";
 
 /* ─── Página principal ─── */
 const LIMIT = 10;
@@ -20,8 +20,6 @@ const MOCK_USUARIOS = [
 export default function Usuarios() {
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
 
   const opcionesFiltroUsuarios = [
     { value: "", label: "Todos" },
@@ -30,12 +28,12 @@ export default function Usuarios() {
   ];
 
   const encabezadosUsuarios = [
-    { label: "Usuario", key: "username", sortable: true },
-    { label: "Nombre", key: "nombre", sortable: true },
-    { label: "Email", key: "email", sortable: true },
-    { label: "Rol", key: "rol", sortable: true },
-    { label: "Estado", key: "estado", sortable: true },
-    { label: "Acciones", key: null, sortable: false }
+    { label: "Usuario", key: "username" },
+    { label: "Nombre", key: "nombre" },
+    { label: "Email", key: "email" },
+    { label: "Rol", key: "rol" },
+    { label: "Estado", key: "estado" },
+    { label: "Acciones", key: "acciones" }
   ];
 
   const datosFiltrados = MOCK_USUARIOS
@@ -47,39 +45,29 @@ export default function Usuarios() {
       row.email.toLowerCase().includes(busqueda.toLowerCase())
     );
 
-  // Función para manejar el ordenamiento
-  const handleSort = (field) => {
-    let newDirection = "asc";
-    if (sortField === field && sortDirection === "asc") {
-      newDirection = "desc";
-    }
-    setSortField(field);
-    setSortDirection(newDirection);
-  };
-
-  // Función para ordenar los datos
-  const getSortedRows = () => {
-    if (!sortField) return datosFiltrados;
-
-    const sorted = [...datosFiltrados].sort((a, b) => {
-      let valueA = a[sortField] || "";
-      let valueB = b[sortField] || "";
-
-      if (typeof valueA === "string") valueA = valueA.toLowerCase();
-      if (typeof valueB === "string") valueB = valueB.toLowerCase();
-
-      if (valueA < valueB) return sortDirection === "asc" ? -1 : 1;
-      if (valueA > valueB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    return sorted;
-  };
-
-  const sortedRows = getSortedRows();
-
   const activos = MOCK_USUARIOS.filter((u) => u.estado === "Activo").length;
   const inactivos = MOCK_USUARIOS.filter((u) => u.estado === "Inactivo").length;
+
+  const renderRow = (row, i) => (
+    <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+      <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{row.username}</td>
+      <td className="p-4 text-center text-sm whitespace-nowrap">{row.nombre}</td>
+      <td className="p-4 text-center text-sm whitespace-nowrap">{row.email}</td>
+      <td className="p-4 text-center whitespace-nowrap">
+        <Etiquetas contenido={row.rol} />
+      </td>
+      <td className="p-4 text-center whitespace-nowrap">
+        <Etiquetas contenido={row.estado} />
+      </td>
+      <td className="p-4 align-middle whitespace-nowrap">
+        <AccionesTabla 
+          onVer={() => console.log("Ver usuario", row.username)}
+          onEditar={() => console.log("Editar usuario", row.username)}
+          onEliminar={() => console.log("Eliminar usuario", row.username)}
+        />
+      </td>
+    </tr>
+  );
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -124,61 +112,12 @@ export default function Usuarios() {
       />
 
       {/* Tabla */}
-      <div className="bg-bg-card rounded-xl border border-lila/10 shadow-lg overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-lila/10 bg-oscuro/50">
-              {encabezadosUsuarios.map((header, idx) => (
-                <th key={idx} 
-                  onClick={() => header.sortable && handleSort(header.key)}
-                  className={`p-4 text-left text-xs uppercase font-bold tracking-wider text-lila ${header.sortable ? "cursor-pointer hover:text-lila-mid transition-colors" : ""}`}>
-                  <div className="flex items-center gap-2">
-                    {header.label}
-                    {header.sortable && sortField === header.key && (
-                      sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedRows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-lila">
-                  No hay resultados
-                </td>
-              </tr>
-            ) : (
-              sortedRows.map((row, i) => (
-                <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
-                  
-                  <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{row.username}</td>
-                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.nombre}</td>
-                  <td className="p-4 text-center text-sm whitespace-nowrap">{row.email}</td>
-                  
-                  <td className="p-4 text-center whitespace-nowrap">
-                    <Etiquetas contenido={row.rol} />
-                  </td>
-                  
-                  <td className="p-4 text-center whitespace-nowrap">
-                    <Etiquetas contenido={row.estado} />
-                  </td>
-                  
-                  <td className="p-4 align-middle whitespace-nowrap">
-                    <AccionesTabla 
-                      onVer={() => console.log("Ver usuario", row.username)}
-                      onEditar={() => console.log("Editar usuario", row.username)}
-                      onEliminar={() => console.log("Eliminar usuario", row.username)}
-                    />
-                  </td>
-
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Tabla 
+        encabezados={encabezadosUsuarios}
+        datos={datosFiltrados}
+        renderRow={renderRow}
+        sortableFields={["username", "nombre", "email", "rol", "estado"]}
+      />
     </div>
   );
 }
