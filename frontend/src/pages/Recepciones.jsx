@@ -602,8 +602,26 @@ export default function Recepciones() {
           totalRegistros={totalRegistros}
           rangoSiguiente={rango}
           limit={LIMIT}
-          onExportar={() => {}}
           onCambiarPagina={handleCambiarPagina}
+          exportTitulo="Recepciones"
+          exportColumnas={[
+            { header: "Folio",     key: "folio",     width: 15 },
+            { header: "Proveedor", key: "proveedor", width: 28 },
+            { header: "Fecha",     key: "fecha",     width: 15 },
+            { header: "Usuario",   key: "usuario",   width: 20 },
+            { header: "Items",     key: "items",     width: 10 },
+            { header: "Total",     key: "total",     width: 15 },
+            { header: "Estado",    key: "estado",    width: 15 },
+          ]}
+          exportFilas={rows.map((r) => ({
+            folio:     r.folio,
+            proveedor: r.supplierNombre,
+            fecha:     r.fecha,
+            usuario:   r.createdBy || "—",
+            items:     r.items.length,
+            total:     `$${Number(r.total).toLocaleString("es-MX")}`,
+            estado:    r.status === "CONFIRMED" ? "Confirmado" : "Draft",
+          }))}
         />
 
       </div>

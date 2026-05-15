@@ -314,7 +314,28 @@ export default function Productos() {
         </Tabla>
       )}
  
-      <Paginacion totalRegistros={totalProd} onExportar={() => console.log("Exportando...")} />
+      <Paginacion
+        totalRegistros={totalProd}
+        exportTitulo="Productos"
+        exportColumnas={[
+          { header: "SKU",          key: "sku",          width: 15 },
+          { header: "Nombre",       key: "nombre",       width: 28 },
+          { header: "Departamento", key: "departamento", width: 16 },
+          { header: "Categoría",    key: "categoria",    width: 16 },
+          { header: "Precio",       key: "precio",       width: 14 },
+          { header: "Stock",        key: "stock",        width: 10 },
+          { header: "Estado",       key: "estado",       width: 12 },
+        ]}
+        exportFilas={datosFiltrados.map((p) => ({
+          sku:          p.sku,
+          nombre:       p.nombre,
+          departamento: p.departamento,
+          categoria:    p.categoria,
+          precio:       `$${Number(p.precioVenta || p.pVenta || 0).toLocaleString("es-MX")}`,
+          stock:        calcularStockTotal(p.inventario),
+          estado:       p.activo !== false ? "Activo" : "Inactivo",
+        }))}
+      />
 
       {/* MODALES */}
       <Modal isOpen={isModalVerAbierto} onClose={() => setIsModalVerAbierto(false)} ancho="max-w-4xl">

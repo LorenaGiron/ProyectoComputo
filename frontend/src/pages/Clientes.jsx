@@ -153,8 +153,22 @@ export default function Clientes() {
         paginaActual={paginaActiva}
         totalRegistros={totalRegistros}
         rangoSiguiente={`${totalRegistros === 0 ? 0 : (paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`}
-        onExportar={() => console.log("Exportando clientes...")}
         onCambiarPagina={handleCambiarPagina}
+        exportTitulo="Clientes"
+        exportColumnas={[
+          { header: "Nombre",   key: "nombre",   width: 28 },
+          { header: "RFC",      key: "rfc",      width: 18 },
+          { header: "Email",    key: "email",    width: 28 },
+          { header: "Teléfono", key: "telefono", width: 16 },
+          { header: "Estado",   key: "estado",   width: 12 },
+        ]}
+        exportFilas={rows.map((c) => ({
+          nombre:   c.nombre,
+          rfc:      c.rfc,
+          email:    c.email,
+          telefono: c.telefono,
+          estado:   c.estado,
+        }))}
       />
     </div>
   );

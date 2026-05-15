@@ -336,8 +336,22 @@ export default function Auditoria() {
           totalPaginas={totalPaginas}
           totalRegistros={total}
           rangoSiguiente={total === 0 ? "0 – 0" : `${inicio} – ${fin}`}
-          onExportar={() => console.log("Exportar CSV")}
           onCambiarPagina={(p) => setPaginaActual(p)}
+          exportTitulo="Auditoría"
+          exportColumnas={[
+            { header: "Acción",   key: "accion",   width: 16 },
+            { header: "Recurso",  key: "recurso",  width: 18 },
+            { header: "Usuario",  key: "usuario",  width: 22 },
+            { header: "Detalles", key: "detalles", width: 35 },
+            { header: "Fecha",    key: "fecha",    width: 22 },
+          ]}
+          exportFilas={logs.map((l) => ({
+            accion:   l.action,
+            recurso:  l.resource,
+            usuario:  l.usuario || "—",
+            detalles: l.details ? JSON.stringify(l.details) : "—",
+            fecha:    fmtDateShort(l.createdAt || l.timestamp),
+          }))}
         />
 
       </div>
