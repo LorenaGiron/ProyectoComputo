@@ -111,6 +111,7 @@ export class RecepcionesService {
         productId: product.id,
         sku: product.sku || '',
         productNombre: product.nombre || '',
+        imagen: product.imagen || '',
         cantidad,
         costoUnitario,
         subtotal
@@ -225,6 +226,7 @@ export class RecepcionesService {
           productId: product.id,
           sku: product.sku || '',
           productNombre: product.nombre || '',
+          imagen: product.imagen || '',
           cantidad,
           costoUnitario,
           subtotal
@@ -393,6 +395,7 @@ export class RecepcionesService {
             productId: item.productId || '',
             sku: item.sku || '',
             productNombre: item.productNombre || '',
+            imagen: item.imagen || '',
             cantidad: Number(item.cantidad || 0),
             costoUnitario: Number(item.costoUnitario || 0),
             subtotal: Number(item.subtotal || 0)

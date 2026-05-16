@@ -185,8 +185,22 @@ export default function Proveedores() {
         paginaActual={paginaActiva}
         totalRegistros={totalRegistros}
         rangoSiguiente={`${totalRegistros === 0 ? 0 : (paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`}
-        onExportar={() => console.log("Exportando proveedores...")}
         onCambiarPagina={handleCambiarPagina}
+        exportTitulo="Proveedores"
+        exportColumnas={[
+          { header: "Nombre",   key: "nombre",   width: 32 },
+          { header: "RFC",      key: "rfc",      width: 18 },
+          { header: "Giro",     key: "giro",     width: 24 },
+          { header: "Teléfono", key: "telefono", width: 16 },
+          { header: "Estado",   key: "estado",   width: 12 },
+        ]}
+        exportFilas={rows.map((p) => ({
+          nombre:   p.nombre,
+          rfc:      p.rfc,
+          giro:     p.giro,
+          telefono: p.telefono,
+          estado:   p.estado,
+        }))}
       />
     </div>
   );
