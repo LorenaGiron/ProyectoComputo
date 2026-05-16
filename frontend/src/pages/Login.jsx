@@ -80,6 +80,7 @@ export default function Login() {
       login(result.token, result.user ?? {});
       // Marcar que un usuario fue logeado para disparar el useEffect de navegación
       setUsuarioLogeado(result.user ?? {})
+      navigate('/dashboard');
 
     } catch (error) {
       setServerError(error.message);
