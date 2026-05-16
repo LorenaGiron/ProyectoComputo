@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { hasPageAccess } from "../utils/permissionMapper";
-import { ROLE_PERMISSIONS_EXPORT } from "../hooks/useProtectedRoute";
-
-import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut } from "lucide-react";
 
 const navItems = [
   {
@@ -14,18 +8,6 @@ const navItems = [
     items: [
       { label: "Dashboard",   ruta: "/dashboard",   icon: LayoutDashboard },
       { label: "Productos",   ruta: "/productos",   icon: Package         },
-      {
-        label: "Dashboard",
-        ruta: "/dashboard",
-        icon: LayoutDashboard,
-        requiredPage: "dashboard"
-      },
-      {
-        label: "Productos",
-        ruta: "/productos",
-        icon: Package,
-        requiredPage: "productos"
-      },
     ],
   },
   {
@@ -35,42 +17,12 @@ const navItems = [
       { label: "Clientes",    ruta: "/clientes",    icon: Users           },
       { label: "Proveedores", ruta: "/proveedores", icon: Truck           },
       { label: "Usuarios",    ruta: "/usuarios",    icon: UserCog         },
-      {
-        label: "Recepciones",
-        ruta: "/recepciones",
-        icon: ClipboardList,
-        requiredPage: "recepciones"
-      },
-      {
-        label: "Clientes",
-        ruta: "/clientes",
-        icon: Users,
-        requiredPage: "clientes"
-      },
-      {
-        label: "Proveedores",
-        ruta: "/proveedores",
-        icon: Truck,
-        requiredPage: "proveedores"
-      },
-      {
-        label: "Usuarios",
-        ruta: "/usuarios",
-        icon: UserCog,
-        requiredPage: "usuarios"
-      },
     ],
   },
   {
     section: "CONTROL",
     items: [
       { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck     },
-      {
-        label: "Auditoría",
-        ruta: "/auditoria",
-        icon: ShieldCheck,
-        requiredPage: "auditoria"
-      },
     ],
   },
 ];
@@ -81,34 +33,6 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem("sidebar-collapsed") === "true"
   );
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { usuario, logout } = useContext(AuthContext);
-
-  // Obtener rol del usuario - Usar roleId primero (ej: "role_admin"), luego role como fallback
-  const userRole = usuario?.roleId || usuario?.role;
-  
-  // Intentar usar permisos dinámicos primero
-  let allowedPages = [];
-  
-  if (Array.isArray(usuario?.permissions) && usuario.permissions.length > 0) {
-    // Usar permisos dinámicos del usuario
-    allowedPages = navItems
-      .flatMap(group => group.items)
-      .filter(item => hasPageAccess(usuario.permissions, item.requiredPage))
-      .map(item => item.requiredPage);
-  } else if (userRole) {
-    // Fallback a mapeo estático
-    allowedPages = ROLE_PERMISSIONS_EXPORT[userRole] || [];
-  }
-
-  // Filtrar items según los permisos
-  const filteredNavItems = navItems
-    .map(group => ({
-      ...group,
-      items: group.items.filter(item => allowedPages.includes(item.requiredPage))
-    }))
-    .filter(group => group.items.length > 0);
 
   return (
     <aside
@@ -143,15 +67,6 @@ export default function Sidebar() {
             <h1
               className="text-[#E7D6FF] text-6xl tracking-tight leading-none drop-shadow-[0_0_12px_rgba(231,214,255,0.15)]"
               style={{ fontFamily: "'Cinzel Decorative', serif" }}
-        {/* Badge */}
-        <div className="mt-7 flex justify-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#C4B5FD]/20 bg-white/[0.03] backdrop-blur-sm">
-            
-            <div className="w-2 h-2 rounded-full bg-green-400" />
-
-            <span
-              className="text-[#D8C8FF] text-sm tracking-[2px] font-medium"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               AURA
             </h1>
@@ -191,16 +106,6 @@ export default function Sidebar() {
                 </h2>
               )
             }
-      <nav className="flex-1 px-4 overflow-y-auto">
-        {filteredNavItems.map((group) => (
-          <div key={group.section} className="mb-8">
-            {/* Section title */}
-            <h2
-              className="px-4 mb-4 text-[12px] tracking-[4px] text-[#B9A7F5]/60 font-medium"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              {group.section}
-            </h2>
 
             <div className="flex flex-col gap-2">
               {group.items.map(({ label, ruta, icon: Icon }) => {
@@ -257,11 +162,6 @@ export default function Sidebar() {
           className={`group flex items-center justify-center w-full py-3 rounded-2xl bg-[#E7D6FF] text-[#221E3A] font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)] ${
             collapsed ? "" : "gap-3 text-lg"
           }`}
-          onClick={() => {
-            logout();
-            navigate("/home", { replace: true });
-          }}
-          className="group flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-[#E7D6FF] text-[#221E3A] font-semibold text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           <LogOut
