@@ -14,8 +14,9 @@ const loginSchema = z.object({
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, usuario: usuarioDelContexto, token } = useAuth();
   const [serverError, setServerError] = useState('');
+  const [usuarioLogeado, setUsuarioLogeado] = useState(null);
 
   const {
     register,
@@ -25,12 +26,36 @@ export default function Login() {
     resolver: zodResolver(loginSchema)
   });
 
+  // Si ya está logeado, redirigir
+  useEffect(() => {
+    if (token && usuarioDelContexto) {
+      const userRole = usuarioDelContexto?.roleId || usuarioDelContexto?.role;
+      if (userRole === 'CLIENTE') {
+        navigate('/tienda', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [token, usuarioDelContexto, navigate]);
+
   useEffect(() => {
     if (serverError) {
       const timer = setTimeout(() => setServerError(''), 4000);
       return () => clearTimeout(timer);
     }
   }, [serverError]);
+
+  // Cuando el usuario se actualice en el contexto después del login, navega
+  useEffect(() => {
+    if (usuarioLogeado && usuarioDelContexto) {
+      const userRole = usuarioDelContexto?.roleId || usuarioDelContexto?.role;
+      if (userRole === 'CLIENTE') {
+        navigate('/tienda', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [usuarioDelContexto, usuarioLogeado, navigate]);
 
   const onSubmit = async (data) => {
     setServerError('');
@@ -53,6 +78,8 @@ export default function Login() {
       }
 
       login(result.token, result.user ?? {});
+      // Marcar que un usuario fue logeado para disparar el useEffect de navegación
+      setUsuarioLogeado(result.user ?? {})
       navigate('/dashboard');
 
     } catch (error) {
@@ -82,7 +109,7 @@ export default function Login() {
           className="absolute inset-0 w-full h-full object-cover" 
         />
         <div className="absolute top-8 left-12 text-lila text-5xl font-cinzel tracking-widest">
-          A U R A
+          <a href='Home'>A U R A</a>
         </div>
       </div>
 

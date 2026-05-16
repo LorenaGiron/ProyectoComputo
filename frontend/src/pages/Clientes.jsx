@@ -108,6 +108,7 @@ export default function Clientes() {
         telefono: datosCliente.telefono,
         rfc: datosCliente.rfc,
         activo: true,
+        roleId: "CLIENTE" // Los clientes siempre tienen rol CLIENTE
       });
       setRefresh((prev) => prev + 1);
       setModalExito("Cliente creado correctamente");
@@ -147,6 +148,7 @@ export default function Clientes() {
           email: cliente.email,
           telefono: cliente.telefono,
           activo: cliente.estado === "Activo",
+          roleId: "CLIENTE" // Los clientes siempre tienen rol CLIENTE
         });
       } catch (error) {
         console.error("Error creando cliente de seed:", error);
