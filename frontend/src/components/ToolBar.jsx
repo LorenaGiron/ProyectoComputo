@@ -66,12 +66,14 @@ export default function ToolBar({
       </div>
 
       {/* Botón */}
-      <button 
-        onClick={accionBoton}
-        className="bg-lila text-oscuro border-none rounded-lg px-6 py-2.5 font-bold text-sm cursor-pointer hover:bg-lila-soft hover:scale-102 transition-all active:scale-95 w-full lg:w-auto"
-      >
-        {textoBoton}
-      </button>
+      {textoBoton && accionBoton && (
+        <button 
+          onClick={accionBoton}
+          className="bg-lila text-oscuro border-none rounded-lg px-6 py-2.5 font-bold text-sm cursor-pointer hover:bg-lila-soft hover:scale-102 transition-all active:scale-95 w-full lg:w-auto"
+        >
+          {textoBoton}
+        </button>
+      )}
     </div>
   );
 }

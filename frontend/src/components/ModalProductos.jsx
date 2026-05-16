@@ -5,6 +5,8 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
   // Cálculo del stock total
   const stockTotal = data.inventario.reduce((acc, item) => acc + item.stock, 0);
 
+  const textoEstado = data.activo !== false ? "Activo" : "Inactivo";
+  
   return (
     <div className="p-4 md:p-6 text-blanco font-poppins h-full">
       
@@ -14,7 +16,7 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
         <div className="order-1 md:hidden mb-2 text-center">
           <h2 className="text-2xl font-bold leading-tight mb-3 text-blanco">{data.nombre}</h2>
           <div className="flex flex-wrap justify-center gap-2">
-            <Etiquetas contenido={data.estado} />
+            <Etiquetas contenido={textoEstado} />
             {data.departamento && <Etiquetas contenido={data.departamento} />}
           </div>
         </div>
@@ -48,7 +50,7 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
           <div className="hidden md:block mb-6">
             <h2 className="text-3xl font-bold leading-tight mb-3 text-blanco">{data.nombre}</h2>
             <div className="flex flex-wrap gap-2">
-              <Etiquetas contenido={data.estado} />
+              <Etiquetas contenido={textoEstado} />
               {data.departamento && <Etiquetas contenido={data.departamento} />}
             </div>
           </div>
@@ -61,11 +63,11 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
             </div>
             <div className="text-center py-2 sm:py-0 border-b sm:border-b-0 sm:border-r border-lila/10">
               <p className="text-xs text-lila-soft mb-1 uppercase tracking-wider">PRECIO COMPRA</p>
-              <p className="font-bold text-xl text-azul">${data.pCompra || '0'}</p>
+              <p className="font-bold text-xl text-azul">${data.precioCompra || '0'}</p>
             </div>
             <div className="text-center pt-2 sm:pt-0">
               <p className="text-xs text-lila-soft mb-1 uppercase tracking-wider">PRECIO VENTA</p>
-              <p className="font-bold text-xl text-verde">${data.pVenta || '0'}</p>
+              <p className="font-bold text-xl text-verde">${data.precioVenta || '0'}</p>
             </div>
           </div>
 

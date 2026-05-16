@@ -12,7 +12,7 @@ import Modal from "../components/Modal";
 import ModalProductos from "../components/ModalProductos";
 import FormProducto from "../components/FormProductos";
 import ModalConfirmacion from "../components/ModalConfirmacion";
-
+import BarraCategorias from "../components/BarraCategorias";
 
 export default function Productos() {
   const [filtro, setFiltro] = useState("");
@@ -84,24 +84,6 @@ export default function Productos() {
   // Cálculo de los porcentajes para las tarjetas superiores
   const activosPorc = totalProd > 0 ? Math.round((activosProd / totalProd) * 100) : 0;
   const inactivosPorc = totalProd > 0 ? Math.round((inactivosProd / totalProd) * 100) : 0;
-
-  // Cálculo de porcentajes para la barra de categorías
-  const superioresCant = productosDB.filter(p => 
-    ["Playeras", "Blusas", "Camisas", "Suéteres", "Sudaderas", "Chamarras", "Abrigos", "Vestidos"].includes(p.categoria)
-  ).length;
-
-  const inferioresCant = productosDB.filter(p => 
-    ["Pantalones", "Faldas", "Shorts"].includes(p.categoria)
-  ).length;
-
-  const calzadoCant = productosDB.filter(p => p.categoria === "Calzado").length;
-  const accesoriosCant = productosDB.filter(p => p.categoria === "Accesorios").length;
-
-  const superioresPorc = totalProd > 0 ? Math.round((superioresCant / totalProd) * 100) : 0;
-  const inferioresPorc = totalProd > 0 ? Math.round((inferioresCant / totalProd) * 100) : 0;
-  const calzadoPorc = totalProd > 0 ? Math.round((calzadoCant / totalProd) * 100) : 0;
-  const accesoriosPorc = Math.max(0, 100 - (superioresPorc + inferioresPorc + calzadoPorc));
-  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
 
   const calcularStockTotal = (inventario) => {
     if (!Array.isArray(inventario)) return 0;
@@ -252,21 +234,7 @@ export default function Productos() {
           />
         </div>
 
-        <div className="bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg relative w-full xl:w-5/12 text-white">
-          <p className="m-0 text-sm text-lila-soft uppercase">Productos por Categoría</p>
-          <div className="flex h-7 mt-4 w-full overflow-visible font-medium text-white">
-            {[
-              { width: superioresPorc, color: "bg-[#7C6AF7]", label: `Superiores: ${superioresCant} (${superioresPorc}%)` },
-              { width: inferioresPorc, color: "bg-[#9D4A70]", label: `Inferiores: ${inferioresCant} (${inferioresPorc}%)` },
-              { width: calzadoPorc, color: "bg-[#4A55A2]", label: `Calzado: ${calzadoCant} (${calzadoPorc}%)` },
-              { width: accesoriosPorc, color: "bg-[#4AC0B6]", label: `Accesorios/Otros: ${accesoriosCant} (${accesoriosPorc}%)` }
-            ].map((segment, idx) => (
-              <div key={idx} style={{ width: `${segment.width}%` }} className={`${segment.color} group relative`}>
-                <span className={tooltipBaseClasses}>{segment.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <BarraCategorias productosDB={productosDB} />
       </div>
 
       <ToolBar 

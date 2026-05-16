@@ -49,6 +49,10 @@ export const createClientSchema = z.object({
     .string()
     .optional()
     .nullable(),
+  roleId: z
+    .string()
+    .optional()
+    .default('CLIENTE'),
   activo: z.boolean().optional().default(true)
 })
 
@@ -60,6 +64,7 @@ export const updateClientSchema = z.object({
   direccion: z.string().nullable().optional(),
   contacto: z.string().nullable().optional(),
   notas: z.string().nullable().optional(),
+  roleId: z.string().optional(),
   activo: z.boolean().optional()
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'Debes enviar al menos un campo para actualizar'
