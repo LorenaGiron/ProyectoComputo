@@ -1,4 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { hasPageAccess } from "../utils/permissionMapper";
+import { ROLE_PERMISSIONS_EXPORT } from "../hooks/useProtectedRoute";
 
 import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut } from "lucide-react";
 
@@ -10,11 +14,13 @@ const navItems = [
         label: "Dashboard",
         ruta: "/dashboard",
         icon: LayoutDashboard,
+        requiredPage: "dashboard"
       },
       {
         label: "Productos",
         ruta: "/productos",
         icon: Package,
+        requiredPage: "productos"
       },
     ],
   },
@@ -25,21 +31,25 @@ const navItems = [
         label: "Recepciones",
         ruta: "/recepciones",
         icon: ClipboardList,
+        requiredPage: "recepciones"
       },
       {
         label: "Clientes",
         ruta: "/clientes",
         icon: Users,
+        requiredPage: "clientes"
       },
       {
         label: "Proveedores",
         ruta: "/proveedores",
         icon: Truck,
+        requiredPage: "proveedores"
       },
       {
         label: "Usuarios",
         ruta: "/usuarios",
         icon: UserCog,
+        requiredPage: "usuarios"
       },
     ],
   },
@@ -50,6 +60,7 @@ const navItems = [
         label: "Auditoría",
         ruta: "/auditoria",
         icon: ShieldCheck,
+        requiredPage: "auditoria"
       },
     ],
   },
@@ -58,6 +69,32 @@ const navItems = [
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { usuario, logout } = useContext(AuthContext);
+
+  // Obtener rol del usuario - Usar roleId primero (ej: "role_admin"), luego role como fallback
+  const userRole = usuario?.roleId || usuario?.role;
+  
+  // Intentar usar permisos dinámicos primero
+  let allowedPages = [];
+  
+  if (Array.isArray(usuario?.permissions) && usuario.permissions.length > 0) {
+    // Usar permisos dinámicos del usuario
+    allowedPages = navItems
+      .flatMap(group => group.items)
+      .filter(item => hasPageAccess(usuario.permissions, item.requiredPage))
+      .map(item => item.requiredPage);
+  } else if (userRole) {
+    // Fallback a mapeo estático
+    allowedPages = ROLE_PERMISSIONS_EXPORT[userRole] || [];
+  }
+
+  // Filtrar items según los permisos
+  const filteredNavItems = navItems
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => allowedPages.includes(item.requiredPage))
+    }))
+    .filter(group => group.items.length > 0);
 
   return (
     <aside
@@ -85,7 +122,6 @@ export default function Sidebar() {
         </div>
 
         {/* Badge */}
-        {/* Badge */}
         <div className="mt-7 flex justify-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#C4B5FD]/20 bg-white/[0.03] backdrop-blur-sm">
             
@@ -104,7 +140,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-4 overflow-y-auto">
-        {navItems.map((group) => (
+        {filteredNavItems.map((group) => (
           <div key={group.section} className="mb-8">
             {/* Section title */}
             <h2
@@ -164,7 +200,10 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="shrink-0 p-5 border-t border-white/5 bg-black/10 backdrop-blur-sm">
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => {
+            logout();
+            navigate("/home", { replace: true });
+          }}
           className="group flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-[#E7D6FF] text-[#221E3A] font-semibold text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >

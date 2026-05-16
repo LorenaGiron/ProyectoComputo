@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { signAccessToken } from '../../config/jwt.js'
 import { authRepository } from './auth.repository.js'
+import { db } from '../../config/firebase.js'
 
 export class AuthService {
   async login(payload) {
@@ -36,17 +37,32 @@ export class AuthService {
       throw error
     }
 
+    // Obtener permisos del rol si el usuario tiene roleId
+    let userPermissions = Array.isArray(user.permissions) ? user.permissions : []
+    
+    if (user.roleId && userPermissions.length === 0) {
+      try {
+        const roleDoc = await db.collection('roles').doc(user.roleId).get()
+        if (roleDoc.exists) {
+          const roleData = roleDoc.data()
+          userPermissions = Array.isArray(roleData.permissions) ? roleData.permissions : []
+        }
+      } catch (err) {
+        console.error('Error obteniendo permisos del rol:', err)
+      }
+    }
+
     const token = signAccessToken({
       sub: user.id,
       usuario: user.usuario,
       role: user.role || null,
       roleId: user.roleId || null,
-      permissions: Array.isArray(user.permissions) ? user.permissions : []
+      permissions: userPermissions
     })
 
     return {
       token,
-      user: this.sanitizeUser(user)
+      user: this.sanitizeUser(user, userPermissions)
     }
   }
 
@@ -65,10 +81,25 @@ export class AuthService {
       throw error
     }
 
-    return this.sanitizeUser(user)
+    // Obtener permisos del rol si el usuario tiene roleId
+    let userPermissions = Array.isArray(user.permissions) ? user.permissions : []
+    
+    if (user.roleId && userPermissions.length === 0) {
+      try {
+        const roleDoc = await db.collection('roles').doc(user.roleId).get()
+        if (roleDoc.exists) {
+          const roleData = roleDoc.data()
+          userPermissions = Array.isArray(roleData.permissions) ? roleData.permissions : []
+        }
+      } catch (err) {
+        console.error('Error obteniendo permisos del rol:', err)
+      }
+    }
+
+    return this.sanitizeUser(user, userPermissions)
   }
 
-  sanitizeUser(user) {
+  sanitizeUser(user, permissions = null) {
     return {
       id: user.id,
       nombre: user.nombre || '',
@@ -77,7 +108,9 @@ export class AuthService {
       usuario: user.usuario || '',
       role: user.role || null,
       roleId: user.roleId || null,
-      permissions: Array.isArray(user.permissions) ? user.permissions : [],
+      permissions: permissions !== null 
+        ? permissions 
+        : (Array.isArray(user.permissions) ? user.permissions : []),
       activo: user.activo ?? true
     }
   }

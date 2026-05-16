@@ -8,7 +8,9 @@ import Clientes from "./pages/Clientes";
 import Productos from './pages/Productos'
 import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
-// import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard";
+import TiendaEnProceso from "./pages/TiendaEnProceso";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./App.css";
 
@@ -37,11 +39,13 @@ function App() {
 
         {/* Dashboard */}
         <Route
-          path="/Dashboard"
+          path="/dashboard"
           element={
-            <Layout>
-              <Placeholder titulo="DASHBOARD" />
-            </Layout>
+            <ProtectedRoute requiredPage="dashboard">
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -49,9 +53,11 @@ function App() {
         <Route
           path="/productos"
           element={
-            <Layout>
-              <Productos />
-            </Layout>
+            <ProtectedRoute requiredPage="productos">
+              <Layout>
+                <Productos />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -59,9 +65,11 @@ function App() {
         <Route
           path="/recepciones"
           element={
-            <Layout>
-              <Recepciones />
-            </Layout>
+            <ProtectedRoute requiredPage="recepciones">
+              <Layout>
+                <Recepciones />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -69,9 +77,11 @@ function App() {
         <Route
           path="/clientes"
           element={
-            <Layout>
-              <Clientes />
-            </Layout>
+            <ProtectedRoute requiredPage="clientes">
+              <Layout>
+                <Clientes />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -79,9 +89,11 @@ function App() {
         <Route
           path="/proveedores"
           element={
-            <Layout>
-              <Proveedores />
-            </Layout>
+            <ProtectedRoute requiredPage="proveedores">
+              <Layout>
+                <Proveedores />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -89,9 +101,11 @@ function App() {
         <Route
           path="/usuarios"
           element={
-            <Layout>
-              <Usuarios />
-            </Layout>
+            <ProtectedRoute requiredPage="usuarios">
+              <Layout>
+                <Usuarios />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
@@ -99,7 +113,21 @@ function App() {
         <Route
           path="/auditoria"
           element={
-              <Auditoria />
+            <ProtectedRoute requiredPage="auditoria">
+              <Layout>
+                <Auditoria />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Tienda en Proceso (para clientes) */}
+        <Route
+          path="/tienda"
+          element={
+            <ProtectedRoute requiredPage="tienda">
+              <TiendaEnProceso />
+            </ProtectedRoute>
           }
         />
 
