@@ -1,6 +1,8 @@
 import { useState } from "react";
 import HeaderTienda from "../components/tienda/HeaderTienda";
 import FooterTienda from "../components/tienda/FooterTienda";
+import BarraAnuncios from "../components/tienda/BarraAnuncios";
+import HeroCarrusel from "../components/tienda/HeroCarrusel";
 
 export default function Tienda() {
   const [busqueda, setBusqueda]               = useState("");
@@ -9,7 +11,7 @@ export default function Tienda() {
   return (
     <div className="min-h-screen bg-oscuro">
 
-      {/* Aquí irá BarraAnuncios */}
+      <BarraAnuncios />
 
       <HeaderTienda
         busqueda={busqueda}
@@ -21,7 +23,7 @@ export default function Tienda() {
         onSeleccionarCategoria={setCategoriaActiva}
       />
 
-      {/* Aquí irá HeroCarrusel */}
+      <HeroCarrusel />
 
       {/* Aquí irá BandaConfianza */}
 
