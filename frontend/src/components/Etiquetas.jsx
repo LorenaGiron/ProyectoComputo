@@ -13,6 +13,11 @@ export default function Etiquetas({ contenido }) {
 
     // --- ROLES ---
     Admin: "bg-azul/20 text-azul border-azul/30",
+    BODEGUERO: "bg-lila-mid/20 text-lila-mid border-lila-mid/30",
+    GERENTE: "bg-azul/20 text-azul border-azul/30",
+    VENDEDOR: "bg-verde/20 text-naranja border-naranja/30",
+    CLIENTE: "bg-rosa/20 text-rosa border-rosa/30",
+    
     Proveedor: "bg-rosa/20 text-rosa border-rosa/30",
     Cliente: "bg-naranja/20 text-naranja border-naranja/30",
     

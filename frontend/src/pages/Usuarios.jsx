@@ -12,6 +12,7 @@ import Modal from "../components/Modal";
 import ModalUsuarios from "../components/ModalUsuarios";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import FormUsuarios from "../components/FormUsuarios";
+import AvatarUser from "../components/AvatarUser";
 
 /* ─── Página principal ─── */
 const LIMIT = 10;
@@ -52,6 +53,7 @@ export default function Usuarios() {
   ];
 
   const encabezadosUsuarios = [
+    { label: "", key: "avatar" },
     { label: "Usuario", key: "usuario" },
     { label: "Nombre", key: "nombre" },
     { label: "Email", key: "email" },
@@ -196,6 +198,9 @@ export default function Usuarios() {
 
   const renderRow = (row, i) => (
     <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+      <td className="p-4 text-center">
+        <AvatarUser nombre={row.nombre} apellido={row.apellido} userId={row.id} />
+      </td>
       <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{row.usuario || "-"}</td>
       <td className="p-4 text-center text-sm whitespace-nowrap">
         {row.nombre} {row.apellido ? row.apellido : ""}
