@@ -102,14 +102,29 @@ export default function Clientes() {
 
   const crearNuevoCliente = async (datosCliente) => {
     try {
-      await api.post("/clients", {
+      // Crear cliente en la colección de clientes
+      const clienteRes = await api.post("/clients", {
         nombre: datosCliente.nombre,
         email: datosCliente.email,
         telefono: datosCliente.telefono,
         rfc: datosCliente.rfc,
         activo: true,
-        roleId: "CLIENTE" // Los clientes siempre tienen rol CLIENTE
+        roleId: "CLIENTE"
       });
+
+      // Si se proporcionó usuario y contraseña, crear el usuario también
+      if (datosCliente.usuario && datosCliente.password) {
+        await api.post("/users", {
+          nombre: datosCliente.nombre,
+          apellido: "Cliente",
+          email: datosCliente.email,
+          usuario: datosCliente.usuario,
+          password: datosCliente.password,
+          roleId: "CLIENTE",
+          activo: true
+        });
+      }
+
       setRefresh((prev) => prev + 1);
       setModalExito("Cliente creado correctamente");
       setMostrarNuevoCliente(false);
@@ -505,6 +520,8 @@ function ModalNuevoCliente({ onClose, onGuardar }) {
     email: "",
     telefono: "",
     rfc: "",
+    usuario: "",
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -519,7 +536,7 @@ function ModalNuevoCliente({ onClose, onGuardar }) {
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg rounded-3xl border border-lila/30 bg-oscuro/90 p-6 shadow-2xl"
+        className="relative w-full max-w-lg rounded-3xl border border-lila/30 bg-oscuro/90 p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -531,7 +548,7 @@ function ModalNuevoCliente({ onClose, onGuardar }) {
 
         <div className="mb-6">
           <h2 className="text-xl font-bold text-blanco mb-2 font-baskervville uppercase tracking-widest">Nuevo cliente</h2>
-          <p className="text-sm text-lila-soft">Ingresa los datos para crear un cliente.</p>
+          <p className="text-sm text-lila-soft">Ingresa los datos para crear un cliente. Los campos de usuario y contraseña son opcionales.</p>
         </div>
 
         <div className="grid gap-5 mb-6">
@@ -571,6 +588,26 @@ function ModalNuevoCliente({ onClose, onGuardar }) {
             placeholder="Número de teléfono"
             requerido
           />
+          
+          <div className="border-t border-lila/20 pt-4 mt-2">
+            <p className="text-xs uppercase tracking-[0.25em] text-lila-soft mb-4 font-bold">Credenciales de acceso (opcional)</p>
+            <Input
+              label="Usuario"
+              tipo="text"
+              name="usuario"
+              value={form.usuario}
+              onChange={handleChange}
+              placeholder="Usuario para iniciar sesión"
+            />
+            <Input
+              label="Contraseña"
+              tipo="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Contraseña para iniciar sesión"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

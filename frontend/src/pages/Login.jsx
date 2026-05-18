@@ -31,7 +31,7 @@ export default function Login() {
     if (token && usuarioDelContexto) {
       const userRole = usuarioDelContexto?.roleId || usuarioDelContexto?.role;
       if (userRole === 'CLIENTE') {
-        navigate('/tienda', { replace: true });
+        navigate('/TiendaEnProceso', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }

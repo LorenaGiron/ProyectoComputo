@@ -48,9 +48,10 @@ const DEFAULT_ROLES = [
   {
     id: 'CLIENTE',
     nombre: 'CLIENTE',
-    descripcion: 'Rol cliente con acceso básico al sistema',
+    descripcion: 'Rol cliente con acceso básico al sistema y a la tienda',
     permissions: [
-      'auth:me'
+      'auth:me',
+      'tienda:read'
     ]
   },
   {

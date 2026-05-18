@@ -86,6 +86,10 @@ export default function Usuarios() {
 
   const datosFiltrados = usuariosDB
     .filter((row) => {
+      // Excluir usuarios con rol CLIENTE
+      if (row.roleId === 'CLIENTE' || row.role === 'CLIENTE') {
+        return false;
+      }
       if (filtro === "") return true;
       return row.activo === filtro;
     })
@@ -96,8 +100,10 @@ export default function Usuarios() {
       (row.email && row.email.toLowerCase().includes(busqueda.toLowerCase()))
     );
 
-  const activos = usuariosDB.filter((u) => u.activo !== false).length;
-  const inactivos = usuariosDB.filter((u) => u.activo === false).length;
+  // Filtrar usuarios que no sean CLIENTE para estadísticas
+  const usuariosSinClientes = usuariosDB.filter(u => u.roleId !== 'CLIENTE' && u.role !== 'CLIENTE');
+  const activos = usuariosSinClientes.filter((u) => u.activo !== false).length;
+  const inactivos = usuariosSinClientes.filter((u) => u.activo === false).length;
 
   const mostrarToast = (mensaje, tipo = "exito") => {
     setToastMessage(mensaje);

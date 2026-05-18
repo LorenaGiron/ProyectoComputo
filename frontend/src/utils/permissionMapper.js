@@ -8,7 +8,8 @@ export const PERMISSION_TO_PAGE_MAP = {
   'suppliers:read': 'proveedores',
   'users:read': 'usuarios',
   'audit:read': 'auditoria',
-  'inventory:read': 'productos' // inventory usa la misma página que productos
+  'inventory:read': 'productos', // inventory usa la misma página que productos
+  'tienda:read': 'tienda'
 };
 
 // Extraer páginas permitidas basado en permisos
