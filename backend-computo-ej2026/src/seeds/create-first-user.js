@@ -55,7 +55,8 @@ const DEFAULT_PERMISSIONS = [
   { code: 'recepciones:delete', nombre: 'Eliminar recepciones', descripcion: 'Permite eliminar recepciones', modulo: 'recepciones' },
 
   { code: 'audit:read', nombre: 'Ver auditoría', descripcion: 'Permite consultar la auditoría', modulo: 'audit' },
-  { code: 'dashboard:read', nombre: 'Ver dashboard', descripcion: 'Permite consultar el dashboard', modulo: 'dashboard' }
+  { code: 'dashboard:read', nombre: 'Ver dashboard', descripcion: 'Permite consultar el dashboard', modulo: 'dashboard' },
+  { code: 'tienda:read', nombre: 'Ver tienda', descripcion: 'Permite acceder a la tienda en línea', modulo: 'tienda' }
 ]
 
 async function ensurePermissions() {
