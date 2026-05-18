@@ -29,6 +29,10 @@ export default function Productos() {
   const [isModalFormAbierto, setIsModalFormAbierto] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState(null);
 
+  // Estados para la paginación
+  const [paginaActiva, setPaginaActiva] = useState(1);
+  const LIMIT = 10;
+
   const [modalConf, setModalConf] = useState({
     isOpen: false,
     tipo: "confirmar",
@@ -66,6 +70,10 @@ export default function Productos() {
     fetchProductos();
   }, []);
 
+  useEffect(() => {
+    setPaginaActiva(1);
+  }, [filtro, busqueda]);
+
   const datosFiltrados = productosDB
     .filter((row) => {
       const estadoString = row.activo !== false ? "Activo" : "Inactivo";
@@ -84,6 +92,14 @@ export default function Productos() {
   // Cálculo de los porcentajes para las tarjetas superiores
   const activosPorc = totalProd > 0 ? Math.round((activosProd / totalProd) * 100) : 0;
   const inactivosPorc = totalProd > 0 ? Math.round((inactivosProd / totalProd) * 100) : 0;
+
+   // Cálculos matemáticos para la paginación
+  const start = (paginaActiva - 1) * LIMIT;
+  const datosPaginados = datosFiltrados.slice(start, start + LIMIT);
+
+  const textoRango = datosFiltrados.length === 0 
+    ? "0" 
+    : `${start + 1} – ${Math.min(paginaActiva * LIMIT, datosFiltrados.length)}`;
 
   const calcularStockTotal = (inventario) => {
     if (!Array.isArray(inventario)) return 0;
@@ -208,6 +224,13 @@ export default function Productos() {
     });
   };
 
+  const handleCambiarPagina = (page) => {
+    const totalPaginas = Math.ceil(datosFiltrados.length / LIMIT);
+    if (page === "‹") setPaginaActiva((prev) => Math.max(1, prev - 1));
+    else if (page === "›") setPaginaActiva((prev) => Math.min(totalPaginas, prev + 1));
+    else setPaginaActiva(Number(page));
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
@@ -215,7 +238,7 @@ export default function Productos() {
       </h1>
 
       <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
-        <div className="flex flex-col sm:flex-row gap-6 w-full xl:w-7/12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full xl:w-7/12">
           <Tarjetas label="Total productos" value={totalProd} sub="Registrados" icon="bi bi-box-seam" />
           
           <Tarjetas 
@@ -248,7 +271,7 @@ export default function Productos() {
         <div className="p-20 text-center text-lila-soft italic">Cargando catálogo...</div>
       ) : (
         <Tabla encabezados={encabezadosProductos}>
-          {datosFiltrados.map((row, i) => {
+          {datosPaginados.map((row, i) => {
             const stockTotal = calcularStockTotal(row.inventario);
             const estadoTexto = row.activo !== false ? "Activo" : "Inactivo";
             
@@ -282,27 +305,13 @@ export default function Productos() {
         </Tabla>
       )}
  
-      <Paginacion
-        totalRegistros={totalProd}
-        exportTitulo="Productos"
-        exportColumnas={[
-          { header: "SKU",          key: "sku",          width: 15 },
-          { header: "Nombre",       key: "nombre",       width: 28 },
-          { header: "Departamento", key: "departamento", width: 16 },
-          { header: "Categoría",    key: "categoria",    width: 16 },
-          { header: "Precio",       key: "precio",       width: 14 },
-          { header: "Stock",        key: "stock",        width: 10 },
-          { header: "Estado",       key: "estado",       width: 12 },
-        ]}
-        exportFilas={datosFiltrados.map((p) => ({
-          sku:          p.sku,
-          nombre:       p.nombre,
-          departamento: p.departamento,
-          categoria:    p.categoria,
-          precio:       `$${Number(p.precioVenta || p.pVenta || 0).toLocaleString("es-MX")}`,
-          stock:        calcularStockTotal(p.inventario),
-          estado:       p.activo !== false ? "Activo" : "Inactivo",
-        }))}
+      <Paginacion 
+        paginaActual={paginaActiva}
+        totalRegistros={datosFiltrados.length} 
+        rangoSiguiente={textoRango}
+        limit={LIMIT}
+        onCambiarPagina={handleCambiarPagina}
+        onExportar={() => console.log("Exportando...")} 
       />
 
       {/* MODALES */}

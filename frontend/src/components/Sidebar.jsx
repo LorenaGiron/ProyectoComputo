@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth } from "../hooks/useAuth"; 
+import Boton from "./Boton";
 
 const navItems = [
   {
@@ -28,11 +30,17 @@ const navItems = [
 ];
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const navigate   = useNavigate();
   const location   = useLocation();
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem("sidebar-collapsed") === "true"
   );
+
+  const handleCerrarSesion = () => {
+    logout();               
+    navigate("/login");   
+  };
 
   return (
     <aside
@@ -156,11 +164,12 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="shrink-0 p-3 border-t border-white/5 bg-black/10 backdrop-blur-sm">
-        <button
-          onClick={() => navigate("/login")}
+        <Boton
+          variante="claro"
+          onClick={handleCerrarSesion}
           title={collapsed ? "Logout" : undefined}
-          className={`group flex items-center justify-center w-full py-3 rounded-2xl bg-[#E7D6FF] text-[#221E3A] font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)] ${
-            collapsed ? "" : "gap-3 text-lg"
+          className={`group flex items-center justify-center w-full !py-3 rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(231,214,255,0.25)] ${
+            collapsed ? "!px-0" : "gap-3 text-lg" 
           }`}
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
@@ -170,7 +179,7 @@ export default function Sidebar() {
             className="transition-transform duration-300 group-hover:-translate-x-1"
           />
           {!collapsed && "Logout"}
-        </button>
+        </Boton>
       </div>
     </aside>
   );
