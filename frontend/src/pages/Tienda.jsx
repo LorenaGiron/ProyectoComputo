@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import HeaderTienda from "../components/tienda/HeaderTienda";
 import FooterTienda from "../components/tienda/FooterTienda";
 import BarraAnuncios from "../components/tienda/BarraAnuncios";
@@ -17,6 +18,7 @@ const filtrosIniciales = {
 };
 
 export default function Tienda() {
+  const navigate = useNavigate();
   const [busqueda, setBusqueda]               = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("todas");
   const [ordenamiento, setOrdenamiento]       = useState("relevancia");
@@ -25,6 +27,12 @@ export default function Tienda() {
 
   const setFiltro = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/login");
+  };
 
   const productosFiltrados = useMemo(() => {
     let lista = [...productosSimulados];
@@ -104,6 +112,7 @@ export default function Tienda() {
         onAbrirCarrito={() => {}}
         categoriaActiva={categoriaActiva}
         onSeleccionarCategoria={setCategoriaActiva}
+        onLogout={handleLogout}
       />
 
       <HeroCarrusel />
