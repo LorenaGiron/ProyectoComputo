@@ -1,77 +1,84 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area, CartesianGrid, Legend,
+  PieChart, Pie, Cell, AreaChart, Area, CartesianGrid,
+  ComposedChart, Line,
 } from "recharts";
 
-// ── Componentes UI ─────────────────────────────────────────────
 import Tarjetas from "../components/Tarjetas";
 import Tabla from "../components/Tabla";
 import Etiquetas from "../components/Etiquetas";
 import Toast from "../components/Toast";
 
-// ── URL base de tu API ─────────────────────────────────────────
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
-// ── Colores (mapeo de tus CSS vars a hex para Recharts) ────────
 const C = {
-  lila:      "#E7D6FF",
-  lilaMid:   "#A68DC8",
-  lilaSoft:  "#C9B8E8",
-  verde:     "#A3E378",
-  rojo:      "#FF6B6B",
-  amarillo:  "#F7CB57",
-  azul:      "#7EC9ED",
-  rosa:      "#ED8ABA",
-  naranja:   "#FAA86B",
-  muted:     "#5A5870",
-  card:      "#231E3C",
-  oscuro:    "#2C2A4A",
+  lila:     "#E7D6FF",
+  lilaMid:  "#A68DC8",
+  lilaSoft: "#C9B8E8",
+  verde:    "#A3E378",
+  verdeMid: "#6DB84A",
+  rojo:     "#FF6B6B",
+  amarillo: "#F7CB57",
+  azul:     "#7EC9ED",
+  naranja:  "#FAA86B",
+  muted:    "#5A5870",
 };
 
-// ── Tooltip compartido para todas las gráficas ─────────────────
-const TOOLTIP = {
+const TOOLTIP_STYLE = {
   contentStyle: {
-    background: C.card,
-    border: `1px solid ${C.lilaMid}55`,
-    borderRadius: 8,
+    background: "#1A1730",
+    border: `1px solid ${C.lilaMid}40`,
+    borderRadius: 10,
     color: C.lila,
     fontSize: 12,
     fontFamily: "Poppins, sans-serif",
+    padding: "8px 12px",
   },
-  labelStyle:  { color: C.lilaSoft, marginBottom: 4 },
-  cursor:      { fill: "rgba(231,214,255,0.04)" },
+  labelStyle: { color: C.lilaSoft, marginBottom: 4, fontSize: 11 },
+  cursor:     { fill: "rgba(167,139,250,0.06)" },
 };
 
-// ── Botón toggle tabla / gráfica ───────────────────────────────
+const CurrencyTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={TOOLTIP_STYLE.contentStyle}>
+      <p style={{ ...TOOLTIP_STYLE.labelStyle, marginBottom: 4 }}>{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ color: p.color, margin: 0, fontSize: 12 }}>
+          {p.name}: ${Number(p.value || 0).toLocaleString("es-MX")}
+        </p>
+      ))}
+    </div>
+  );
+};
+
 function ToggleBtn({ isGrafica, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`
-        flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold
-        border border-lila/30 cursor-pointer transition-all active:scale-95
-        font-poppins
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer transition-all active:scale-95 font-poppins
         ${isGrafica
           ? "bg-lila text-oscuro border-lila"
-          : "bg-transparent text-lila-soft hover:bg-lila hover:text-oscuro"}
-      `}
+          : "bg-transparent text-lila-soft border-lila/20 hover:bg-lila hover:text-oscuro"}`}
     >
-      <i className={`bi ${isGrafica ? "bi-table" : "bi-bar-chart-line"} text-sm`}></i>
+      <i className={`bi ${isGrafica ? "bi-table" : "bi-bar-chart-line"} text-sm`} />
       {isGrafica ? "Ver tabla" : "Ver gráfica"}
     </button>
   );
 }
 
-// ── Encabezado de sección ──────────────────────────────────────
-function SectionHeader({ title, icon, isGrafica, onToggle, extra }) {
+function SectionHeader({ title, icon, subtitle, isGrafica, onToggle, extra }) {
   return (
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="flex items-center gap-2 text-sm font-bold text-lila m-0">
-        <i className={`bi ${icon} text-lila-mid`}></i>
-        {title}
-      </h2>
-      <div className="flex items-center gap-3">
+    <div className="flex items-start justify-between mb-5">
+      <div>
+        <h2 className="flex items-center gap-2 text-sm font-bold text-lila m-0">
+          <i className={`bi ${icon} text-lila-mid`} />
+          {title}
+        </h2>
+        {subtitle && <p className="text-xs text-text-muted mt-0.5 m-0">{subtitle}</p>}
+      </div>
+      <div className="flex items-center gap-2">
         {extra}
         <ToggleBtn isGrafica={isGrafica} onClick={onToggle} />
       </div>
@@ -79,22 +86,19 @@ function SectionHeader({ title, icon, isGrafica, onToggle, extra }) {
   );
 }
 
-// ── Panel contenedor de sección ────────────────────────────────
-function Panel({ children }) {
+function Panel({ children, className = "" }) {
   return (
-    <div className="bg-bg-card rounded-xl border border-lila/10 shadow-lg p-5 w-full">
+    <div
+      className={`rounded-2xl border border-lila/10 shadow-lg p-5 w-full ${className}`}
+      style={{ background: "rgba(35,30,60,0.6)", backdropFilter: "blur(8px)" }}
+    >
       {children}
     </div>
   );
 }
 
-// ── Fila de tabla genérica ─────────────────────────────────────
 function Tr({ children, idx }) {
-  return (
-    <tr className={idx % 2 === 0 ? "bg-black/10" : ""}>
-      {children}
-    </tr>
-  );
+  return <tr className={idx % 2 === 0 ? "bg-black/10" : ""}>{children}</tr>;
 }
 
 function Td({ children, mono, color, align = "center" }) {
@@ -108,549 +112,346 @@ function Td({ children, mono, color, align = "center" }) {
   );
 }
 
-// ── Skeleton loader ────────────────────────────────────────────
-function Skeleton() {
+function Skeleton({ rows = 3 }) {
   return (
     <div className="animate-pulse space-y-3">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-8 bg-lila/5 rounded-lg w-full"></div>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="h-8 bg-lila/5 rounded-lg w-full" style={{ opacity: 1 - i * 0.2 }} />
       ))}
     </div>
   );
 }
 
-// ── Helpers para derivar datos de gráficas ─────────────────────
+function StatPill({ label, value, color = C.lilaSoft }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
+      style={{ background: `${color}18`, border: `0.5px solid ${color}40`, color }}
+    >
+      <span className="font-bold">{value}</span>
+      <span className="opacity-70">{label}</span>
+    </span>
+  );
+}
 
-/** Agrupa recepciones por status y cuenta */
-function recepcionesPieData(receps) {
-  const counts = receps.reduce((acc, r) => {
-    acc[r.status] = (acc[r.status] || 0) + 1;
-    return acc;
-  }, {});
-  const colorMap = {
-    COMPLETED:  C.verde,
-    CONFIRMED:  C.verde,
-    PENDING:    C.amarillo,
-    DRAFT:      C.lilaMid,
+const ACTION_COLORS = {
+  CREATE:        { bg: "rgba(74,222,128,0.12)",  border: "rgba(74,222,128,0.35)",  color: "#84B140" },
+  UPDATE:        { bg: "rgba(251,191,36,0.12)",  border: "rgba(251,191,36,0.35)",  color: "#E0DA66" },
+  DELETE:        { bg: "rgba(244,63,94,0.12)",   border: "rgba(244,63,94,0.35)",   color: "#D04E37" },
+  TOGGLE_ACTIVE: { bg: "rgba(56,189,248,0.12)",  border: "rgba(56,189,248,0.35)",  color: "#38bdf8" },
+};
+
+function ActionBadge({ action }) {
+  const c = ACTION_COLORS[action] || {
+    bg: "rgba(167,139,250,0.12)", border: "rgba(167,139,250,0.35)", color: "#a78bfa",
   };
-  return Object.entries(counts).map(([name, value]) => ({
-    name,
-    value,
-    color: colorMap[name] || C.lilaSoft,
+  return (
+    <span
+      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold"
+      style={{ background: c.bg, border: `0.5px solid ${c.border}`, color: c.color }}
+    >
+      {action}
+    </span>
+  );
+}
+
+const fmt     = (n) => Number(n ?? 0).toLocaleString("es-MX");
+const fmtCur  = (n) => `$${Number(n ?? 0).toLocaleString("es-MX")}`;
+const fmtDate = (d) => { try { return new Date(d).toLocaleDateString("es-MX", { day: "2-digit", month: "short" }); } catch { return d; } };
+const pct     = (a, b) => b > 0 ? Math.round((a / b) * 100) : 0;
+
+function buildAuditBar(logs) {
+  const counts = {};
+  logs.forEach((l) => { counts[l.action] = (counts[l.action] || 0) + 1; });
+  const cm = { CREATE: C.azul, UPDATE: C.amarillo, DELETE: C.rojo, TOGGLE_ACTIVE: C.naranja };
+  return Object.entries(counts).map(([accion, total]) => ({ accion, total, color: cm[accion] || C.lilaSoft }));
+}
+
+function buildMovArea(movs) {
+  return movs.map((m, i) => ({
+    idx:     i + 1,
+    entrada: m.tipo?.toLowerCase().includes("entr") ? Math.abs(Number(m.cantidad) || 0) : 0,
+    salida:  !m.tipo?.toLowerCase().includes("entr") ? Math.abs(Number(m.cantidad) || 0) : 0,
   }));
 }
 
-/** Cuenta entradas y salidas de movimientos */
-function movimientosBarData(movs) {
-  const data = { Entrada: 0, Salida: 0 };
-  movs.forEach((m) => {
-    const tipo = m.tipo?.toLowerCase().includes("entr") ? "Entrada" : "Salida";
-    data[tipo] += Math.abs(Number(m.cantidad) || 0);
-  });
-  return [
-    { tipo: "Entradas", cantidad: data.Entrada, color: C.verde },
-    { tipo: "Salidas",  cantidad: data.Salida,  color: C.rojo  },
-  ];
+function buildRecepPie(receps) {
+  const counts = {};
+  receps.forEach((r) => { counts[r.status] = (counts[r.status] || 0) + 1; });
+  const cm = { COMPLETED: C.verdeMid, CONFIRMED: C.verdeMid, PENDING: C.amarillo, DRAFT: C.lilaMid };
+  return Object.entries(counts).map(([name, value]) => ({ name, value, color: cm[name] || C.lilaSoft }));
 }
 
-/** Cuenta acciones del log de auditoría */
-function auditBarData(logs) {
-  const counts = logs.reduce((acc, l) => {
-    acc[l.action] = (acc[l.action] || 0) + 1;
-    return acc;
-  }, {});
-  const colorMap = {
-    CREATE: C.azul,
-    UPDATE: C.amarillo,
-    DELETE: C.rojo,
-    READ:   C.lilaMid,
-  };
-  return Object.entries(counts).map(([accion, total]) => ({
-    accion,
-    total,
-    color: colorMap[accion] || C.lilaSoft,
+function buildRecepValor(receps) {
+  return receps.slice(0, 8).map((r) => ({
+    folio: r.folio?.slice(-5) || "—",
+    total: Number(r.total || 0),
   }));
 }
 
-// ══════════════════════════════════════════════════════════════
-//  DASHBOARD PRINCIPAL
-// ══════════════════════════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════════════
 export default function Dashboard() {
-  // ── Estado principal ───────────────────────────────────────
   const [summary,  setSummary]  = useState(null);
   const [activity, setActivity] = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [toast,    setToast]    = useState({ message: "", type: "error" });
 
-  // ── Toggles tabla/gráfica por sección ─────────────────────
   const [views, setViews] = useState({
-    productos:   false,   // false = tabla, true = gráfica
+    productos:   false,
     recepciones: false,
     movimientos: false,
     auditoria:   false,
+    valorRecep:  false,
   });
+  const toggleView = (s) => setViews((p) => ({ ...p, [s]: !p[s] }));
 
-  const toggleView = (section) =>
-    setViews((prev) => ({ ...prev, [section]: !prev[section] }));
+  const fetchSummary = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/dashboard/summary`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      setSummary(await res.json());
+    } catch (err) {
+      setToast({ message: `No se pudo cargar el resumen: ${err.message}`, type: "error" });
+    } finally { setLoading(false); }
+  }, []);
 
-  // ── Fetch /summary ─────────────────────────────────────────
-const fetchSummary = useCallback(async () => {
-  setLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(`${API_BASE}/dashboard/summary`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`Error ${res.status}`);
+  const fetchActivity = useCallback(async () => {
+    if (activity) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/dashboard/recent-activity?limit=10`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data = await res.json();
+      setActivity(data.items ?? []);
+    } catch (err) {
+      setToast({ message: `No se pudo cargar la actividad: ${err.message}`, type: "error" });
     }
+  }, [activity]);
 
-    const data = await res.json();
-    setSummary(data);
-
-  } catch (err) {
-    setToast({
-      message: `No se pudo cargar el resumen: ${err.message}`,
-      type: "error",
-    });
-
-  } finally {
-    setLoading(false);
-  }
-}, []);
-
-// ── Fetch /recent-activity ─────────────────────────────────
-const fetchActivity = useCallback(async () => {
-  if (activity) return;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `${API_BASE}/dashboard/recent-activity?limit=10`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error(`Error ${res.status}`);
-    }
-
-    const data = await res.json();
-    setActivity(data.items ?? []);
-
-  } catch (err) {
-    setToast({
-      message: `No se pudo cargar la actividad: ${err.message}`,
-      type: "error",
-    });
-  }
-}, [activity]);
   useEffect(() => { fetchSummary(); }, [fetchSummary]);
+  useEffect(() => { if (views.auditoria) fetchActivity(); }, [views.auditoria, fetchActivity]);
 
-  // Cuando se abre la sección de auditoría, carga el endpoint lazy
-  useEffect(() => {
-    if (views.auditoria) fetchActivity();
-  }, [views.auditoria, fetchActivity]);
-
-  // ── Datos derivados para gráficas ──────────────────────────
-  const t    = summary?.totals ?? {};
-  const lsp  = summary?.lowStockProducts        ?? [];
-  const recep = summary?.recepcionesRecientes   ?? [];
+  const t     = summary?.totals                   ?? {};
+  const lsp   = summary?.lowStockProducts         ?? [];
+  const recep = summary?.recepcionesRecientes     ?? [];
   const movs  = summary?.recentInventoryMovements ?? [];
-  const audit = summary?.recentAudit            ?? [];
-  const acts  = activity ?? audit; // usa recentAudit hasta que cargue /activity
+  const audit = summary?.recentAudit              ?? [];
+  const acts  = activity ?? audit;
 
-  const pieRecep   = recepcionesPieData(recep);
-  const barMovs    = movimientosBarData(movs);
-  const barAudit   = auditBarData(acts);
+  const pieRecep   = buildRecepPie(recep);
+  const areaMovs   = buildMovArea(movs);
+  const barAudit   = buildAuditBar(acts);
+  const recepValor = buildRecepValor(recep);
 
-  // ── Formatters ─────────────────────────────────────────────
-  const fmt = (n) => Number(n ?? 0).toLocaleString("es-MX");
-  const fmtDate = (d) => {
-    if (!d) return "—";
-    try { return new Date(d).toLocaleDateString("es-MX"); } catch { return d; }
-  };
-  const fmtCur = (n) => `$${Number(n ?? 0).toLocaleString("es-MX")}`;
+  const totalEntradas = movs
+    .filter(m => m.tipo?.toLowerCase().includes("entr"))
+    .reduce((a, m) => a + Math.abs(Number(m.cantidad) || 0), 0);
+  const totalSalidas = movs
+    .filter(m => !m.tipo?.toLowerCase().includes("entr"))
+    .reduce((a, m) => a + Math.abs(Number(m.cantidad) || 0), 0);
+  const valorRecepTotal = recep.reduce((a, r) => a + Number(r.total || 0), 0);
 
-  // ── Render ─────────────────────────────────────────────────
   return (
-    <div className="p-6 md:p-8 space-y-6 font-poppins">
+    <div className="p-6 md:p-8 space-y-5 font-poppins">
 
-      {/* Toast de errores */}
       <Toast
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ message: "", type: "error" })}
       />
 
-      {/* ── Encabezado de página ──────────────────────────── */}
+      {/* ── Encabezado ───────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-lila m-0">Dashboard</h1>
           <p className="text-xs text-text-muted mt-1 m-0">
-            Resumen general · {new Date().toLocaleDateString("es-MX", { dateStyle: "long" })}
+            {new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "2-digit" })}
           </p>
         </div>
         <button
           onClick={fetchSummary}
-          className="flex items-center gap-2 bg-transparent text-lila-soft border border-lila/20
-                     rounded-lg px-4 py-2 text-xs font-bold hover:bg-lila hover:text-oscuro
-                     transition-all active:scale-95 cursor-pointer"
+          className="flex items-center gap-2 bg-transparent text-lila-soft border border-lila/20 rounded-xl px-4 py-2 text-xs font-bold hover:bg-lila hover:text-oscuro transition-all active:scale-95 cursor-pointer"
         >
-          <i className="bi bi-arrow-clockwise"></i>
-          Actualizar
+          <i className="bi bi-arrow-clockwise" /> Actualizar
         </button>
       </div>
 
-      {/* ── KPI Cards ─────────────────────────────────────── */}
+      {/* ── KPI Cards ─────────────────────────────────────────── */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-28 bg-bg-card rounded-xl animate-pulse border border-lila/10" />
+            <div key={i} className="h-28 rounded-2xl animate-pulse border border-lila/10"
+              style={{ background: "rgba(35,30,60,0.6)" }} />
           ))}
         </div>
       ) : (
-        <div className="flex flex-wrap gap-4">
-          <Tarjetas
-            label="Total productos"
-            value={fmt(t.products)}
-            sub={`${fmt(t.activeProducts)} activos`}
-            accent={C.lilaMid}
-            icon="bi bi-box-seam"
-          />
-          <Tarjetas
-            label="Clientes"
-            value={fmt(t.clients)}
-            sub={`${fmt(t.activeClients)} activos`}
-            accent={C.azul}
-            icon="bi bi-people"
-          />
-          <Tarjetas
-            label="Proveedores"
-            value={fmt(t.suppliers)}
-            sub={`${fmt(t.activeSuppliers)} activos`}
-            accent={C.verde}
-            icon="bi bi-truck"
-          />
-          <Tarjetas
-            label="Recepciones"
-            value={fmt(t.recepciones)}
-            sub="total acumulado"
-            accent={C.naranja}
-            icon="bi bi-clipboard-check"
-          />
-          <Tarjetas
-            label="Bajo stock"
-            value={fmt(summary?.lowStockCount)}
-            sub="requieren reorden"
-            accent={C.rojo}
-            icon="bi bi-exclamation-triangle"
-          />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[
+            { label: "Productos",   value: fmt(t.products),             sub: `${fmt(t.activeProducts)} activos`,  accent: C.lilaMid,  icon: "bi bi-box-seam",            pct: pct(t.activeProducts,  t.products)   },
+            { label: "Clientes",    value: fmt(t.clients),              sub: `${fmt(t.activeClients)} activos`,   accent: C.azul,     icon: "bi bi-people",               pct: pct(t.activeClients,   t.clients)    },
+            { label: "Proveedores", value: fmt(t.suppliers),            sub: `${fmt(t.activeSuppliers)} activos`, accent: C.verdeMid, icon: "bi bi-truck",                pct: pct(t.activeSuppliers, t.suppliers)  },
+            { label: "Recepciones", value: fmt(t.recepciones),          sub: fmtCur(valorRecepTotal) + " reciente", accent: C.naranja, icon: "bi bi-clipboard-check",    pct: null                                  },
+            { label: "Bajo stock",  value: fmt(summary?.lowStockCount), sub: "requieren reorden",                 accent: C.rojo,     icon: "bi bi-exclamation-triangle", pct: null                                  },
+          ].map((k) => (
+            <div
+              key={k.label}
+              className="rounded-2xl border border-lila/10 p-4 flex flex-col gap-2 relative overflow-hidden"
+              style={{ background: "rgba(35,30,60,0.6)" }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-muted font-medium">{k.label}</span>
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ background: `${k.accent}18`, color: k.accent }}>
+                  <i className={`${k.icon} text-sm`} />
+                </span>
+              </div>
+              <p className="text-2xl font-bold text-blanco m-0">{k.value}</p>
+              <p className="text-xs m-0" style={{ color: k.accent }}>{k.sub}</p>
+              {k.pct !== null && (
+                <div className="mt-1">
+                  <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div className="h-1 rounded-full transition-all"
+                      style={{ width: `${k.pct}%`, background: k.accent }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ── Alerta bajo stock ──────────────────────────────── */}
+      {/* ── Alerta bajo stock ─────────────────────────────────── */}
       {!loading && summary?.lowStockCount > 0 && (
         <div
           className="flex items-center gap-3 rounded-xl px-5 py-3 text-sm font-medium"
-          style={{
-            background: C.rojo + "18",
-            border: `1px solid ${C.rojo}44`,
-            color: C.rojo,
-          }}
+          style={{ background: `${C.rojo}12`, border: `1px solid ${C.rojo}35`, color: C.rojo }}
         >
-          <i className="bi bi-exclamation-triangle-fill text-base"></i>
+          <i className="bi bi-exclamation-triangle-fill" />
           <span>
             <b>{summary.lowStockCount} producto{summary.lowStockCount > 1 ? "s" : ""}</b>
-            {" "}por debajo del stock mínimo. Revisa la sección de inventario.
+            {" "}por debajo del stock mínimo.
           </span>
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════
-          SECCIÓN 1: Inventario · Bajo stock
-      ════════════════════════════════════════════════════ */}
-      <Panel>
-        <SectionHeader
-          title="Inventario · Bajo stock"
-          icon="bi-box-seam"
-          isGrafica={views.productos}
-          onToggle={() => toggleView("productos")}
-        />
+      {/* ════════════════════════════════════════════════════════
+          GRID SUPERIOR: Bajo stock + Valor recepciones
+      ════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-        {loading ? <Skeleton /> : views.productos ? (
-          /* ── Gráfica de stock actual vs mínimo ── */
-          <div style={{ height: 240 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={lsp.slice(0, 8).map((p) => ({
-                nombre: p.nombre?.slice(0, 12) ?? p.sku,
-                stock:  Number(p.stock        ?? 0),
-                min:    Number(p.stockMinimo  ?? 0),
-              }))} barSize={20}>
-                <CartesianGrid stroke="rgba(231,214,255,0.07)" vertical={false} />
-                <XAxis dataKey="nombre" tick={{ fill: C.lilaSoft, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: C.lilaSoft, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip {...TOOLTIP} />
-                <Bar dataKey="stock" name="Stock actual"  fill={C.lilaMid}       radius={[4, 4, 0, 0]} />
-                <Bar dataKey="min"   name="Stock mínimo"  fill={C.rojo + "80"}   radius={[4, 4, 0, 0]} />
-                <Legend wrapperStyle={{ fontSize: 11, color: C.lilaSoft, paddingTop: 8 }} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          /* ── Tabla de productos bajo stock ── */
-          <Tabla encabezados={["SKU", "Nombre", "Stock actual", "Stock mínimo", "Déficit", "Estado"]}>
-            {lsp.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center text-text-muted py-6 text-sm">
-                  Sin productos con bajo stock 🎉
-                </td>
-              </tr>
-            ) : lsp.map((p, i) => (
-              <Tr key={p.id} idx={i}>
-                <Td mono color={C.azul}>{p.sku}</Td>
-                <Td align="left">{p.nombre}</Td>
-                <Td color={Number(p.stock) <= Number(p.stockMinimo) ? C.rojo : C.verde}>
-                  <b>{fmt(p.stock)}</b>
-                </Td>
-                <Td>{fmt(p.stockMinimo)}</Td>
-                <Td color={C.rojo}>
-                  <b>−{Math.max(0, Number(p.stockMinimo) - Number(p.stock))}</b>
-                </Td>
-                <Td><Etiquetas contenido={p.activo ? "Activo" : "Inactivo"} /></Td>
-              </Tr>
-            ))}
-          </Tabla>
-        )}
-      </Panel>
-
-      {/* ════════════════════════════════════════════════════
-          SECCIÓN 2: Recepciones
-      ════════════════════════════════════════════════════ */}
-      <Panel>
-        <SectionHeader
-          title="Recepciones recientes"
-          icon="bi-clipboard-check"
-          isGrafica={views.recepciones}
-          onToggle={() => toggleView("recepciones")}
-        />
-
-        {loading ? <Skeleton /> : views.recepciones ? (
-          /* ── Pie chart + leyenda ── */
-          <div className="flex items-center gap-6" style={{ height: 240 }}>
-            <div style={{ flex: "0 0 220px", height: "100%" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieRecep}
-                    cx="50%" cy="50%"
-                    outerRadius={88} innerRadius={42}
-                    dataKey="value"
-                    paddingAngle={3}
-                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
-                    labelLine={{ stroke: "rgba(231,214,255,0.2)" }}
-                  >
-                    {pieRecep.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                  </Pie>
-                  <Tooltip contentStyle={TOOLTIP.contentStyle} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex-1 space-y-3">
-              {pieRecep.map((s, i) => (
-                <div key={i}>
-                  <div className="flex justify-between mb-1">
-                    <span className="flex items-center gap-2 text-xs" style={{ color: C.lilaSoft }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, display: "inline-block" }}></span>
-                      {s.name}
-                    </span>
-                    <b className="text-sm" style={{ color: s.color }}>{s.value}</b>
-                  </div>
-                  <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 3 }}>
-                    <div style={{
-                      height: 5,
-                      width: `${(s.value / Math.max(recep.length, 1) * 100).toFixed(0)}%`,
-                      background: s.color,
-                      borderRadius: 3,
-                    }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* ── Tabla de recepciones ── */
-          <Tabla encabezados={["Folio", "Proveedor", "Fecha", "Total", "Estado"]}>
-            {recep.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center text-text-muted py-6 text-sm">Sin recepciones recientes</td>
-              </tr>
-            ) : recep.map((r, i) => (
-              <Tr key={r.id} idx={i}>
-                <Td mono color={C.azul}>{r.folio}</Td>
-                <Td align="left">{r.supplierNombre}</Td>
-                <Td>{fmtDate(r.fecha || r.createdAt)}</Td>
-                <Td color={C.verde}><b>{fmtCur(r.total)}</b></Td>
-                <Td>
-                  <Etiquetas contenido={
-                    r.status === "COMPLETED" ? "Confirmado"
-                    : r.status === "PENDING"   ? "Pendiente"
-                    : "Draft"
-                  } />
-                </Td>
-              </Tr>
-            ))}
-          </Tabla>
-        )}
-      </Panel>
-
-      {/* ════════════════════════════════════════════════════
-          SECCIÓN 3 + 4: Grid 2 columnas
-      ════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        {/* ── Movimientos de inventario ── */}
-        <Panel>
+        {/* ── Bajo stock (2/3) ── */}
+        <Panel className="xl:col-span-2">
           <SectionHeader
-            title="Movimientos de inventario"
-            icon="bi-arrow-left-right"
-            isGrafica={views.movimientos}
-            onToggle={() => toggleView("movimientos")}
+            title="Inventario · Bajo stock"
+            icon="bi-box-seam"
+            subtitle={`${lsp.length} productos críticos`}
+            isGrafica={views.productos}
+            onToggle={() => toggleView("productos")}
           />
-
-          {loading ? <Skeleton /> : views.movimientos ? (
+          {loading ? <Skeleton /> : views.productos ? (
             <div style={{ height: 220 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={movs.map((m, idx) => ({
-                  idx: idx + 1,
-                  cantidad: Math.abs(Number(m.cantidad) || 0),
-                  tipo: m.tipo?.toLowerCase().includes("entr") ? "entrada" : "salida",
-                }))}>
-                  <defs>
-                    <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={C.verde} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={C.verde} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="rgba(231,214,255,0.07)" vertical={false} />
-                  <XAxis dataKey="idx" tick={{ fill: C.lilaSoft, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: C.lilaSoft, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    {...TOOLTIP}
-                    formatter={(value, name, props) => [
-                      `${value} unidades`,
-                      props.payload.tipo === "entrada" ? "Entrada" : "Salida",
-                    ]}
-                  />
-                  <Area
-                    type="monotone" dataKey="cantidad"
-                    name="Cantidad"
-                    stroke={C.verde} fill="url(#gV)" strokeWidth={2} dot={false}
-                  />
-                </AreaChart>
+                <ComposedChart
+                  data={lsp.slice(0, 7).map((p) => ({
+                    nombre:  p.nombre?.slice(0, 10) ?? p.sku,
+                    stock:   Number(p.stock || 0),
+                    min:     Number(p.stockMinimo || 0),
+                    deficit: Math.max(0, Number(p.stockMinimo || 0) - Number(p.stock || 0)),
+                  }))}
+                  barSize={18}
+                >
+                  <CartesianGrid stroke="rgba(231,214,255,0.06)" vertical={false} />
+                  <XAxis dataKey="nombre" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip {...TOOLTIP_STYLE} />
+                  <Bar dataKey="stock"   name="Stock actual"  fill={C.lilaMid}     radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="min"     name="Stock mínimo"  fill={`${C.rojo}50`} radius={[4, 4, 0, 0]} />
+                  <Line dataKey="deficit" name="Déficit" type="monotone" stroke={C.rojo} strokeWidth={2} dot={{ r: 3, fill: C.rojo }} />
+                </ComposedChart>
               </ResponsiveContainer>
-              {/* Mini resumen entradas vs salidas */}
-              <div className="flex gap-4 mt-3">
-                {barMovs.map((b, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs" style={{ color: C.lilaSoft }}>
-                    <span style={{ width: 10, height: 10, borderRadius: 2, background: b.color, flexShrink: 0 }}></span>
-                    <span>{b.tipo}</span>
-                    <b style={{ color: b.color }}>{fmt(b.cantidad)} uds</b>
-                  </div>
-                ))}
-              </div>
             </div>
           ) : (
-            <Tabla encabezados={["Producto", "Tipo", "Cant.", "Ant. → Nuevo", "Usuario"]}>
-              {movs.length === 0 ? (
+            <Tabla encabezados={["SKU", "Nombre", "Stock", "Mínimo", "Déficit", "Estado"]}>
+              {lsp.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center text-text-muted py-6 text-sm">Sin movimientos recientes</td>
+                  <td colSpan={6} className="text-center text-text-muted py-8 text-sm">
+                    Sin productos críticos 🎉
+                  </td>
                 </tr>
-              ) : movs.map((m, i) => {
-                const esEntrada = m.tipo?.toLowerCase().includes("entr");
-                return (
-                  <Tr key={m.id} idx={i}>
-                    <Td align="left"><span className="text-xs">{m.productNombre}</span></Td>
-                    <Td><Etiquetas contenido={esEntrada ? "Activo" : "Inactivo"} /></Td>
-                    <Td color={esEntrada ? C.verde : C.rojo}>
-                      <b>{esEntrada ? "+" : ""}{fmt(m.cantidad)}</b>
-                    </Td>
-                    <Td mono color={C.lilaSoft}>
-                      <span className="text-xs">{fmt(m.stockAnterior)} → {fmt(m.stockNuevo)}</span>
-                    </Td>
-                    <Td color={C.lilaMid}>{m.usuario}</Td>
-                  </Tr>
-                );
-              })}
+              ) : lsp.map((p, i) => (
+                <Tr key={p.id} idx={i}>
+                  <Td mono color={C.azul}>{p.sku}</Td>
+                  <Td align="left">{p.nombre}</Td>
+                  <Td color={Number(p.stock) <= Number(p.stockMinimo) ? C.rojo : C.verde}>
+                    <b>{fmt(p.stock)}</b>
+                  </Td>
+                  <Td>{fmt(p.stockMinimo)}</Td>
+                  <Td color={C.rojo}>
+                    <b>−{Math.max(0, Number(p.stockMinimo) - Number(p.stock))}</b>
+                  </Td>
+                  <Td><Etiquetas contenido={p.activo ? "Activo" : "Inactivo"} /></Td>
+                </Tr>
+              ))}
             </Tabla>
           )}
         </Panel>
 
-        {/* ── Auditoría / Actividad reciente ── */}
+        {/* ── Valor de recepciones (1/3) ── */}
         <Panel>
           <SectionHeader
-            title="Actividad · Auditoría"
-            icon="bi-clock-history"
-            isGrafica={views.auditoria}
-            onToggle={() => toggleView("auditoria")}
+            title="Valor recepciones"
+            icon="bi-currency-dollar"
+            subtitle={fmtCur(valorRecepTotal) + " acumulado"}
+            isGrafica={views.valorRecep}
+            onToggle={() => toggleView("valorRecep")}
           />
-
-          {loading ? <Skeleton /> : views.auditoria ? (
+          {loading ? <Skeleton /> : views.valorRecep ? (
             <div style={{ height: 220 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barAudit} layout="vertical" barSize={16}>
-                  <CartesianGrid stroke="rgba(231,214,255,0.07)" horizontal={false} />
-                  <XAxis type="number" tick={{ fill: C.lilaSoft, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    dataKey="accion" type="category"
-                    tick={{ fill: C.lilaSoft, fontSize: 10 }}
-                    axisLine={false} tickLine={false} width={52}
+                <BarChart data={recepValor} layout="vertical" barSize={14}>
+                  <CartesianGrid stroke="rgba(231,214,255,0.06)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={{ fill: C.muted, fontSize: 9 }}
+                    axisLine={false} tickLine={false}
+                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                   />
-                  <Tooltip {...TOOLTIP} />
-                  <Bar dataKey="total" name="Total acciones" radius={[0, 4, 4, 0]}>
-                    {barAudit.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                  <YAxis
+                    dataKey="folio" type="category"
+                    tick={{ fill: C.lilaSoft, fontSize: 10 }}
+                    axisLine={false} tickLine={false} width={42}
+                  />
+                  <Tooltip content={<CurrencyTooltip />} />
+                  <Bar dataKey="total" name="Total" radius={[0, 4, 4, 0]}>
+                    {recepValor.map((_, i) => (
+                      <Cell key={i} fill={`rgba(250,168,107,${0.4 + (i / Math.max(recepValor.length, 1)) * 0.6})`} />
+                    ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <Tabla encabezados={["Acción", "Recurso", "ID", "Usuario", "Cuándo"]}>
-              {acts.length === 0 ? (
+            <Tabla encabezados={["Folio", "Proveedor", "Fecha", "Total"]}>
+              {recep.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center text-text-muted py-6 text-sm">Sin actividad reciente</td>
+                  <td colSpan={4} className="text-center text-text-muted py-8 text-sm">
+                    Sin recepciones
+                  </td>
                 </tr>
-              ) : acts.map((a, i) => (
-                <Tr key={a.id} idx={i}>
-                  <Td>
-                    <Etiquetas contenido={
-                      a.action === "CREATE" ? "Activo"
-                      : a.action === "UPDATE" ? "Pendiente"
-                      : a.action === "DELETE" ? "Inactivo"
-                      : "Default"
-                    } />
-                  </Td>
-                  <Td color={C.lilaMid}>{a.resource}</Td>
-                  <Td mono color={C.lilaSoft}>
-                    <span className="text-xs">{a.resourceId?.slice(0, 10)}</span>
-                  </Td>
-                  <Td color={C.azul}>{a.usuario}</Td>
-                  <Td color={C.muted}>
-                    {fmtDate(a.createdAt)}
-                  </Td>
+              ) : recep.map((r, i) => (
+                <Tr key={r.id} idx={i}>
+                  <Td mono color={C.azul}>{r.folio}</Td>
+                  <Td align="left" color={C.lilaSoft}>{r.supplierNombre}</Td>
+                  <Td>{fmtDate(r.fecha || r.createdAt)}</Td>
+                  <Td color={C.verdeMid}><b>{fmtCur(r.total)}</b></Td>
                 </Tr>
               ))}
             </Tabla>
@@ -658,6 +459,218 @@ const fetchActivity = useCallback(async () => {
         </Panel>
 
       </div>
+
+      {/* ════════════════════════════════════════════════════════
+          GRID MEDIO: Recepciones + Movimientos
+      ════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+        {/* ── Recepciones ── */}
+        <Panel>
+          <SectionHeader
+            title="Recepciones recientes"
+            icon="bi-clipboard-check"
+            subtitle={`${recep.length} en este período`}
+            isGrafica={views.recepciones}
+            onToggle={() => toggleView("recepciones")}
+          />
+          {loading ? <Skeleton /> : views.recepciones ? (
+            <div className="flex items-center gap-4" style={{ height: 220 }}>
+              <div style={{ flex: "0 0 180px", height: "100%" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieRecep} cx="50%" cy="50%"
+                      outerRadius={80} innerRadius={48}
+                      dataKey="value" paddingAngle={4}
+                      startAngle={90} endAngle={450}
+                    >
+                      {pieRecep.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
+                    </Pie>
+                    <Tooltip contentStyle={TOOLTIP_STYLE.contentStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-3">
+                <p className="text-xs text-text-muted mb-3">Por estatus</p>
+                {pieRecep.map((s, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between mb-1 text-xs">
+                      <span className="flex items-center gap-2" style={{ color: C.lilaSoft }}>
+                        <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, display: "inline-block" }} />
+                        {s.name}
+                      </span>
+                      <b style={{ color: s.color }}>{s.value}</b>
+                    </div>
+                    <div style={{ height: 4, background: "rgba(255,255,255,0.07)", borderRadius: 2 }}>
+                      <div style={{ height: 4, width: `${pct(s.value, recep.length)}%`, background: s.color, borderRadius: 2 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <Tabla encabezados={["Folio", "Proveedor", "Fecha", "Total", "Estatus"]}>
+              {recep.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center text-text-muted py-8 text-sm">Sin recepciones</td>
+                </tr>
+              ) : recep.map((r, i) => (
+                <Tr key={r.id} idx={i}>
+                  <Td mono color={C.azul}>{r.folio}</Td>
+                  <Td align="left" color={C.lilaSoft}>{r.supplierNombre}</Td>
+                  <Td>{fmtDate(r.fecha || r.createdAt)}</Td>
+                  <Td color={C.verdeMid}><b>{fmtCur(r.total)}</b></Td>
+                  <Td>
+                    <Etiquetas contenido={
+                      r.status === "COMPLETED" || r.status === "CONFIRMED" ? "Activo"
+                      : r.status === "PENDING" ? "Pendiente"
+                      : "Inactivo"
+                    } />
+                  </Td>
+                </Tr>
+              ))}
+            </Tabla>
+          )}
+        </Panel>
+
+        {/* ── Movimientos ── */}
+        <Panel>
+          <SectionHeader
+            title="Movimientos de inventario"
+            icon="bi-arrow-left-right"
+            subtitle={`${fmt(totalEntradas)} entradas · ${fmt(totalSalidas)} salidas`}
+            isGrafica={views.movimientos}
+            onToggle={() => toggleView("movimientos")}
+          />
+          {loading ? <Skeleton /> : views.movimientos ? (
+            <>
+              <div style={{ height: 190 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={areaMovs}>
+                    <defs>
+                      <linearGradient id="gEnt" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor={C.verdeMid} stopOpacity={0.4} />
+                        <stop offset="95%" stopColor={C.verdeMid} stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gSal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor={C.rojo} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={C.rojo} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="rgba(231,214,255,0.06)" vertical={false} />
+                    <XAxis dataKey="idx" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip {...TOOLTIP_STYLE} />
+                    <Area type="monotone" dataKey="entrada" name="Entradas" stroke={C.verdeMid} fill="url(#gEnt)" strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="salida"  name="Salidas"  stroke={C.rojo}     fill="url(#gSal)" strokeWidth={2} dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex gap-3 mt-3 flex-wrap">
+                <StatPill label="entradas" value={fmt(totalEntradas)} color={C.verdeMid} />
+                <StatPill label="salidas"  value={fmt(totalSalidas)}  color={C.rojo} />
+              </div>
+            </>
+          ) : (
+            <Tabla encabezados={["Producto", "Tipo", "Cant.", "Anterior → Nuevo", "Usuario"]}>
+              {movs.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center text-text-muted py-8 text-sm">Sin movimientos</td>
+                </tr>
+              ) : movs.map((m, i) => {
+                const entrada = m.tipo?.toLowerCase().includes("entr");
+                return (
+                  <Tr key={m.id} idx={i}>
+                    <Td align="left" color={C.lilaSoft}>{m.productNombre}</Td>
+                    <Td>
+                      <span className="text-xs font-bold" style={{ color: entrada ? C.verdeMid : C.rojo }}>
+                        {entrada ? "Entrada" : "Salida"}
+                      </span>
+                    </Td>
+                    <Td color={entrada ? C.verdeMid : C.rojo}>
+                      <b>{entrada ? "+" : "−"}{fmt(Math.abs(m.cantidad))}</b>
+                    </Td>
+                    <Td mono color={C.muted}>{fmt(m.stockAnterior)} → {fmt(m.stockNuevo)}</Td>
+                    <Td color={C.azul}>{m.usuario}</Td>
+                  </Tr>
+                );
+              })}
+            </Tabla>
+          )}
+        </Panel>
+
+      </div>
+
+      {/* ════════════════════════════════════════════════════════
+          AUDITORÍA
+      ════════════════════════════════════════════════════════ */}
+      <Panel>
+        <SectionHeader
+          title="Actividad reciente · Auditoría"
+          icon="bi-clock-history"
+          subtitle={`${acts.length} eventos registrados`}
+          isGrafica={views.auditoria}
+          onToggle={() => toggleView("auditoria")}
+        />
+
+        {loading ? <Skeleton rows={4} /> : views.auditoria ? (
+
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap gap-2">
+              {barAudit.map((b) => (
+                <StatPill key={b.accion} label={b.accion} value={b.total} color={b.color} />
+              ))}
+            </div>
+            <div style={{ height: Math.max(200, barAudit.length * 52 + 40) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={barAudit} layout="vertical" barSize={28}
+                  margin={{ left: 8, right: 40, top: 4, bottom: 4 }}
+                >
+                  <CartesianGrid stroke="rgba(231,214,255,0.06)" horizontal={false} />
+                  <XAxis type="number" tick={{ fill: C.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    dataKey="accion" type="category"
+                    tick={{ fill: C.lilaSoft, fontSize: 12, fontWeight: 600 }}
+                    axisLine={false} tickLine={false} width={90}
+                  />
+                  <Tooltip contentStyle={TOOLTIP_STYLE.contentStyle} />
+                  <Bar
+                    dataKey="total" name="Acciones" radius={[0, 6, 6, 0]}
+                    label={{ position: "right", fill: C.lilaSoft, fontSize: 12, fontWeight: 700 }}
+                  >
+                    {barAudit.map((e, i) => <Cell key={i} fill={e.color} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+        ) : (
+
+          <Tabla encabezados={["Acción", "Recurso", "Resource ID", "Usuario", "Detalles", "Fecha"]}>
+            {acts.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center text-text-muted py-8 text-sm">
+                  Sin actividad reciente
+                </td>
+              </tr>
+            ) : acts.map((a, i) => (
+              <Tr key={a.id} idx={i}>
+                <Td><ActionBadge action={a.action} /></Td>
+                <Td color={C.lilaMid}>{a.resource}</Td>
+                <Td mono color={C.muted}>{a.resourceId?.slice(0, 12)}</Td>
+                <Td color={C.azul}>{a.usuario}</Td>
+                <Td color={C.muted}>{a.details ? Object.keys(a.details).slice(0, 2).join(", ") : "—"}</Td>
+                <Td color={C.muted}>{fmtDate(a.createdAt)}</Td>
+              </Tr>
+            ))}
+          </Tabla>
+
+        )}
+      </Panel>
+
     </div>
   );
 }
