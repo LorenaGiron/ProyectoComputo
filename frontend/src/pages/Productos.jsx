@@ -159,7 +159,11 @@ export default function Productos() {
         stock: stockCalculado, 
         activo: datosFormulario.estado === "Activo",
         inventario: datosFormulario.inventario,
-        imagen: imageUrl 
+        imagen: imageUrl,
+        stockMinimo: Number(datosFormulario.stockMinimo),
+        unidad: datosFormulario.unidad,
+        supplierId: datosFormulario.supplierId,
+        supplierNombre: datosFormulario.supplierNombre
       };
 
       if (productoAEditar && productoAEditar.id) {
@@ -238,7 +242,7 @@ export default function Productos() {
       </h1>
 
       <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full xl:w-7/12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12">
           <Tarjetas label="Total productos" value={totalProd} sub="Registrados" icon="bi bi-box-seam" />
           
           <Tarjetas 

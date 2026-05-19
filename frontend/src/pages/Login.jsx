@@ -118,17 +118,17 @@ export default function Login() {
         
         <div className="w-full max-w-md text-center z-10">
           <h2 className="font-cinzel text-4xl lg:text-5xl tracking-[-0.02em] text-lila mb-6">
-            INICIAR SESIÓN
+            Iniciar Sesión
           </h2>
 
-          <p className="font-baskervville text-sm tracking-widest uppercase mb-12">
+          <p className="font-poppins text-sm tracking-widest uppercase mb-12">
             Bienvenido de nuevo
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="text-left space-y-8">
             
             <div className="flex flex-col">
-              <label className="mb-2 font-baskervville text-xl text-lila tracking-[-0.02em]">
+              <label className="mb-2 font-poppins text-lg text-lila tracking-[-0.02em]">
                 Usuario
               </label>
 
@@ -138,12 +138,12 @@ export default function Login() {
                 disabled={isSubmitting}
                 className={`w-full p-3 bg-lila text-oscuro outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all ${errors.usuario ? 'border-2 border-error-text' : 'border border-transparent'}`}
               />
-              {errors.usuario && <span className="text-error-text text-sm mt-2 font-baskervville">{errors.usuario.message}</span>}
+              {errors.usuario && <span className="text-error-text text-sm mt-2 font-poppins">{errors.usuario.message}</span>}
             </div>
 
             <div className="flex flex-col">
-              <label className="mb-2 font-baskervville text-xl text-lila tracking-[-0.02em]">
-                Password
+              <label className="mb-2 font-poppins text-lg text-lila tracking-[-0.02em]">
+                Contraseña
               </label>
 
               <input 
@@ -152,16 +152,16 @@ export default function Login() {
                 disabled={isSubmitting}
                 className={`w-full p-3 bg-lila text-oscuro outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all ${errors.password ? 'border-2 border-error-text' : 'border border-transparent'}`}
               />
-              {errors.password && <span className="text-error-text text-sm mt-2 font-baskervville">{errors.password.message}</span>}
+              {errors.password && <span className="text-error-text text-sm mt-2 font-poppins">{errors.password.message}</span>}
             </div>
 
             <div className="pt-6 flex justify-center w-full">
               <button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full max-w-md h-12 flex justify-center items-center gap-2 bg-transparent border border-lila rounded-xl text-lila font-baskervville text-lg tracking-widest hover:bg-lila hover:text-oscuro transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full max-w-md h-12 flex justify-center items-center gap-2 bg-transparent border border-lila rounded-xl text-lila font-poppins text-md tracking-widest hover:bg-lila hover:text-oscuro transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'CARGANDO...' : 'LOGIN'}
+                {isSubmitting ? 'Cargando...' : 'Iniciar Sesión'}
               </button>
             </div>
 
@@ -169,7 +169,7 @@ export default function Login() {
               <Link 
                 to="#" 
                 onClick={openModal}
-                className="font-baskervville text-sm opacity-80 hover:opacity-100 transition-opacity"
+                className="font-poppins text-sm opacity-80 hover:opacity-100 transition-opacity"
               >
                 ¿Olvidaste tu contraseña?
               </Link>
@@ -177,7 +177,7 @@ export default function Login() {
           </form>
         </div>
 
-        <div className="absolute bottom-8 font-baskervville text-sm tracking-widest uppercase opacity-80 text-center w-full left-0 z-10">
+        <div className="absolute bottom-8 font-poppins text-sm tracking-widest uppercase opacity-80 text-center w-full left-0 z-10">
           Compromiso con nuestros clientes
         </div>
 
@@ -198,11 +198,11 @@ export default function Login() {
             </div>
           </div>
 
-          <h3 className="font-baskervville text-2xl tracking-widest border-b border-lila/30 pb-4 mb-8 leading-snug">
+          <h3 className="font-poppins text-2xl tracking-widest border-b border-lila/30 pb-4 mb-8 leading-snug">
             RECUPERACIÓN DE <br/> CONTRASEÑA
           </h3>
 
-          <div className="font-baskervville space-y-6 text-[15px] leading-relaxed text-center px-2">
+          <div className="font-poppins space-y-6 text-[15px] leading-relaxed text-center px-2">
             <p>
               Por políticas de seguridad del sistema, el restablecimiento de contraseñas es gestionado exclusivamente por el administrador del sistema.
             </p>
@@ -211,7 +211,7 @@ export default function Login() {
             </p>
           </div>
 
-          <div className="mt-10 border-l-2 border-lila/50 pl-4 font-baskervville text-sm text-left opacity-90">
+          <div className="mt-10 border-l-2 border-lila/50 pl-4 font-poppins text-sm text-left opacity-90">
             <p>Si desconoce quién es el administrador asignado,</p>
             <p>contacte al responsable de su área o departamento.</p>
           </div>
