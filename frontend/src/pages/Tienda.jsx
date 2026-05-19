@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import HeaderTienda from "../components/tienda/HeaderTienda";
 import FooterTienda from "../components/tienda/FooterTienda";
 import BarraAnuncios from "../components/tienda/BarraAnuncios";
@@ -19,6 +20,7 @@ const filtrosIniciales = {
 
 export default function Tienda() {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const [busqueda, setBusqueda]               = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("todas");
   const [ordenamiento, setOrdenamiento]       = useState("relevancia");
@@ -29,8 +31,7 @@ export default function Tienda() {
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    logout();
     navigate("/login");
   };
 
