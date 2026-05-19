@@ -1,8 +1,7 @@
-// Imports temporalmente comentados debido a problemas de Vite con jsPDF
-// import jsPDF from 'jspdf'
-// import autoTable from 'jspdf-autotable'
-// import ExcelJS from 'exceljs'
-// import { saveAs } from 'file-saver'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 
 // Paleta de la app en RGB
 const C = {
