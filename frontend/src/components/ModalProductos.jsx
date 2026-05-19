@@ -3,9 +3,20 @@ import Boton from "./Boton";
 
 export default function ModalProductos({ data, onEdit, onDelete }) {
   // Cálculo del stock total
-  const stockTotal = data.inventario.reduce((acc, item) => acc + item.stock, 0);
+  const stockTotal = data.inventario?.reduce((acc, item) => acc + item.stock, 0) || 0;
 
   const textoEstado = data.activo !== false ? "Activo" : "Inactivo";
+
+  const abrUnidad = (() => {
+    const u = data.unidad || "Pieza";
+    switch(u) {
+      case "Pieza": return "pz";
+      case "Par": return "par";
+      case "Caja": return "cj";
+      case "Paquete": return "pq";
+      default: return "u";
+    }
+  })();
   
   return (
     <div className="p-4 md:p-6 text-blanco font-poppins h-full">
@@ -55,29 +66,34 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
             </div>
           </div>
 
-          {/* Precios y Stock */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-oscuro/20 rounded-xl p-4 border border-lila/5 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-oscuro/20 rounded-xl p-4 border border-lila/5 mb-6">
             <div className="text-center pb-2 sm:pb-0 border-b sm:border-b-0 sm:border-r border-lila/10">
-              <p className="text-xs text-lila-soft mb-1 uppercase tracking-wider">STOCK TOTAL</p>
+              <p className="text-[10px] text-lila-soft mb-1 uppercase tracking-wider">STOCK TOTAL</p>
               <p className="font-bold text-xl">{stockTotal}</p>
             </div>
-            <div className="text-center py-2 sm:py-0 border-b sm:border-b-0 sm:border-r border-lila/10">
-              <p className="text-xs text-lila-soft mb-1 uppercase tracking-wider">PRECIO COMPRA</p>
+            <div className="text-center pb-2 sm:pb-0 border-b sm:border-b-0 sm:border-r border-lila/10">
+              <p className="text-[10px] text-lila-soft mb-1 uppercase tracking-wider">STOCK MÍNIMO</p>
+              <p className={`font-bold text-xl ${stockTotal <= (data.stockMinimo || 0) ? 'text-rojo animate-pulse' : 'text-blanco'}`}>
+                {data.stockMinimo || 0}
+              </p>
+            </div>
+            <div className="text-center pt-2 sm:pt-0 sm:border-r border-lila/10">
+              <p className="text-[10px] text-lila-soft mb-1 uppercase tracking-wider">P. COMPRA</p>
               <p className="font-bold text-xl text-azul">${data.precioCompra || '0'}</p>
             </div>
             <div className="text-center pt-2 sm:pt-0">
-              <p className="text-xs text-lila-soft mb-1 uppercase tracking-wider">PRECIO VENTA</p>
+              <p className="text-[10px] text-lila-soft mb-1 uppercase tracking-wider">P. VENTA</p>
               <p className="font-bold text-xl text-verde">${data.precioVenta || '0'}</p>
             </div>
           </div>
 
-          {/* Existencias por Talla*/}
+          {/* Existencias por Talla / Unidad */}
           <div className="mb-8">
             <p className="text-xs font-bold text-lila-soft mb-4 uppercase tracking-wider flex items-center gap-2">
-              <i className="bi bi-box-seam"></i> Existencias por Talla
+              <i className="bi bi-box-seam"></i> Existencias de Inventario
             </p>
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-              {data.inventario.map((item, index) => (
+              {data.inventario?.map((item, index) => (
                 <div 
                   key={index}
                   className={`flex flex-col items-center justify-center h-14 rounded-xl border transition-all
@@ -87,10 +103,15 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
                 >
                   <span className="text-sm font-bold text-blanco uppercase">{item.talla}</span>
                   <span className={`text-xs font-medium ${item.stock <= 5 && item.stock > 0 ? 'text-amarillo' : 'text-lila-mid'}`}>
-                    {item.stock} pz
+                    {item.stock} {abrUnidad}
                   </span>
                 </div>
               ))}
+              {(!data.inventario || data.inventario.length === 0) && (
+                <div className="col-span-full text-center text-sm text-lila-mid italic py-2">
+                  Sin registros de inventario
+                </div>
+              )}
             </div>
           </div>
 
@@ -98,16 +119,18 @@ export default function ModalProductos({ data, onEdit, onDelete }) {
           <div className="space-y-1 mt-auto bg-oscuro/20 p-4 rounded-xl border border-lila/5">
             {[
               { label: "SKU", value: data.sku, mono: true },
+              { label: "Proveedor", value: data.supplierNombre || "Sin asignar" },
+              { label: "Unidad", value: data.unidad || "Pieza" },
               { label: "Categoría", value: data.categoria },
               { label: "Marca", value: data.marca },
               { label: "Modelo", value: data.modelo }
             ].map((item, idx, arr) => (
               <div 
                 key={item.label} 
-                className={`flex justify-between py-2 ${idx !== arr.length - 1 ? 'border-b border-lila/5' : ''}`}
+                className={`flex justify-between items-center py-2 ${idx !== arr.length - 1 ? 'border-b border-lila/5' : ''}`}
               >
-                <span className="text-lila-mid text-xs font-bold uppercase tracking-wider">{item.label}</span>
-                <span className={`text-sm ${item.mono ? 'font-mono bg-lila/10 px-2 py-0.5 rounded text-lila-soft' : 'text-blanco font-medium'}`}>
+                <span className="text-lila-mid text-xs font-bold uppercase tracking-wider w-1/3">{item.label}</span>
+                <span className={`text-sm text-right w-2/3 truncate ${item.mono ? 'font-mono bg-lila/10 px-2 py-0.5 rounded text-lila-soft inline-block w-auto ml-auto' : 'text-blanco font-medium'}`}>
                   {item.value || 'N/A'}
                 </span>
               </div>

@@ -54,15 +54,16 @@ export default function Tabla({
       return { type: "number", value };
     }
 
-    // Si es string, intentar convertir a número
+    // Si es string, limpiar símbolos y comas, luego intentar convertir a número
     if (typeof value === "string") {
-      const trimmed = value.trim();
-      const asNumber = parseFloat(trimmed);
+      // Reemplaza el signo $, las comas y los espacios para quedarse solo con el número
+      const cleanString = value.replace(/[$,\s]/g, '').trim(); 
+      const asNumber = parseFloat(cleanString);
       
-      if (!isNaN(asNumber) && trimmed !== "") {
+      if (!isNaN(asNumber) && cleanString !== "") {
         return { type: "number", value: asNumber };
       }
-      return { type: "string", value: trimmed.toLowerCase() };
+      return { type: "string", value: value.trim().toLowerCase() };
     }
 
     return { type: "string", value: String(value).toLowerCase() };
@@ -128,15 +129,17 @@ export default function Tabla({
         
         // Intentar extraer el texto del TD
         let text = "";
-        if (typeof td.props.children === "string") {
-          text = td.props.children;
+
+        if (typeof td.props.children === "string" || typeof td.props.children === "number") {
+          text = String(td.props.children);
         } else if (Array.isArray(td.props.children)) {
           text = td.props.children
-            .map(child => typeof child === "string" ? child : child?.props?.contenido || "")
+            .map(child => (typeof child === "string" || typeof child === "number") ? String(child) : child?.props?.contenido || "")
             .join("");
         } else if (td.props.children?.props?.contenido) {
-          text = td.props.children.props.contenido;
+          text = String(td.props.children.props.contenido);
         }
+
         return text;
       };
 
@@ -173,11 +176,11 @@ export default function Tabla({
                 <th 
                   key={idx}
                   onClick={() => handleSort(idx, header)}
-                  className={`p-4 text-left text-xs uppercase font-bold tracking-wider text-lila ${
+                  className={`p-4 text-center text-xs uppercase font-bold tracking-wider text-lila ${
                     isSortable ? "cursor-pointer hover:text-lila-mid transition-colors" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     {header.label}
                     {isSortable && isSorted && (
                       sortDirection === "asc" ? <ArrowDown size={14} /> : <ArrowUp size={14} />

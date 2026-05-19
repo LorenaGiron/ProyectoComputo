@@ -97,6 +97,8 @@ export class ProductsService {
       unidad: normalizeOptionalText(payload.unidad) || '',
       marca: normalizeOptionalText(payload.marca) || '',
       modelo: normalizeOptionalText(payload.modelo) || '',
+      supplierId: normalizeOptionalText(payload.supplierId) || '',
+      supplierNombre: normalizeOptionalText(payload.supplierNombre) || '',
       precioCompra: Number(payload.precioCompra ?? 0),
       precioVenta: Number(payload.precioVenta ?? 0),
       stock: Number(payload.stock ?? 0),
@@ -163,6 +165,8 @@ export class ProductsService {
     if (payload.unidad !== undefined) data.unidad = normalizeOptionalText(payload.unidad) || ''
     if (payload.marca !== undefined) data.marca = normalizeOptionalText(payload.marca) || ''
     if (payload.modelo !== undefined) data.modelo = normalizeOptionalText(payload.modelo) || ''
+    if (payload.supplierId !== undefined) data.supplierId = normalizeOptionalText(payload.supplierId) || ''
+    if (payload.supplierNombre !== undefined) data.supplierNombre = normalizeOptionalText(payload.supplierNombre) || ''
     if (payload.precioCompra !== undefined) data.precioCompra = Number(payload.precioCompra)
     if (payload.precioVenta !== undefined) data.precioVenta = Number(payload.precioVenta)
     if (payload.imagen !== undefined) data.imagen = payload.imagen || null
@@ -261,6 +265,8 @@ export class ProductsService {
       unidad: product.unidad || '',
       marca: product.marca || '',
       modelo: product.modelo || '',
+      supplierId: product.supplierId || '',
+      supplierNombre: product.supplierNombre || '',
       precioCompra: Number(product.precioCompra || 0),
       precioVenta: Number(product.precioVenta || 0),
       stock: Number(product.stock || 0),

@@ -1,15 +1,29 @@
 import { useState, useEffect } from "react";
+import { api } from "../services/api";
 import Input from "./Input";
 import Boton from "./Boton";
 
 export default function FormProductos({ data, onGuardar, onCancelar }) {
   const [formData, setFormData] = useState({
-    sku: "", nombre: "", departamento: "", categoria: "", 
-    marca: "", modelo: "", descripcion: "", pVenta: "", pCompra: "", estado: "Activo",
+    sku: "", 
+    nombre: "", 
+    departamento: "", 
+    categoria: "", 
+    marca: "", 
+    modelo: "", 
+    descripcion: "", 
+    pVenta: "", 
+    pCompra: "", 
+    estado: "Activo",
     inventario: [],
-    imagen: null 
+    imagen: null,
+    stockMinimo: data?.stockMinimo || 0,
+    unidad: data?.unidad || "Pieza",
+    supplierId: data?.supplierId || "", 
+    supplierNombre: data?.supplierNombre || "", 
   });
 
+  const [proveedores, setProveedores] = useState([]);
   const [imagenPreview, setImagenPreview] = useState(null);
 
   const [tallaSeleccionada, setTallaSeleccionada] = useState("");
@@ -29,6 +43,24 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
     setTallaSeleccionada("");
   }, [formData.categoria]);
 
+  useEffect(() => {
+    api.get("/suppliers?limit=100")
+      .then((res) => setProveedores(res.items || res))
+      .catch(console.error);
+  }, []);
+
+  // Datos del proveedor
+  const handleProveedorChange = (e) => {
+    const nombreSeleccionado = e.target.value;
+    const prov = proveedores.find(p => p.nombre === nombreSeleccionado);
+    
+    setFormData(prev => ({
+      ...prev,
+      supplierNombre: nombreSeleccionado,
+      supplierId: prov ? prov.id : ""
+    }));
+  };
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -182,6 +214,18 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
             
             <Input label="Marca" name="marca" value={formData.marca} onChange={handleChange} />
             <Input label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
+
+            <div className="md:col-span-2 mt-2">
+              <Input 
+                label="Proveedor" 
+                name="supplierNombre" 
+                tipo="select" 
+                opciones={proveedores ? proveedores.map(p => p.nombre) : []} 
+                value={formData.supplierNombre} 
+                onChange={handleProveedorChange} 
+              />
+            </div>
+
           </div>
         </div>
 
@@ -210,8 +254,27 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
         {/* Inventario */}
         <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
           <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
-            <i className="bi bi-box-seam"></i> Inventario
+            <i className="bi bi-box-seam"></i> Inventario y Alertas
           </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Input 
+              label="Stock Mínimo" 
+              tipo="number" 
+              name="stockMinimo" 
+              value={formData.stockMinimo} 
+              onChange={handleChange} 
+            />
+            
+            <Input 
+              label="Unidad de Medida" 
+              name="unidad" 
+              tipo="select" 
+              opciones={["Pieza", "Par", "Caja", "Paquete"]} 
+              value={formData.unidad || "Pieza"} 
+              onChange={handleChange} 
+            />
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-3 items-end mb-6 bg-lila/5 p-4 rounded-lg border border-lila/10">
             <div className="flex-1 w-full">
@@ -275,7 +338,7 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
 
         {/* Footer */}
         <div className="flex justify-end gap-3 pt-4 border-t border-lila/20">
-          <Boton variante="claro" onClick={onCancelar} tipo="button">
+          <Boton variante="oscuro" onClick={onCancelar} tipo="button">
             <i className="bi bi-x-lg"></i> Cancelar
           </Boton>
           <Boton variante="claro" tipo="submit">

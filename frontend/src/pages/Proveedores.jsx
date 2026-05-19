@@ -305,7 +305,7 @@ const handleGuardarProveedor = async () => {
           { header: "Teléfono", key: "telefono", width: 16 },
           { header: "Estado",   key: "estado",   width: 12 },
         ]}
-        exportFilas={rows.map((p) => ({
+        exportFilas={usuarios.map((p) => ({
           nombre:   p.nombre,
           rfc:      p.rfc,
           giro:     p.giro,
