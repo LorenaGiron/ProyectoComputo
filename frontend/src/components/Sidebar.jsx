@@ -1,36 +1,36 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAuth } from "../hooks/useAuth"; 
+import { useAuth } from "../hooks/useAuth";
 import Boton from "./Boton";
 
 const navItems = [
   {
     section: "GENERAL",
     items: [
-      { label: "Dashboard",   ruta: "/dashboard",   icon: LayoutDashboard },
-      { label: "Productos",   ruta: "/productos",   icon: Package         },
+      { label: "Dashboard",   ruta: "/dashboard",   icon: LayoutDashboard, permiso: "dashboard:read" },
+      { label: "Productos",   ruta: "/productos",   icon: Package,         permiso: "products:read" },
     ],
   },
   {
     section: "GESTIÓN",
     items: [
-      { label: "Recepciones", ruta: "/recepciones", icon: ClipboardList   },
-      { label: "Clientes",    ruta: "/clientes",    icon: Users           },
-      { label: "Proveedores", ruta: "/proveedores", icon: Truck           },
-      { label: "Usuarios",    ruta: "/usuarios",    icon: UserCog         },
+      { label: "Recepciones", ruta: "/recepciones", icon: ClipboardList,   permiso: "recepciones:read" },
+      { label: "Clientes",    ruta: "/clientes",    icon: Users,           permiso: "clients:read" },
+      { label: "Proveedores", ruta: "/proveedores", icon: Truck,           permiso: "suppliers:read" },
+      { label: "Usuarios",    ruta: "/usuarios",    icon: UserCog,         permiso: "users:read" },
     ],
   },
   {
     section: "CONTROL",
     items: [
-      { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck     },
+      { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck,     permiso: "audit:read" },
     ],
   },
 ];
 
 export default function Sidebar() {
-  const { logout } = useAuth();
+  const { logout, usuario } = useAuth();
   const navigate   = useNavigate();
   const location   = useLocation();
   const [collapsed, setCollapsed] = useState(
@@ -40,6 +40,17 @@ export default function Sidebar() {
   const handleCerrarSesion = () => {
     logout();               
     navigate("/login");   
+  };
+
+  // Función para verificar si el usuario tiene permiso para una ruta
+  const tienePermiso = (permisoRequerido) => {
+    if (!permisoRequerido) return true; // Si no requiere permiso, mostrar
+    if (!usuario?.permissions) return false; // Si no tiene permisos, no mostrar
+    
+    return usuario.permissions.includes(permisoRequerido) || 
+           usuario.roleId === "role_admin" || 
+           usuario.roleId === "ADMIN" ||
+           usuario.roleId === "GERENTE";
   };
 
   return (
@@ -101,65 +112,73 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-2 overflow-y-auto">
-        {navItems.map((group) => (
-          <div key={group.section} className="mb-6">
-            {collapsed
-              ? <div className="mb-2 h-px bg-white/5" />
-              : (
-                <h2
-                  className="px-4 mb-4 text-[12px] tracking-[4px] text-[#B9A7F5]/60 font-medium"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  {group.section}
-                </h2>
-              )
-            }
+        {navItems.map((group) => {
+          // Filtrar items que el usuario tiene permiso para ver
+          const itemsConPermiso = group.items.filter(item => tienePermiso(item.permiso));
+          
+          // No mostrar el grupo si no tiene items con permiso
+          if (itemsConPermiso.length === 0) return null;
 
-            <div className="flex flex-col gap-2">
-              {group.items.map(({ label, ruta, icon: Icon }) => {
-                const isActive = location.pathname === ruta;
-
-                return (
-                  <button
-                    key={label}
-                    onClick={() => navigate(ruta)}
-                    title={collapsed ? label : undefined}
-                    className={`group relative flex items-center w-full h-[50px] rounded-2xl transition-all duration-300 overflow-hidden ${
-                      collapsed ? "justify-center px-0" : "gap-4 px-5"
-                    } ${
-                      isActive
-                        ? "bg-[#31275E] shadow-[0_0_20px_rgba(139,92,246,0.18)]"
-                        : "hover:bg-white/[0.04]"
-                    }`}
+          return (
+            <div key={group.section} className="mb-6">
+              {collapsed
+                ? <div className="mb-2 h-px bg-white/5" />
+                : (
+                  <h2
+                    className="px-4 mb-4 text-[12px] tracking-[4px] text-[#B9A7F5]/60 font-medium"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-[70%] rounded-r-full bg-[#BFA7FF] shadow-[0_0_15px_rgba(191,167,255,0.9)]" />
-                    )}
+                    {group.section}
+                  </h2>
+                )
+              }
 
-                    <div className="transition-all duration-300 group-hover:scale-110">
-                      <Icon
-                        size={22}
-                        strokeWidth={isActive ? 2.4 : 2}
-                        color={isActive ? "#FFFFFF" : "#E7D6FF"}
-                      />
-                    </div>
+              <div className="flex flex-col gap-2">
+                {itemsConPermiso.map(({ label, ruta, icon: Icon }) => {
+                  const isActive = location.pathname === ruta;
 
-                    {!collapsed && (
-                      <span
-                        className={`text-[17px] transition-all duration-300 group-hover:translate-x-1 ${
-                          isActive ? "text-white font-semibold" : "text-[#E7D6FF]/80 font-medium"
-                        }`}
-                        style={{ fontFamily: "'Poppins', sans-serif" }}
-                      >
-                        {label}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => navigate(ruta)}
+                      title={collapsed ? label : undefined}
+                      className={`group relative flex items-center w-full h-[50px] rounded-2xl transition-all duration-300 overflow-hidden ${
+                        collapsed ? "justify-center px-0" : "gap-4 px-5"
+                      } ${
+                        isActive
+                          ? "bg-[#31275E] shadow-[0_0_20px_rgba(139,92,246,0.18)]"
+                          : "hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-[70%] rounded-r-full bg-[#BFA7FF] shadow-[0_0_15px_rgba(191,167,255,0.9)]" />
+                      )}
+
+                      <div className="transition-all duration-300 group-hover:scale-110">
+                        <Icon
+                          size={22}
+                          strokeWidth={isActive ? 2.4 : 2}
+                          color={isActive ? "#FFFFFF" : "#E7D6FF"}
+                        />
+                      </div>
+
+                      {!collapsed && (
+                        <span
+                          className={`text-[17px] transition-all duration-300 group-hover:translate-x-1 ${
+                            isActive ? "text-white font-semibold" : "text-[#E7D6FF]/80 font-medium"
+                          }`}
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          {label}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Footer */}

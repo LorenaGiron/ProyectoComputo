@@ -23,6 +23,7 @@ export default function HeaderTienda({
   onAbrirCarrito,
   categoriaActiva,
   onSeleccionarCategoria,
+  onLogout,
 }) {
   return (
     <header className="sticky top-0 z-40 bg-oscuro/95 backdrop-blur-md border-b border-lila/10">
@@ -91,6 +92,15 @@ export default function HeaderTienda({
                 {cantidadCarrito}
               </span>
             )}
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={onLogout}
+            className="w-10 h-10 rounded-full text-rojo hover:bg-rojo hover:text-oscuro flex items-center justify-center transition"
+            title="Cerrar sesión"
+          >
+            <i className="bi bi-box-arrow-right text-lg" />
           </button>
         </div>
       </div>

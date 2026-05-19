@@ -7,6 +7,7 @@ import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
 import AccionesTabla from "../components/AccionesTabla";
+import Paginacion from "../components/Paginacion";
 import Tabla from "../components/Tabla";
 import Modal from "../components/Modal";
 import ModalUsuarios from "../components/ModalUsuarios";
@@ -30,6 +31,9 @@ export default function Usuarios() {
   const [guardando, setGuardando] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("exito");
+  
+  // Estados para la paginación
+  const [paginaActiva, setPaginaActiva] = useState(1);
 
   // Estados para Modales
   const [isModalVerAbierto, setIsModalVerAbierto] = useState(false);
@@ -84,6 +88,10 @@ export default function Usuarios() {
     fetchUsuarios();
   }, []);
 
+  useEffect(() => {
+    setPaginaActiva(1);
+  }, [filtro, busqueda]);
+
   const datosFiltrados = usuariosDB
     .filter((row) => {
       // Excluir usuarios con rol CLIENTE
@@ -104,6 +112,14 @@ export default function Usuarios() {
   const usuariosSinClientes = usuariosDB.filter(u => u.roleId !== 'CLIENTE' && u.role !== 'CLIENTE');
   const activos = usuariosSinClientes.filter((u) => u.activo !== false).length;
   const inactivos = usuariosSinClientes.filter((u) => u.activo === false).length;
+
+  // Cálculos matemáticos para la paginación
+  const start = (paginaActiva - 1) * LIMIT;
+  const datosPaginados = datosFiltrados.slice(start, start + LIMIT);
+
+  const textoRango = datosFiltrados.length === 0 
+    ? "0" 
+    : `${start + 1} – ${Math.min(paginaActiva * LIMIT, datosFiltrados.length)}`;
 
   const mostrarToast = (mensaje, tipo = "exito") => {
     setToastMessage(mensaje);
@@ -200,6 +216,13 @@ export default function Usuarios() {
     } finally {
       setGuardando(false);
     }
+  };
+
+  const handleCambiarPagina = (page) => {
+    const totalPaginas = Math.ceil(datosFiltrados.length / LIMIT);
+    if (page === "‹") setPaginaActiva((prev) => Math.max(1, prev - 1));
+    else if (page === "›") setPaginaActiva((prev) => Math.min(totalPaginas, prev + 1));
+    else setPaginaActiva(Number(page));
   };
 
   const renderRow = (row, i) => (
@@ -304,9 +327,32 @@ export default function Usuarios() {
       {/* Tabla */}
       <Tabla 
         encabezados={encabezadosUsuarios}
-        datos={datosFiltrados}
+        datos={datosPaginados}
         renderRow={renderRow}
         sortableFields={["usuario", "nombre", "email", "rol"]}
+      />
+
+      <Paginacion
+        paginaActual={paginaActiva}
+        totalRegistros={datosFiltrados.length}
+        rangoSiguiente={textoRango}
+        limit={LIMIT}
+        onCambiarPagina={handleCambiarPagina}
+        exportTitulo="Gestión de Usuarios"
+        exportColumnas={[
+          { header: "Usuario",  key: "usuario",  width: 15 },
+          { header: "Nombre",   key: "nombre",   width: 20 },
+          { header: "Email",    key: "email",    width: 25 },
+          { header: "Rol",      key: "rol",      width: 15 },
+          { header: "Estado",   key: "estado",   width: 12 },
+        ]}
+        exportFilas={datosFiltrados.map((u) => ({
+          usuario: u.usuario || "-",
+          nombre: `${u.nombre || ""} ${u.apellido || ""}`.trim(),
+          email: u.email || "-",
+          rol: u.role || u.roleId || "Sin rol",
+          estado: u.activo !== false ? "Activo" : "Inactivo",
+        }))}
       />
 
       {/* Modal Ver Detalles */}
