@@ -9,7 +9,7 @@ import Productos from './pages/Productos'
 import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
-import TiendaEnProceso from "./pages/TiendaEnProceso";
+import Tienda from "./pages/Tienda";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./App.css";
@@ -121,13 +121,13 @@ function App() {
           }
         />
 
-        {/* Tienda en Proceso (para clientes) */}
+        {/* Tienda (para clientes) */}
         <Route
           path="/tienda"
           element={
-            <ProtectedRoute requiredPage="tienda">
-              <TiendaEnProceso />
-            </ProtectedRoute>
+            //<ProtectedRoute requiredPage="tienda">
+              <Tienda />
+            //</ProtectedRoute>
           }
         />
 
