@@ -245,7 +245,7 @@ const handleGuardarProveedor = async () => {
       )}
 
       {/* TARJETAS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">
         <Tarjetas 
           label="Total de proveedores" 
           value={stats.total} 
