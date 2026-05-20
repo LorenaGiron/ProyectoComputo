@@ -14,6 +14,7 @@ import {
   updateSupplier,
   deleteSupplier,
 } from "../services/suppliers.service";
+import useTitulo from "../hooks/useTitulo";
 
 const LIMIT = 10;
 
@@ -41,6 +42,8 @@ const FORM_VACIO = {
 };
 
 export default function Proveedores() {
+  useTitulo("Proveedores");
+
   // ─── Datos ────────────────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState([]);
   const [stats, setStats] = useState({ total: 0, activos: 0, inactivos: 0 });
@@ -242,24 +245,35 @@ const handleGuardarProveedor = async () => {
       )}
 
       {/* TARJETAS */}
-      <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
-        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(""); setPaginaActiva(1); }}>
-          <Tarjetas label="Total de proveedores" value={stats.total} sub="Todos los proveedores" icon="bi bi-building" />
-        </div>
-        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(statusFilter === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}>
-          <Tarjetas
-            label="Proveedores activos" value={stats.activos}
-            sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
-            accent="#22C55E" icon="bi bi-check-circle"
-          />
-        </div>
-        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(statusFilter === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}>
-          <Tarjetas
-            label="Proveedores inactivos" value={stats.inactivos}
-            sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
-            accent="#EF4444" icon="bi bi-x-circle"
-          />
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12 mb-8">
+        <Tarjetas 
+          label="Total de proveedores" 
+          value={stats.total} 
+          sub="Todos los proveedores" 
+          icon="bi bi-building" 
+          onClick={() => { setStatusFilter(""); setPaginaActiva(1); }}
+          isActive={statusFilter === ""}
+        />
+        
+        <Tarjetas
+          label="Proveedores activos" 
+          value={stats.activos}
+          sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
+          accent="#22C55E" 
+          icon="bi bi-check-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Activo"}
+        />
+        
+        <Tarjetas
+          label="Proveedores inactivos" 
+          value={stats.inactivos}
+          sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
+          accent="#EF4444" 
+          icon="bi bi-x-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Inactivo"}
+        />
       </div>
 
       {/* TOOLBAR */}

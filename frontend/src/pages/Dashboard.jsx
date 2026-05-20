@@ -9,6 +9,7 @@ import Tarjetas from "../components/Tarjetas";
 import Tabla from "../components/Tabla";
 import Etiquetas from "../components/Etiquetas";
 import Toast from "../components/Toast";
+import useTitulo from "../hooks/useTitulo";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -193,6 +194,7 @@ function buildRecepValor(receps) {
 //  DASHBOARD
 // ═══════════════════════════════════════════════════════════════
 export default function Dashboard() {
+  useTitulo("Dashboard");
   const [summary,  setSummary]  = useState(null);
   const [activity, setActivity] = useState(null);
   const [loading,  setLoading]  = useState(true);

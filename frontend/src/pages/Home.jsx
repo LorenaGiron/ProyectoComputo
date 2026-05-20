@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
+import { use, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import heroCollage from "../assets/images/hero-collage.jpg";
 import clothesRack1 from "../assets/images/clothes-rack-1.jpg";
 import clothesRack2 from "../assets/images/clothes-rack-2.jpg";
 import clothesRack3 from "../assets/images/clothes-rack-3.jpg";
-
+import useTitulo from "../hooks/useTitulo";
 
 
 
@@ -494,6 +494,7 @@ const IconX = () => (
 
 // ─── Home Component ─────────────────────────────────────────────────────────
 export default function Home() {
+  useTitulo("Home");
   const cardRefs = useRef([]);
   const navigate = useNavigate();
 

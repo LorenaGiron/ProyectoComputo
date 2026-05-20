@@ -18,6 +18,7 @@ export class RecepcionesService {
     const {
       q = '',
       status,
+      fechaDesde,
       page = 1,
       limit = 10
     } = query
@@ -41,6 +42,15 @@ export class RecepcionesService {
           String(recepcion.status || '').toLowerCase().includes(term)
         )
       })
+    }
+
+    if (fechaDesde) {
+      const tiempoDesde = new Date(fechaDesde).getTime();
+      
+      filtered = filtered.filter((recepcion) => {
+        const tiempoRecepcion = new Date(recepcion.createdAt || 0).getTime();
+        return tiempoRecepcion >= tiempoDesde;
+      });
     }
 
     filtered.sort((a, b) => {

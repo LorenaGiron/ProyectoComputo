@@ -10,6 +10,7 @@ import FiltrosSidebar from "../components/tienda/FiltrosSidebar";
 import BarraOrdenamiento from "../components/tienda/BarraOrdenamiento";
 import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
 import { productosSimulados } from "../components/tienda/datosSimulados";
+import useTitulo from "../hooks/useTitulo";
 
 const filtrosIniciales = {
   precioMax:    2000,
@@ -19,6 +20,8 @@ const filtrosIniciales = {
 };
 
 export default function Tienda() {
+  useTitulo("Tienda");
+
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const [busqueda, setBusqueda]               = useState("");

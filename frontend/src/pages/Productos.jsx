@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { uploadImageToCloudinary } from "../services/cloudinaryClient"; 
 
+import useTitulo from "../hooks/useTitulo";
+
 import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
@@ -15,6 +17,8 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import BarraCategorias from "../components/BarraCategorias";
 
 export default function Productos() {
+  useTitulo("Productos");
+  
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
   
@@ -243,7 +247,14 @@ export default function Productos() {
 
       <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12">
-          <Tarjetas label="Total productos" value={totalProd} sub="Registrados" icon="bi bi-box-seam" />
+          <Tarjetas 
+            label="Total productos" 
+            value={totalProd} 
+            sub="Registrados" 
+            icon="bi bi-box-seam" 
+            onClick={() => { setFiltro(""); setPaginaActiva(1); }}
+            isActive={filtro === ""}
+          />
           
           <Tarjetas 
             label="Productos Activos" 
@@ -251,13 +262,18 @@ export default function Productos() {
             sub={`${activosPorc}% del catálogo`} 
             accent="#28B463" 
             icon="bi bi-check-circle" 
+            onClick={() => { setFiltro(filtro === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}
+            isActive={filtro === "Activo"}
           />
+          
           <Tarjetas 
             label="Productos Inactivos" 
             value={inactivosProd} 
             sub={`${inactivosPorc}% del catálogo`} 
             accent="#C0392B" 
             icon="bi bi-x-circle" 
+            onClick={() => { setFiltro(filtro === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}
+            isActive={filtro === "Inactivo"}
           />
         </div>
 
