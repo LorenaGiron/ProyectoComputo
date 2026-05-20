@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { api } from "../services/api";
 import { uploadImageToCloudinary } from "../services/cloudinaryClient"; 
 
+import useTitulo from "../hooks/useTitulo";
+
 import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
@@ -15,6 +17,8 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import BarraCategorias from "../components/BarraCategorias";
 
 export default function Productos() {
+  useTitulo("Productos");
+  
   const [filtro, setFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
   

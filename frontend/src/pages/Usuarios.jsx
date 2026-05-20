@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, use } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../services/api";
 import { canPerformAction } from "../utils/permissionMapper";
@@ -14,11 +14,13 @@ import ModalUsuarios from "../components/ModalUsuarios";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import FormUsuarios from "../components/FormUsuarios";
 import AvatarUser from "../components/AvatarUser";
+import useTitulo from "../hooks/useTitulo";
 
 /* ─── Página principal ─── */
 const LIMIT = 10;
 
 export default function Usuarios() {
+  useTitulo("Usuarios");
   const { usuario: usuarioLogeado } = useContext(AuthContext);
   
   const [filtro, setFiltro] = useState("");

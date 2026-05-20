@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { api } from "../services/api";
 import { X, Calendar, User, Package } from "lucide-react";
 
+import useTitulo from "../hooks/useTitulo";
+
 import Tarjetas      from "../components/Tarjetas";
 import ToolBar       from "../components/ToolBar";
 import Tabla         from "../components/Tabla";
@@ -459,6 +461,8 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
 
 /* ─── Página principal ─── */
 export default function Recepciones() {
+  useTitulo("Recepciones");
+
   const [rows, setRows]                       = useState([]);
   const [stats, setStats]                     = useState({ total: 0, confirmadas: 0, draft: 0 });
   const [filtro, setFiltro]                   = useState("");

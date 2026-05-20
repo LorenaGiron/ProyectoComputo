@@ -5,6 +5,7 @@ import Paginacion from "../components/Paginacion";
 import Modal from "../components/Modal";
 import ModalAuditoria from "../components/ModalAuditoria";
 import { useAuth } from "../hooks/useAuth";
+import useTitulo from "../hooks/useTitulo";
 
 const LIMIT = 7;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -58,6 +59,7 @@ function ResourceBadge({ resource }) {
 
 export default function Auditoria() {
   const { token } = useAuth();
+  useTitulo("Auditoría");
 
   const [logs,     setLogs]     = useState([]);
   const [total,    setTotal]    = useState(0);

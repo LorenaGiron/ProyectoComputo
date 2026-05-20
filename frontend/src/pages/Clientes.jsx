@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Etiquetas from "../components/Etiquetas";
 import Tarjetas from "../components/Tarjetas";
 import Tabla from "../components/Tabla";
@@ -9,6 +9,7 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import Input from "../components/Input";
 import Boton from "../components/Boton";
 import { api } from "../services/api";
+import useTitulo from "../hooks/useTitulo";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const LIMIT = 10;
@@ -37,6 +38,8 @@ const opcionesFiltroClientes = [
 const encabezadosClientes = ["Nombre", "RFC", "Email", "Teléfono", "Estado", "Acciones"];
 
 export default function Clientes() {
+  useTitulo("Clientes");
+
   const [rows, setRows] = useState([]);
   const [stats, setStats] = useState({ total: 0, activos: 0, inactivos: 0 });
   const [statusFilter, setStatusFilter] = useState("");

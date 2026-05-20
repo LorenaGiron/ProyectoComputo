@@ -14,6 +14,7 @@ import {
   updateSupplier,
   deleteSupplier,
 } from "../services/suppliers.service";
+import useTitulo from "../hooks/useTitulo";
 
 const LIMIT = 10;
 
@@ -41,6 +42,8 @@ const FORM_VACIO = {
 };
 
 export default function Proveedores() {
+  useTitulo("Proveedores");
+
   // ─── Datos ────────────────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState([]);
   const [stats, setStats] = useState({ total: 0, activos: 0, inactivos: 0 });
