@@ -291,12 +291,14 @@ export default function Usuarios() {
       </h1>
 
       {/* Tarjetas de estadísticas */}
-      <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12 mb-8">
         <Tarjetas 
           label="Total de usuarios" 
           value={usuariosDB.length} 
           sub="Todos los usuarios" 
           icon="bi bi-people"
+          onClick={() => setFiltro("")}
+          isActive={filtro === ""}
         />
         <Tarjetas 
           label="Usuarios Activos" 
@@ -304,6 +306,8 @@ export default function Usuarios() {
           sub={`${usuariosDB.length ? Math.round(activos / usuariosDB.length * 100) : 0}% del total`} 
           accent="#A3E378" 
           icon="bi bi-check-circle" 
+          onClick={() => setFiltro(filtro === true ? "" : true)}
+          isActive={filtro === true}
         />
         <Tarjetas 
           label="Usuarios Inactivos" 
@@ -311,6 +315,8 @@ export default function Usuarios() {
           sub={`${usuariosDB.length ? Math.round(inactivos / usuariosDB.length * 100) : 0}% del total`} 
           accent="#FF6B6B" 
           icon="bi bi-x-circle" 
+          onClick={() => setFiltro(filtro === false ? "" : false)}
+          isActive={filtro === false}
         />
       </div>
 

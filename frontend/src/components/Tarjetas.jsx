@@ -1,7 +1,11 @@
-export default function Tarjetas({ label, value, sub, accent = "#7C6AF7", icon }) {
+export default function Tarjetas({ label, value, sub, accent = "#7C6AF7", icon, onClick, isActive }) {
   return (
     <div
-      className="flex-1 bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg hover:-translate-y-1 transition-transform w-full"
+      onClick={onClick}
+      className={`flex-1 rounded-xl p-6 shadow-lg hover:-translate-y-1 transition-all duration-300 w-full border
+        ${onClick ? "cursor-pointer" : ""} 
+        ${isActive ? "bg-oscuro border-lila/50 shadow-lila/10" : "bg-bg-card border-lila/10"}
+      `}
       style={{ borderLeft: `4px solid ${accent}` }}
     >
       {/* Etiqueta e Ícono  */}

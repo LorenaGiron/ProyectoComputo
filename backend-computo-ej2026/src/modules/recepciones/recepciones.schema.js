@@ -17,6 +17,7 @@ const recepcionItemSchema = z.object({
 export const listRecepcionesQuerySchema = z.object({
   q: z.string().optional().default(''),
   status: z.enum(['DRAFT', 'CONFIRMED']).optional(),
+  fechaDesde: z.string().optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(10)
 })

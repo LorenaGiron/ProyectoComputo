@@ -174,6 +174,23 @@ export default function Clientes() {
     }
   };
 
+  // Creamos una lista filtrada dinámicamente
+  const clientesFiltrados = rows.filter((cliente) => {
+    // 1. Validamos la tarjeta / select
+    const pasaFiltroEstado = statusFilter === "" || cliente.estado === statusFilter;
+    
+    // 2. Validamos la barra de búsqueda (por nombre, rfc, email o teléfono)
+    const textoBuscado = (search || "").toLowerCase();
+    const pasaFiltroBusqueda = 
+      String(cliente.nombre || "").toLowerCase().includes(textoBuscado) ||
+      String(cliente.rfc || "").toLowerCase().includes(textoBuscado) ||
+      String(cliente.email || "").toLowerCase().includes(textoBuscado) ||
+      String(cliente.telefono || "").toLowerCase().includes(textoBuscado);
+
+    // El cliente solo aparece si cumple ambas condiciones
+    return pasaFiltroEstado && pasaFiltroBusqueda;
+  });
+
   useEffect(() => {
     const loadClients = async () => {
       setLoading(true);
@@ -379,12 +396,14 @@ export default function Clientes() {
         Clientes
       </h1>
 
-      <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12 mb-8">
         <Tarjetas
           label="Total de clientes"
           value={stats.total}
           sub="Todos los clientes"
           icon="bi bi-people"
+          onClick={() => { setStatusFilter(""); setPaginaActiva(1); }}
+          isActive={statusFilter === ""}
         />
         <Tarjetas
           label="Clientes activos"
@@ -392,6 +411,8 @@ export default function Clientes() {
           sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
           accent="#22C55E"
           icon="bi bi-check-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Activo"}
         />
         <Tarjetas
           label="Clientes inactivos"
@@ -399,6 +420,8 @@ export default function Clientes() {
           sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
           accent="#EF4444"
           icon="bi bi-x-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Inactivo"}
         />
       </div>
 
@@ -420,14 +443,14 @@ export default function Clientes() {
               Cargando clientes...
             </td>
           </tr>
-        ) : rows.length === 0 ? (
+        ) : clientesFiltrados.length === 0 ? (
           <tr>
             <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-lila">
               No hay resultados
             </td>
           </tr>
         ) : (
-          rows.map((usuario) => (
+          clientesFiltrados.map((usuario) => (
             <tr
               key={usuario.id}
               className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white"

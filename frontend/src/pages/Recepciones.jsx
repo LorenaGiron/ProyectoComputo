@@ -464,7 +464,7 @@ export default function Recepciones() {
   useTitulo("Recepciones");
 
   const [rows, setRows]                       = useState([]);
-  const [stats, setStats]                     = useState({ total: 0, confirmadas: 0, draft: 0 });
+  const [stats, setStats]                     = useState({ total: 0, confirmadas: 0, draft: 0, estaSemana: 0});
   const [filtro, setFiltro]                   = useState("");
   const [busqueda, setBusqueda]               = useState("");
   const [paginaActiva, setPaginaActiva]       = useState(1);
@@ -476,6 +476,7 @@ export default function Recepciones() {
   const [loading, setLoading]                 = useState(true);
   const [refresh, setRefresh]                 = useState(0);
   const [modalExito, setModalExito]           = useState("");
+  const [filtroTiempo, setFiltroTiempo]       = useState("semana"); 
 
   const refetch = useCallback(() => setRefresh((r) => r + 1), []);
 
@@ -492,12 +493,16 @@ export default function Recepciones() {
 
   // Stats
   useEffect(() => {
+    const hace7Dias = new Date();
+    hace7Dias.setDate(hace7Dias.getDate() - 7);
+    const fechaInicio = hace7Dias.toISOString();
     Promise.all([
       api.get("/recepciones?limit=1"),
       api.get("/recepciones?status=CONFIRMED&limit=1"),
       api.get("/recepciones?status=DRAFT&limit=1"),
-    ]).then(([all, confirmed, draft]) => {
-      setStats({ total: all.total, confirmadas: confirmed.total, draft: draft.total });
+      api.get(`/recepciones?limit=1&fechaDesde=${fechaInicio}`)
+    ]).then(([all, confirmed, draft, semana]) => {
+      setStats({ total: all.total, confirmadas: confirmed.total, draft: draft.total, estaSemana: semana.total });
     }).catch(console.error);
   }, [refresh]);
 
@@ -548,19 +553,62 @@ export default function Recepciones() {
           Recepciones
         </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
-            <Tarjetas label="Recepciones" value={stats.total}       sub="este mes"    accent="#7C6AF7" icon="bi bi-box-seam"      />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "CONFIRMED" ? "" : "CONFIRMED"); setPaginaActiva(1); }}>
-            <Tarjetas label="Confirmadas" value={stats.confirmadas} sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} accent="#8DB051" icon="bi bi-check-circle" />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "DRAFT" ? "" : "DRAFT"); setPaginaActiva(1); }}>
-            <Tarjetas label="Draft"       value={stats.draft}       sub="en borrador" accent="#c9c225" icon="bi bi-pencil-square" />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
-            <Tarjetas label="Total"       value={stats.total}       sub="recepciones" accent="#A68DC8" icon="bi bi-layers"        />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8">
+          <Tarjetas 
+            label="Historial"       
+            value={stats.total}       
+            sub="todas las recepciones" 
+            accent="#A68DC8" 
+            icon="bi bi-layers"        
+            onClick={() => { 
+              setFiltro(""); 
+              setFiltroTiempo("todos"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "" && filtroTiempo === "todos"}
+          />
+
+          <Tarjetas 
+            label="Recepciones" 
+            value={stats.estaSemana} 
+            sub="últimos 7 días"    
+            accent="#7C6AF7" 
+            icon="bi bi-calendar-event"      
+            onClick={() => { 
+              setFiltro(""); 
+              setFiltroTiempo(filtroTiempo === "semana" ? "todos" : "semana"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtroTiempo === "semana"}
+          />
+          
+          <Tarjetas 
+            label="Confirmadas" 
+            value={stats.confirmadas} 
+            sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} 
+            accent="#8DB051" 
+            icon="bi bi-check-circle" 
+            onClick={() => { 
+              setFiltroTiempo("todos");
+              setFiltro(filtro === "CONFIRMED" ? "" : "CONFIRMED"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "CONFIRMED"}
+          />
+          
+          <Tarjetas 
+            label="Draft"       
+            value={stats.draft}       
+            sub="en borrador" 
+            accent="#c9c225" 
+            icon="bi bi-pencil-square" 
+            onClick={() => { 
+              setFiltroTiempo("todos"); 
+              setFiltro(filtro === "DRAFT" ? "" : "DRAFT"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "DRAFT"}
+          />
         </div>
 
         <ToolBar
