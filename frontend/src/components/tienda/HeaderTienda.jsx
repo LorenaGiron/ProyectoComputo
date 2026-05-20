@@ -18,6 +18,7 @@ const categorias = [
 export default function HeaderTienda({
   busqueda,
   setBusqueda,
+  onBuscar,
   cantidadCarrito,
   cantidadWishlist,
   onAbrirCarrito,
@@ -29,10 +30,10 @@ export default function HeaderTienda({
     <header className="sticky top-0 z-40 bg-oscuro/95 backdrop-blur-md border-b border-lila/10">
 
       {/* Barra superior: logo + buscador + iconos */}
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-10 py-4 flex items-center gap-6">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-10 py-4 grid grid-cols-[auto_1fr_auto] items-center gap-6">
 
-        {/* Logo */}
-        <div className="flex items-baseline gap-2 shrink-0">
+        {/* Logo — columna izquierda */}
+        <div className="flex items-baseline gap-2">
           <h1
             className="text-4xl text-lila tracking-tight leading-none drop-shadow-[0_0_18px_rgba(231,214,255,0.25)]"
             style={{ fontFamily: "'Cinzel Decorative', serif" }}
@@ -42,22 +43,26 @@ export default function HeaderTienda({
           <span className="text-[10px] tracking-[4px] text-lila-mid uppercase">Boutique</span>
         </div>
 
-        {/* Buscador */}
-        <div className="relative flex-1 max-w-2xl">
+        {/* Buscador — columna central */}
+        <div className="relative w-full">
           <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-lila-soft text-sm" />
           <input
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onBuscar()}
             placeholder="Busca prendas, categorías…"
             className="w-full bg-bg-card text-lila border border-lila/20 rounded-full pl-11 pr-32 py-2.5 text-sm outline-none hover:border-lila focus:ring-1 focus:ring-lila transition placeholder-lila/30"
           />
-          <button className="absolute right-1 top-1/2 -translate-y-1/2 bg-lila text-oscuro text-xs font-bold px-5 py-1.5 rounded-full hover:bg-lila-soft transition">
+          <button
+            onClick={onBuscar}
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-lila text-oscuro text-xs font-bold px-5 py-1.5 rounded-full hover:bg-lila-soft transition"
+          >
             Buscar
           </button>
         </div>
 
-        {/* Iconos de acción */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Iconos de acción — columna derecha */}
+        <div className="flex items-center gap-2 justify-end">
 
           {/* Mi cuenta */}
           <button
@@ -107,7 +112,7 @@ export default function HeaderTienda({
 
       {/* Navegación de categorías */}
       <nav className="border-t border-lila/5">
-        <div className="max-w-[1480px] mx-auto px-6 lg:px-10 flex items-center gap-1 overflow-x-auto">
+        <div className="max-w-[1480px] mx-auto px-6 lg:px-10 flex items-center justify-center gap-1 overflow-x-auto">
           {categorias.map((cat) => (
             <button
               key={cat.id}

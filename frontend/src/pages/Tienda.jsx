@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext } from "react";
+import { useState, useMemo, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import HeaderTienda from "../components/tienda/HeaderTienda";
@@ -66,6 +66,25 @@ export default function Tienda() {
   };
 
   const cantidadCarrito = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+
+  const catalogoRef = useRef(null);
+
+  const scrollAlCatalogo = () => {
+    catalogoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleBuscar = () => {
+    if (busqueda.trim()) {
+      setCategoriaActiva("todas");
+      limpiarFiltros();
+    }
+    scrollAlCatalogo();
+  };
+
+  const seleccionarCategoria = (id) => {
+    setCategoriaActiva(id);
+    scrollAlCatalogo();
+  };
 
   const setFiltro = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
@@ -148,22 +167,23 @@ export default function Tienda() {
       <HeaderTienda
         busqueda={busqueda}
         setBusqueda={setBusqueda}
+        onBuscar={handleBuscar}
         cantidadCarrito={cantidadCarrito}
         cantidadWishlist={0}
         onAbrirCarrito={() => setCarritoAbierto(true)}
         categoriaActiva={categoriaActiva}
-        onSeleccionarCategoria={setCategoriaActiva}
+        onSeleccionarCategoria={seleccionarCategoria}
         onLogout={handleLogout}
       />
 
       <HeroCarrusel />
 
       {/* Catálogo */}
-      <section className="max-w-[1480px] mx-auto px-6 lg:px-10 mt-10">
+      <section ref={catalogoRef} className="max-w-[1480px] mx-auto px-6 lg:px-10 mt-10">
 
         <RielCategorias
           categoriaActiva={categoriaActiva}
-          onSeleccionarCategoria={setCategoriaActiva}
+          onSeleccionarCategoria={seleccionarCategoria}
         />
 
         <div className="flex gap-6">
