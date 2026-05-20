@@ -10,6 +10,8 @@ import FiltrosSidebar from "../components/tienda/FiltrosSidebar";
 import BarraOrdenamiento from "../components/tienda/BarraOrdenamiento";
 import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
 import VistaRapida from "../components/tienda/VistaRapida";
+import SeccionCarrito from "../components/tienda/SeccionCarrito";
+import ModalCheckout from "../components/tienda/ModalCheckout";
 import { productosSimulados } from "../components/tienda/datosSimulados";
 
 const filtrosIniciales = {
@@ -28,6 +30,42 @@ export default function Tienda() {
   const [vista, setVista]                     = useState("grid");
   const [filtros, setFiltros]                 = useState(filtrosIniciales);
   const [productoEnVistaRapida, setProductoEnVistaRapida] = useState(null);
+  const [carrito, setCarrito]                   = useState([]);
+  const [carritoAbierto, setCarritoAbierto]     = useState(false);
+  const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
+
+  const agregarAlCarrito = (producto, { talla, cantidad = 1 }) => {
+    setCarrito((prev) => {
+      const existe = prev.find((i) => i.producto.id === producto.id && i.talla === talla);
+      if (existe) {
+        return prev.map((i) =>
+          i.producto.id === producto.id && i.talla === talla
+            ? { ...i, cantidad: i.cantidad + cantidad }
+            : i
+        );
+      }
+      return [...prev, { producto, talla, cantidad }];
+    });
+    setCarritoAbierto(true);
+  };
+
+  const cambiarCantidad = (productoId, talla, nuevaCantidad) => {
+    if (nuevaCantidad <= 0) {
+      setCarrito((prev) => prev.filter((i) => !(i.producto.id === productoId && i.talla === talla)));
+    } else {
+      setCarrito((prev) =>
+        prev.map((i) =>
+          i.producto.id === productoId && i.talla === talla ? { ...i, cantidad: nuevaCantidad } : i
+        )
+      );
+    }
+  };
+
+  const eliminarDelCarrito = (productoId, talla) => {
+    setCarrito((prev) => prev.filter((i) => !(i.producto.id === productoId && i.talla === talla)));
+  };
+
+  const cantidadCarrito = carrito.reduce((acc, i) => acc + i.cantidad, 0);
 
   const setFiltro = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
@@ -110,9 +148,9 @@ export default function Tienda() {
       <HeaderTienda
         busqueda={busqueda}
         setBusqueda={setBusqueda}
-        cantidadCarrito={0}
+        cantidadCarrito={cantidadCarrito}
         cantidadWishlist={0}
-        onAbrirCarrito={() => {}}
+        onAbrirCarrito={() => setCarritoAbierto(true)}
         categoriaActiva={categoriaActiva}
         onSeleccionarCategoria={setCategoriaActiva}
         onLogout={handleLogout}
@@ -181,17 +219,30 @@ export default function Tienda() {
 
       <FooterTienda />
 
-      {/* Aquí irá CarritoDrawer */}
+      <SeccionCarrito
+        abierto={carritoAbierto}
+        onCerrar={() => setCarritoAbierto(false)}
+        carrito={carrito}
+        onCambiarCantidad={cambiarCantidad}
+        onEliminar={eliminarDelCarrito}
+        onCheckout={() => { setCarritoAbierto(false); setCheckoutAbierto(true); }}
+      />
 
       {productoEnVistaRapida && (
         <VistaRapida
           producto={productoEnVistaRapida}
           onCerrar={() => setProductoEnVistaRapida(null)}
-          onAgregarAlCarrito={() => {}}
+          onAgregarAlCarrito={agregarAlCarrito}
         />
       )}
 
-      {/* Aquí irá ModalCheckout */}
+      {checkoutAbierto && (
+        <ModalCheckout
+          onCerrar={() => setCheckoutAbierto(false)}
+          carrito={carrito}
+          onPedidoConfirmado={() => setCarrito([])}
+        />
+      )}
 
     </div>
   );
