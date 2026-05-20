@@ -73,19 +73,27 @@ export default function Proveedores() {
 
   // ─── Cargar desde la API ──────────────────────────────────────────────
   const cargarProveedores = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      let activoParam;
-      if (statusFilter === "Activo") activoParam = true;
-      else if (statusFilter === "Inactivo") activoParam = false;
+  setCargando(true);
+  setError(null);
 
-      const [paginada, todos] = await Promise.all([
-        fetchSuppliers({ q: search, activo: activoParam, page: paginaActiva, limit: LIMIT }),
-        fetchSuppliers({ limit: 100 }),
-      ]);
+  let activoParam;
+  if (statusFilter === "Activo") activoParam = true;
+  else if (statusFilter === "Inactivo") activoParam = false;
 
-      setUsuarios(paginada.items);
+  console.log("statusFilter:", statusFilter);
+  console.log("activoParam:", activoParam, "tipo:", typeof activoParam);
+
+  try {
+    const [paginada, todos] = await Promise.all([
+      fetchSuppliers({ q: search, activo: activoParam, page: paginaActiva, limit: LIMIT }),
+      fetchSuppliers({ limit: 100 }),
+    ]);
+
+    console.log("Total recibido:", paginada.total);
+    console.log("Estados recibidos:", paginada.items.map(p => p.estado));
+
+    setUsuarios(paginada.items);
+
       setTotalRegistros(paginada.total);
 
       const activos = todos.items.filter((u) => u.estado === "Activo").length;
@@ -235,17 +243,23 @@ const handleGuardarProveedor = async () => {
 
       {/* TARJETAS */}
       <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
-        <Tarjetas label="Total de proveedores" value={stats.total} sub="Todos los proveedores" icon="bi bi-building" />
-        <Tarjetas
-          label="Proveedores activos" value={stats.activos}
-          sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
-          accent="#22C55E" icon="bi bi-check-circle"
-        />
-        <Tarjetas
-          label="Proveedores inactivos" value={stats.inactivos}
-          sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
-          accent="#EF4444" icon="bi bi-x-circle"
-        />
+        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(""); setPaginaActiva(1); }}>
+          <Tarjetas label="Total de proveedores" value={stats.total} sub="Todos los proveedores" icon="bi bi-building" />
+        </div>
+        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(statusFilter === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}>
+          <Tarjetas
+            label="Proveedores activos" value={stats.activos}
+            sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
+            accent="#22C55E" icon="bi bi-check-circle"
+          />
+        </div>
+        <div className="flex-1 cursor-pointer" onClick={() => { setStatusFilter(statusFilter === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}>
+          <Tarjetas
+            label="Proveedores inactivos" value={stats.inactivos}
+            sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
+            accent="#EF4444" icon="bi bi-x-circle"
+          />
+        </div>
       </div>
 
       {/* TOOLBAR */}
@@ -295,6 +309,7 @@ const handleGuardarProveedor = async () => {
       <Paginacion
         paginaActual={paginaActiva}
         totalRegistros={totalRegistros}
+        limit={LIMIT}
         rangoSiguiente={`${totalRegistros === 0 ? 0 : (paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`}
         onCambiarPagina={handleCambiarPagina}
         exportTitulo="Proveedores"

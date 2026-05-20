@@ -3,13 +3,39 @@ import { db } from '../../config/firebase.js'
 const COLLECTION = 'suppliers'
 
 export class SuppliersRepository {
-  async findAll() {
-    const snapshot = await db.collection(COLLECTION).get()
+   async findAll({ q = '', activo, page = 1, limit = 10 } = {}) {
+    let query = db.collection(COLLECTION)
 
-    return snapshot.docs.map((doc) => ({
+    // Filtro por activo si se recibe
+    if (typeof activo === 'boolean') {
+      query = query.where('activo', '==', activo)
+    }
+
+    const snapshot = await query.get()
+
+    let items = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     }))
+
+    // Filtro por búsqueda en JS (Firestore no hace LIKE)
+    if (q) {
+      const q_lower = q.toLowerCase()
+      items = items.filter((s) =>
+        s.nombre?.toLowerCase().includes(q_lower) ||
+        s.rfc?.toLowerCase().includes(q_lower) ||
+        s.giro?.toLowerCase().includes(q_lower) ||
+        s.telefono?.toLowerCase().includes(q_lower)
+      )
+    }
+
+    const total = items.length
+
+    // Paginación manual
+    const start = (page - 1) * limit
+    const paginated = items.slice(start, start + limit)
+
+    return { items: paginated, total, page, limit }
   }
 
   async findById(id) {

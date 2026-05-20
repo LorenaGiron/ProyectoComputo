@@ -18,9 +18,10 @@ export class SuppliersService {
       limit = 10
     } = query
 
-    const allSuppliers = await suppliersRepository.findAll()
+     const activoBool = activo === true ? true : activo === 'true' ? true : activo === 'false' ? false : undefined
 
-    let filtered = allSuppliers
+    const allSuppliers = await suppliersRepository.findAll()
+    let filtered = Array.isArray(allSuppliers) ? allSuppliers : (allSuppliers.items ?? [])
 
     if (q) {
       const term = q.trim().toLowerCase()
@@ -38,8 +39,9 @@ export class SuppliersService {
       })
     }
 
-    if (typeof activo === 'boolean') {
-      filtered = filtered.filter((supplier) => (supplier.activo ?? true) === activo)
+    if (typeof activoBool === 'boolean') {
+      filtered = filtered.filter((supplier) => (supplier.activo ?? true) === activoBool)
+     
     }
 
     filtered.sort((a, b) => {
