@@ -9,6 +9,7 @@ import RielCategorias from "../components/tienda/RielCategorias";
 import FiltrosSidebar from "../components/tienda/FiltrosSidebar";
 import BarraOrdenamiento from "../components/tienda/BarraOrdenamiento";
 import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
+import VistaRapida from "../components/tienda/VistaRapida";
 import { productosSimulados } from "../components/tienda/datosSimulados";
 
 const filtrosIniciales = {
@@ -26,6 +27,7 @@ export default function Tienda() {
   const [ordenamiento, setOrdenamiento]       = useState("relevancia");
   const [vista, setVista]                     = useState("grid");
   const [filtros, setFiltros]                 = useState(filtrosIniciales);
+  const [productoEnVistaRapida, setProductoEnVistaRapida] = useState(null);
 
   const setFiltro = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
@@ -167,6 +169,7 @@ export default function Tienda() {
                     key={producto.id}
                     producto={producto}
                     vista={vista}
+                    onVistaRapida={setProductoEnVistaRapida}
                   />
                 ))}
               </div>
@@ -180,7 +183,13 @@ export default function Tienda() {
 
       {/* Aquí irá CarritoDrawer */}
 
-      {/* Aquí irá VistaRapida */}
+      {productoEnVistaRapida && (
+        <VistaRapida
+          producto={productoEnVistaRapida}
+          onCerrar={() => setProductoEnVistaRapida(null)}
+          onAgregarAlCarrito={() => {}}
+        />
+      )}
 
       {/* Aquí irá ModalCheckout */}
 
