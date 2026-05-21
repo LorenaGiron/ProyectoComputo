@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../services/api";
+import { fetchNotifications } from "../services/notifications.service";
 
 export default function Header() {
   const { usuario } = useAuth();
@@ -11,8 +12,12 @@ export default function Header() {
   const [resultados, setResultados] = useState(null);
   const [buscando, setBuscando] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [notifs, setNotifs] = useState([]);
+  const [totalNotifs, setTotalNotifs] = useState(0);
+  const [mostrarNotifs, setMostrarNotifs] = useState(false);
   
   const buscadorRef = useRef(null);
+  const notifsRef = useRef(null);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -49,6 +54,29 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickFuera);
     return () => document.removeEventListener("mousedown", handleClickFuera);
   }, []);
+
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const data = await fetchNotifications()
+        setNotifs(data.items   ?? [])
+        setTotalNotifs(data.total ?? 0)
+      } catch { /* silencioso */ }
+    }
+    cargar()
+    const intervalo = setInterval(cargar, 10_000) // refresca 
+    return () => clearInterval(intervalo)
+  }, [])
+
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (notifsRef.current && !notifsRef.current.contains(e.target)) {
+        setMostrarNotifs(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickFuera)
+    return () => document.removeEventListener("mousedown", handleClickFuera)
+  }, [])
 
   const obtenerConfiguracionRenglon = (tipo, item) => {
     switch (tipo) {
@@ -169,8 +197,73 @@ export default function Header() {
 
       {/* Acciones del Usuario (Derecha) */}
       <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto justify-end">
-        <div className="relative cursor-pointer hover:scale-110 transition-transform" title="Notificaciones">
-          <i className="bi bi-bell text-xl text-lila"></i>
+        <div ref={notifsRef} className="relative">
+          <button
+            onClick={() => setMostrarNotifs((v) => !v)}
+            className="relative cursor-pointer hover:scale-110 transition-transform"
+            title="Notificaciones"
+          >
+            <i className="bi bi-bell text-xl text-lila"></i>
+            {totalNotifs > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {totalNotifs > 99 ? "99+" : totalNotifs}
+              </span>
+            )}
+          </button>
+
+          {mostrarNotifs && (
+            <div className="absolute right-0 top-full mt-3 w-80 bg-bg-card border border-lila/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+              
+              {/* Header del dropdown */}
+              <div className="px-4 py-3 border-b border-lila/10 flex items-center justify-between">
+                <p className="text-sm font-bold text-blanco m-0">Notificaciones</p>
+                {totalNotifs > 0 && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-lila/20 text-lila font-semibold">
+                    {totalNotifs}
+                  </span>
+                )}
+              </div>
+
+              {/* Lista */}
+              <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                {notifs.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-sm text-lila-soft opacity-60">
+                    <i className="bi bi-check-circle text-2xl block mb-2" />
+                    Todo en orden
+                  </div>
+                ) : (
+                  notifs.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => { navigate(n.ruta); setMostrarNotifs(false); }}
+                      className="px-4 py-3 border-b border-lila/5 hover:bg-lila/10 cursor-pointer transition-colors flex items-start gap-3"
+                    >
+                      <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 
+                        ${n.nivel === 'critico'    ? 'bg-red-500/20 text-red-400'    :
+                          n.nivel === 'advertencia' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                      'bg-lila/20 text-lila'}`}>
+                        <i className={`bi ${n.icon} text-sm`} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-blanco m-0 truncate">{n.titulo}</p>
+                        <p className="text-xs text-lila-soft m-0 mt-0.5 truncate">{n.mensaje}</p>
+                      </div>
+                      <i className="bi bi-arrow-right text-xs text-lila-soft shrink-0 mt-1" />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              {notifs.length > 0 && (
+                <div className="px-4 py-2 border-t border-lila/10 text-center">
+                  <p className="text-xs text-lila-soft m-0">
+                    Haz clic en cada aviso para ir a resolverlo
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3 bg-bg-card px-4 py-1.5 rounded-full border border-lila-soft/20 hover:border-lila-mid transition-colors cursor-pointer shadow-sm">
