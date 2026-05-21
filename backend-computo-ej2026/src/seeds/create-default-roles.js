@@ -42,7 +42,9 @@ const DEFAULT_ROLES = [
       'suppliers:update',
       'users:create',
       'users:read',
-      'users:update'
+      'users:update',
+      'ventas:read',
+      'ventas:update'
     ]
   },
   {
@@ -65,7 +67,8 @@ const DEFAULT_ROLES = [
       'clients:update',
       'dashboard:read',
       'inventory:read',
-      'products:read'
+      'products:read',
+      'ventas:read'
     ]
   },
   {
@@ -106,7 +109,9 @@ const DEFAULT_ROLES = [
       'users:create',
       'users:delete',
       'users:read',
-      'users:update'
+      'users:update',
+      'ventas:read',
+      'ventas:update'
     ]
   }
 ]
