@@ -7,6 +7,14 @@ import { fetchNotifications } from "../services/notifications.service";
 export default function Header() {
   const { usuario } = useAuth();
   const navigate = useNavigate();
+
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem("theme");
+      return savedTheme !== "light";
+    }
+    return true;
+  });
   
   const [query, setQuery] = useState("");
   const [resultados, setResultados] = useState(null);
@@ -18,6 +26,21 @@ export default function Header() {
   
   const buscadorRef = useRef(null);
   const notifsRef = useRef(null);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
+
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -80,26 +103,16 @@ export default function Header() {
 
   const obtenerConfiguracionRenglon = (tipo, item) => {
     switch (tipo) {
-      case "productos":
-        return { titulo: item.nombre, sub: `SKU: ${item.sku || 'N/A'} | ${item.marca || ''}`, ruta: "/productos", tag: "Productos", icon: "bi-box-seam text-azul" };
-      case "clientes":
-        return { titulo: item.nombre, sub: item.email || item.rfc || '', ruta: "/clientes", tag: "Clientes", icon: "bi-people text-rosa" };
-      case "proveedores":
-        return { titulo: item.nombre, sub: item.contacto || item.giro || '', ruta: "/proveedores", tag: "Proveedores", icon: "bi-truck text-naranja" };
-      case "usuarios":
-        return { titulo: `${item.nombre} ${item.apellido || ''}`, sub: `@${item.usuario} | ${item.email || ''}`, ruta: "/usuarios", tag: "Usuarios", icon: "bi-person-badge text-verde" };
-      case "recepciones":
-        return { titulo: `Recepción de: ${item.proveedor}`, sub: item.comentarios || 'Sin comentarios', ruta: "/recepciones", tag: "Recepciones", icon: "bi-file-earmark-arrow-down text-lila-mid" };
-      case "auditoria":
-        return { titulo: `Acción: ${item.action}`, sub: `${item.usuario || 'Sistema'} — ${item.details || ''}`, ruta: "/auditoria", tag: "Auditoría", icon: "bi-shield-check text-error-text" };
-      case "inventario":
-        return { titulo: `Movimiento: ${item.tipo}`, sub: `${item.productNombre || ''} (${item.motivo || ''})`, ruta: "/dashboard", tag: "Inventario", icon: "bi-arrow-left-right text-yellow-500" };
-      case "permisos":
-        return { titulo: item.nombre, sub: `Módulo: ${item.modulo || ''}`, ruta: "/usuarios", tag: "Permisos", icon: "bi-key text-cyan-400" };
-      case "roles":
-        return { titulo: `Rol: ${item.nombre}`, sub: 'Configuración de seguridad', ruta: "/usuarios", tag: "Roles", icon: "bi-shield-lock text-purple-400" };
-      default:
-        return { titulo: "Registro", sub: "", ruta: "/dashboard", tag: "Sistema", icon: "bi-gear" };
+      case "productos": return { titulo: item.nombre, sub: `SKU: ${item.sku || 'N/A'} | ${item.marca || ''}`, ruta: "/productos", tag: "Productos", icon: "bi-box-seam text-blue-500 dark:text-azul" };
+      case "clientes": return { titulo: item.nombre, sub: item.email || item.rfc || '', ruta: "/clientes", tag: "Clientes", icon: "bi-people text-pink-500 dark:text-rosa" };
+      case "proveedores": return { titulo: item.nombre, sub: item.contacto || item.giro || '', ruta: "/proveedores", tag: "Proveedores", icon: "bi-truck text-orange-500 dark:text-naranja" };
+      case "usuarios": return { titulo: `${item.nombre} ${item.apellido || ''}`, sub: `@${item.usuario} | ${item.email || ''}`, ruta: "/usuarios", tag: "Usuarios", icon: "bi-person-badge text-green-500 dark:text-verde" };
+      case "recepciones": return { titulo: `Recepción de: ${item.proveedor}`, sub: item.comentarios || 'Sin comentarios', ruta: "/recepciones", tag: "Recepciones", icon: "bi-file-earmark-arrow-down text-purple-500 dark:text-lila-mid" };
+      case "auditoria": return { titulo: `Acción: ${item.action}`, sub: `${item.usuario || 'Sistema'} — ${item.details || ''}`, ruta: "/auditoria", tag: "Auditoría", icon: "bi-shield-check text-red-500 dark:text-error-text" };
+      case "inventario": return { titulo: `Movimiento: ${item.tipo}`, sub: `${item.productNombre || ''} (${item.motivo || ''})`, ruta: "/dashboard", tag: "Inventario", icon: "bi-arrow-left-right text-yellow-600 dark:text-yellow-500" };
+      case "permisos": return { titulo: item.nombre, sub: `Módulo: ${item.modulo || ''}`, ruta: "/usuarios", tag: "Permisos", icon: "bi-key text-cyan-600 dark:text-cyan-400" };
+      case "roles": return { titulo: `Rol: ${item.nombre}`, sub: 'Configuración de seguridad', ruta: "/usuarios", tag: "Roles", icon: "bi-shield-lock text-purple-600 dark:text-purple-400" };
+      default: return { titulo: "Registro", sub: "", ruta: "/dashboard", tag: "Sistema", icon: "bi-gear text-gris" };
     }
   };
 
@@ -108,43 +121,39 @@ export default function Header() {
     Object.keys(resultados).forEach((categoria) => {
       if (Array.isArray(resultados[categoria])) {
         resultados[categoria].forEach((item) => {
-          listaResultadosPlana.push({
-            ...item,
-            _categoriaBackend: categoria
-          });
+          listaResultadosPlana.push({ ...item, _categoriaBackend: categoria });
         });
       }
     });
   }
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center gap-4 w-full px-4 sm:px-6 lg:px-8 py-4 border-b border-lila-soft/10 bg-oscuro z-50 shadow-sm">
+    <header className="flex flex-col md:flex-row justify-between items-center gap-4 w-full px-4 sm:px-6 lg:px-8 py-4 z-50 transition-colors duration-300 bg-lila border-b border-oscuro/10 dark:bg-oscuro dark:border-lila-soft/10">
       
       {/* Buscador */}
       <div ref={buscadorRef} className="relative w-full flex-1 md:max-w-lg lg:max-w-xl xl:max-w-2xl z-50">
-        <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-lila-soft text-sm"></i>
+        <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-sm text-oscuro/50 dark:text-lila-soft"></i>
         <input 
           type="text" 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setMostrarModal(true)}
           placeholder="Buscar en todo el sitio" 
-          className="w-full bg-bg-card text-lila border border-lila/20 rounded-full pl-10 pr-4 py-2.5 text-sm outline-none hover:border-lila focus:ring-1 focus:ring-lila transition-all placeholder-lila/30 shadow-sm"
+          className="w-full rounded-full pl-10 pr-4 py-2.5 text-sm outline-none transition-all shadow-sm bg-blanco border border-blanco/50 text-oscuro placeholder:text-oscuro/50 focus:ring-2 focus:ring-oscuro/20 dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:focus:ring-1 dark:focus:ring-lila dark:hover:border-lila dark:placeholder-lila/30"
         />
 
-        {/* Resultados */}
         {mostrarModal && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-bg-card border border-lila/20 rounded-xl shadow-2xl overflow-hidden animate-fade-in flex flex-col max-h-[45vh]">
+          <div className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-xl overflow-hidden animate-fade-in flex flex-col max-h-[45vh] bg-blanco border border-oscuro/10 dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl">
             
             <div className="overflow-y-auto p-2 flex-1 custom-scrollbar">
               {buscando ? (
-                <div className="p-8 text-center text-lila-soft flex flex-col items-center justify-center gap-2">
-                  <i className="bi bi-arrow-repeat animate-spin text-2xl text-lila"></i>
+                <div className="p-8 text-center flex flex-col items-center justify-center gap-2 text-gris dark:text-lila-soft">
+                  <i className="bi bi-arrow-repeat animate-spin text-2xl text-lila-mid"></i>
                   <span className="text-sm">Buscando coincidencias...</span>
                 </div>
               ) : listaResultadosPlana.length > 0 ? (
                 <div className="space-y-1">
-                  <p className="px-3 py-1 text-[11px] font-bold tracking-wider text-lila-soft/60 uppercase">Coincidencias encontradas</p>
+                  <p className="px-3 py-1 text-[11px] font-bold tracking-wider uppercase text-gris dark:text-lila-soft/60">Coincidencias encontradas</p>
                   
                   {listaResultadosPlana.map((item, index) => {
                     const config = obtenerConfiguracionRenglon(item._categoriaBackend, item);
@@ -156,18 +165,18 @@ export default function Header() {
                           setMostrarModal(false);
                           navigate(config.ruta);
                         }}
-                        className="px-3 py-2.5 hover:bg-lila/10 rounded-lg cursor-pointer transition-all flex justify-between items-center group gap-4"
+                        className="px-3 py-2.5 rounded-lg cursor-pointer transition-all flex justify-between items-center group gap-4 hover:bg-bg dark:hover:bg-lila/10"
                       >
                         {/* Izquierda: Icono + Textos */}
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="bg-oscuro/40 p-2 rounded-lg border border-lila/5 flex items-center justify-center">
+                          <div className="p-2 rounded-lg flex items-center justify-center bg-bg border border-oscuro/5 dark:bg-oscuro/40 dark:border-lila/5">
                             <i className={`bi ${config.icon} text-base`}></i>
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-sm text-blanco group-hover:text-lila font-medium truncate">
+                            <span className="text-sm font-medium truncate text-oscuro group-hover:text-lila-mid dark:text-blanco dark:group-hover:text-lila">
                               {config.titulo}
                             </span>
-                            <span className="text-xs text-text-muted truncate">
+                            <span className="text-xs truncate text-gris dark:text-text-muted">
                               {config.sub}
                             </span>
                           </div>
@@ -175,7 +184,7 @@ export default function Header() {
 
                         {/* Derecha: Indicador de página */}
                         <div className="shrink-0">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 bg-oscuro border border-lila/10 rounded-md text-lila-soft group-hover:border-lila group-hover:text-blanco transition-colors shadow-sm">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md transition-colors bg-blanco border border-gris/20 text-gris group-hover:border-lila-mid/50 group-hover:text-lila-mid group-hover:bg-bg dark:bg-oscuro dark:border-lila/10 dark:text-lila-soft dark:group-hover:border-lila dark:group-hover:text-blanco">
                             <i className="bi bi-box-arrow-in-right mr-1 opacity-70"></i>
                             {config.tag}
                           </span>
@@ -185,38 +194,48 @@ export default function Header() {
                   })}
                 </div>
               ) : (
-                <div className="p-6 text-center text-sm text-lila-soft italic">
+                <div className="p-6 text-center text-sm italic text-gris dark:text-lila-soft">
                   No se encontraron coincidencias para "{query}".
                 </div>
               )}
             </div>
-            
           </div>
         )}
       </div>
 
       {/* Acciones del Usuario (Derecha) */}
       <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto justify-end">
+        
+        {/* Notificaciones*/}
         <div ref={notifsRef} className="relative">
-          <button
+          <div 
             onClick={() => setMostrarNotifs((v) => !v)}
-            className="relative cursor-pointer hover:scale-110 transition-transform"
+            className="relative cursor-pointer group" 
             title="Notificaciones"
           >
-            <i className="bi bi-bell text-xl text-lila"></i>
-            {totalNotifs > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                {totalNotifs > 99 ? "99+" : totalNotifs}
-              </span>
-            )}
-          </button>
+            <div className="relative w-6 h-6 flex items-center justify-center">
+              {/* Ícono Contorno */}
+              <i className="bi bi-bell text-xl transition-all duration-300 opacity-100 group-hover:opacity-0 group-hover:scale-110 text-oscuro/70 hover:text-oscuro dark:text-lila dark:hover:text-lila-soft"></i>
+              
+              {/* Ícono Relleno */}
+              <i className="bi bi-bell-fill text-xl absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 text-oscuro dark:text-lila"></i>
+              
+              {/* Punto/Contador de notificación dinámico */}
+              {totalNotifs > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center leading-none shadow-sm z-10 group-hover:scale-110 transition-transform">
+                  {totalNotifs > 99 ? "99+" : totalNotifs}
+                </span>
+              )}
+            </div>
+          </div>
 
+          {/* El Dropdown de Notificaciones (Viene de Main) */}
           {mostrarNotifs && (
-            <div className="absolute right-0 top-full mt-3 w-80 bg-bg-card border border-lila/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div className="absolute right-0 top-full mt-3 w-80 bg-blanco border border-gris/20 rounded-xl shadow-xl z-50 overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl">
               
               {/* Header del dropdown */}
-              <div className="px-4 py-3 border-b border-lila/10 flex items-center justify-between">
-                <p className="text-sm font-bold text-blanco m-0">Notificaciones</p>
+              <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
+                <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">Notificaciones</p>
                 {totalNotifs > 0 && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-lila/20 text-lila font-semibold">
                     {totalNotifs}
@@ -227,7 +246,7 @@ export default function Header() {
               {/* Lista */}
               <div className="max-h-80 overflow-y-auto custom-scrollbar">
                 {notifs.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-sm text-lila-soft opacity-60">
+                  <div className="px-4 py-8 text-center text-sm text-gris opacity-60 dark:text-lila-soft">
                     <i className="bi bi-check-circle text-2xl block mb-2" />
                     Todo en orden
                   </div>
@@ -236,19 +255,19 @@ export default function Header() {
                     <div
                       key={n.id}
                       onClick={() => { navigate(n.ruta); setMostrarNotifs(false); }}
-                      className="px-4 py-3 border-b border-lila/5 hover:bg-lila/10 cursor-pointer transition-colors flex items-start gap-3"
+                      className="px-4 py-3 border-b border-gris/5 hover:bg-bg cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
                     >
                       <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 
-                        ${n.nivel === 'critico'    ? 'bg-red-500/20 text-red-400'    :
-                          n.nivel === 'advertencia' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                      'bg-lila/20 text-lila'}`}>
+                        ${n.nivel === 'critico'    ? 'bg-rojo/10 text-rojo dark:bg-red-500/20 dark:text-red-400'    :
+                          n.nivel === 'advertencia' ? 'bg-amarillo/10 text-amarillo dark:bg-yellow-500/20 dark:text-yellow-400' :
+                                                      'bg-lila/20 text-lila-mid dark:text-lila'}`}>
                         <i className={`bi ${n.icon} text-sm`} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-blanco m-0 truncate">{n.titulo}</p>
-                        <p className="text-xs text-lila-soft m-0 mt-0.5 truncate">{n.mensaje}</p>
+                        <p className="text-xs font-bold text-oscuro m-0 truncate dark:text-blanco">{n.titulo}</p>
+                        <p className="text-xs text-gris m-0 mt-0.5 truncate dark:text-lila-soft">{n.mensaje}</p>
                       </div>
-                      <i className="bi bi-arrow-right text-xs text-lila-soft shrink-0 mt-1" />
+                      <i className="bi bi-arrow-right text-xs text-gris shrink-0 mt-1 dark:text-lila-soft" />
                     </div>
                   ))
                 )}
@@ -256,8 +275,8 @@ export default function Header() {
 
               {/* Footer */}
               {notifs.length > 0 && (
-                <div className="px-4 py-2 border-t border-lila/10 text-center">
-                  <p className="text-xs text-lila-soft m-0">
+                <div className="px-4 py-2 border-t border-gris/10 text-center dark:border-lila/10">
+                  <p className="text-xs text-gris m-0 dark:text-lila-soft">
                     Haz clic en cada aviso para ir a resolverlo
                   </p>
                 </div>
@@ -266,17 +285,27 @@ export default function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-3 bg-bg-card px-4 py-1.5 rounded-full border border-lila-soft/20 hover:border-lila-mid transition-colors cursor-pointer shadow-sm">
-          <i className="bi bi-person-circle text-2xl text-lila-mid"></i>
+        {/* Perfil del Usuario */}
+        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm bg-blanco border border-oscuro/10 hover:border-oscuro/30 dark:bg-bg-card dark:border-lila-soft/20 dark:hover:border-lila-mid">
+          <i className="bi bi-person-circle text-2xl text-oscuro/70 dark:text-lila-mid"></i>
           <div className="text-left leading-tight hidden sm:block">
-            <p className="m-0 font-semibold text-sm text-blanco">{usuario?.nombre || "Usuario"}</p>
-            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-soft">{usuario?.role || "Invitado"}</p>
+            <p className="m-0 font-semibold text-sm text-oscuro dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
+            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-oscuro/70 dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
           </div>
-          <i className="bi bi-chevron-down text-xs text-lila-soft ml-1"></i>
+          <i className="bi bi-chevron-down text-xs ml-1 text-oscuro/50 dark:text-lila-soft"></i>
         </div>
 
-        <button className="relative group flex items-center justify-center bg-bg-card text-lila border border-lila/20 w-10 h-10 rounded-full hover:bg-lila hover:text-oscuro transition-colors cursor-pointer shadow-sm active:scale-95">
-          <i className="bi bi-sun-fill text-lg"></i>
+        {/* Botón cambio de Tema */}
+        <button 
+          onClick={toggleTheme}
+          className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-colors cursor-pointer shadow-sm active:scale-95 bg-blanco text-oscuro border border-oscuro/10 hover:bg-oscuro hover:text-lila dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
+          title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        >
+          {isDark ? (
+            <i className="bi bi-sun-fill text-lg"></i>
+          ) : (
+            <i className="bi bi-moon-stars-fill text-lg"></i>
+          )}
         </button>
       </div>
     </header>
