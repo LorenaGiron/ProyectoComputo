@@ -23,7 +23,9 @@ const filtrosIniciales = {
 
 export default function Tienda() {
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+  const { logout, usuario } = useContext(AuthContext);
+  const claveCarrito = `carrito_${usuario?.id ?? "guest"}`;
+
   const [busqueda, setBusqueda]               = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("todas");
   const [ordenamiento, setOrdenamiento]       = useState("relevancia");
@@ -32,9 +34,15 @@ export default function Tienda() {
   const [productoEnVistaRapida, setProductoEnVistaRapida] = useState(null);
   const [productos, setProductos]               = useState([]);
   const [cargando, setCargando]                 = useState(true);
-  const [carrito, setCarrito]                   = useState([]);
+  const [carrito, setCarrito]                   = useState(
+    () => JSON.parse(localStorage.getItem(`carrito_${usuario?.id ?? "guest"}`) ?? "[]")
+  );
   const [carritoAbierto, setCarritoAbierto]     = useState(false);
   const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(claveCarrito, JSON.stringify(carrito));
+  }, [carrito, claveCarrito]);
 
   useEffect(() => {
     api.get("/products?activo=true&limit=100")
@@ -274,7 +282,7 @@ export default function Tienda() {
         <ModalCheckout
           onCerrar={() => setCheckoutAbierto(false)}
           carrito={carrito}
-          onPedidoConfirmado={() => setCarrito([])}
+          onPedidoConfirmado={() => { setCarrito([]); localStorage.removeItem(claveCarrito); }}
         />
       )}
 

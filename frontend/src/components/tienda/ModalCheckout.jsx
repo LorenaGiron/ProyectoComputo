@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "../../services/api";
 
 const pasos = ["Envío", "Pago", "Confirmación"];
 
@@ -11,11 +12,51 @@ const datosIniciales = {
 };
 
 export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado }) {
-  const [paso, setPaso]   = useState(1);
-  const [datos, setDatos] = useState(datosIniciales);
-  const [numeroPedido] = useState(generarNumeroPedido);
+  const [paso, setPaso]       = useState(1);
+  const [datos, setDatos]     = useState(datosIniciales);
+  const [numeroPedido]        = useState(generarNumeroPedido);
+  const [enviando, setEnviando]   = useState(false);
+  const [errorPago, setErrorPago] = useState("");
+  const [erroresEnvio, setErroresEnvio] = useState({});
 
   const setDato = (key, value) => setDatos((d) => ({ ...d, [key]: value }));
+
+  const validarPaso1 = () => {
+    const errs = {};
+    if (!datos.nombre.trim())  errs.nombre = "El nombre es obligatorio";
+    if (!datos.email.trim())   errs.email  = "El email es obligatorio";
+    if (!datos.calle.trim())   errs.calle  = "La dirección es obligatoria";
+    if (!datos.cp.trim())      errs.cp     = "El código postal es obligatorio";
+    if (!datos.ciudad.trim())  errs.ciudad = "La ciudad es obligatoria";
+    setErroresEnvio(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const confirmarPago = async () => {
+    setErrorPago("");
+    setEnviando(true);
+    try {
+      await api.post("/ventas", {
+        cliente:    { nombre: datos.nombre, email: datos.email, calle: datos.calle, cp: datos.cp, ciudad: datos.ciudad },
+        metodoPago: datos.metodoPago,
+        items:      carrito.map((i) => ({
+          productoId:     i.producto.id,
+          nombre:         i.producto.nombre,
+          talla:          i.talla,
+          cantidad:       i.cantidad,
+          precioUnitario: i.producto.precioVenta,
+        })),
+        subtotal,
+        envio,
+        total,
+      });
+      setPaso(3);
+    } catch (err) {
+      setErrorPago(err.message || "No se pudo procesar el pago. Intenta de nuevo.");
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   const subtotal       = carrito.reduce((acc, i) => acc + i.producto.precioVenta * i.cantidad, 0);
   const envio          = subtotal >= 999 || subtotal === 0 ? 0 : 99;
@@ -84,48 +125,53 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado })
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Nombre completo</span>
                   <input
                     value={datos.nombre}
-                    onChange={(e) => setDato("nombre", e.target.value)}
+                    onChange={(e) => { setDato("nombre", e.target.value); setErroresEnvio((p) => ({ ...p, nombre: "" })); }}
                     placeholder="María González"
-                    className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                    className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.nombre ? "border-rojo" : "border-lila/20"}`}
                   />
+                  {erroresEnvio.nombre && <p className="mt-1 text-xs text-rojo">{erroresEnvio.nombre}</p>}
                 </label>
                 <label className="block">
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Email</span>
                   <input
                     type="email"
                     value={datos.email}
-                    onChange={(e) => setDato("email", e.target.value)}
+                    onChange={(e) => { setDato("email", e.target.value); setErroresEnvio((p) => ({ ...p, email: "" })); }}
                     placeholder="tu@email.com"
-                    className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                    className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.email ? "border-rojo" : "border-lila/20"}`}
                   />
+                  {erroresEnvio.email && <p className="mt-1 text-xs text-rojo">{erroresEnvio.email}</p>}
                 </label>
                 <label className="block">
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Dirección de envío</span>
                   <input
                     value={datos.calle}
-                    onChange={(e) => setDato("calle", e.target.value)}
+                    onChange={(e) => { setDato("calle", e.target.value); setErroresEnvio((p) => ({ ...p, calle: "" })); }}
                     placeholder="Calle, número y colonia"
-                    className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                    className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.calle ? "border-rojo" : "border-lila/20"}`}
                   />
+                  {erroresEnvio.calle && <p className="mt-1 text-xs text-rojo">{erroresEnvio.calle}</p>}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block">
                     <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Código postal</span>
                     <input
                       value={datos.cp}
-                      onChange={(e) => setDato("cp", e.target.value)}
+                      onChange={(e) => { setDato("cp", e.target.value); setErroresEnvio((p) => ({ ...p, cp: "" })); }}
                       placeholder="06010"
-                      className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                      className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.cp ? "border-rojo" : "border-lila/20"}`}
                     />
+                    {erroresEnvio.cp && <p className="mt-1 text-xs text-rojo">{erroresEnvio.cp}</p>}
                   </label>
                   <label className="block">
                     <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Ciudad</span>
                     <input
                       value={datos.ciudad}
-                      onChange={(e) => setDato("ciudad", e.target.value)}
+                      onChange={(e) => { setDato("ciudad", e.target.value); setErroresEnvio((p) => ({ ...p, ciudad: "" })); }}
                       placeholder="CDMX"
-                      className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                      className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.ciudad ? "border-rojo" : "border-lila/20"}`}
                     />
+                    {erroresEnvio.ciudad && <p className="mt-1 text-xs text-rojo">{erroresEnvio.ciudad}</p>}
                   </label>
                 </div>
               </div>
@@ -293,21 +339,32 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado })
 
         {/* Navegación entre pasos */}
         {paso < 3 && (
-          <div className="px-7 py-4 border-t border-lila/10 flex justify-between items-center">
-            <button
-              onClick={() => paso > 1 ? setPaso(paso - 1) : onCerrar()}
-              className="text-lila-soft hover:text-blanco font-bold flex items-center gap-2 transition"
-            >
-              <i className="bi bi-arrow-left" />
-              {paso === 1 ? "Seguir comprando" : "Atrás"}
-            </button>
-            <button
-              onClick={() => setPaso(paso + 1)}
-              className="bg-lila text-oscuro font-bold px-7 py-3 rounded-xl hover:bg-lila-soft transition flex items-center gap-2"
-            >
-              {paso === 1 ? "Continuar al pago" : `Pagar · $${Number(total).toLocaleString("es-MX")}`}
-              <i className="bi bi-arrow-right" />
-            </button>
+          <div className="px-7 py-4 border-t border-lila/10 flex flex-col gap-2">
+            {errorPago && (
+              <p className="text-center text-xs text-rojo font-semibold">
+                <i className="bi bi-exclamation-circle me-1" />{errorPago}
+              </p>
+            )}
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => paso > 1 ? setPaso(paso - 1) : onCerrar()}
+                disabled={enviando}
+                className="text-lila-soft hover:text-blanco font-bold flex items-center gap-2 transition disabled:opacity-40"
+              >
+                <i className="bi bi-arrow-left" />
+                {paso === 1 ? "Seguir comprando" : "Atrás"}
+              </button>
+              <button
+                onClick={paso === 2 ? confirmarPago : () => { if (paso === 1 && !validarPaso1()) return; setPaso(paso + 1); }}
+                disabled={enviando}
+                className="bg-lila text-oscuro font-bold px-7 py-3 rounded-xl hover:bg-lila-soft transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {enviando
+                  ? <><i className="bi bi-arrow-repeat animate-spin" /> Procesando...</>
+                  : <>{paso === 1 ? "Continuar al pago" : `Pagar · $${Number(total).toLocaleString("es-MX")}`}<i className="bi bi-arrow-right" /></>
+                }
+              </button>
+            </div>
           </div>
         )}
 
