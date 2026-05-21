@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-lila: #E7D6FF;
   --color-lila-mid: #A68DC8;
@@ -14,6 +16,7 @@
   --color-blanco: #FFFFFF;
 
   --color-text-muted: #5A5870;
+  --color-gris: #727285;
 
   --color-error-bg: #572444; 
   --color-error-text: #FFCCE5;
@@ -39,4 +42,5 @@
   --color-bg: #F8F5F2;
   --color-blanco: #FFFFFF;
   --color-text-muted: #5A5870;
+  --color-gris: #727285;
 }
