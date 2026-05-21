@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext, useRef } from "react";
+import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import HeaderTienda from "../components/tienda/HeaderTienda";
@@ -12,7 +12,7 @@ import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
 import VistaRapida from "../components/tienda/VistaRapida";
 import SeccionCarrito from "../components/tienda/SeccionCarrito";
 import ModalCheckout from "../components/tienda/ModalCheckout";
-import { productosSimulados } from "../components/tienda/datosSimulados";
+import { api } from "../services/api";
 
 const filtrosIniciales = {
   precioMax:    2000,
@@ -30,9 +30,18 @@ export default function Tienda() {
   const [vista, setVista]                     = useState("grid");
   const [filtros, setFiltros]                 = useState(filtrosIniciales);
   const [productoEnVistaRapida, setProductoEnVistaRapida] = useState(null);
+  const [productos, setProductos]               = useState([]);
+  const [cargando, setCargando]                 = useState(true);
   const [carrito, setCarrito]                   = useState([]);
   const [carritoAbierto, setCarritoAbierto]     = useState(false);
   const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
+
+  useEffect(() => {
+    api.get("/products?activo=true&limit=100")
+      .then((data) => setProductos(data.items ?? []))
+      .catch(() => setProductos([]))
+      .finally(() => setCargando(false));
+  }, []);
 
   const agregarAlCarrito = (producto, { talla, cantidad = 1 }) => {
     setCarrito((prev) => {
@@ -95,7 +104,7 @@ export default function Tienda() {
   };
 
   const productosFiltrados = useMemo(() => {
-    let lista = [...productosSimulados];
+    let lista = [...productos];
 
     // Filtro por categoría
     if (categoriaActiva !== "todas") {
@@ -152,7 +161,7 @@ export default function Tienda() {
     }
 
     return lista;
-  }, [categoriaActiva, busqueda, filtros, ordenamiento]);
+  }, [productos, categoriaActiva, busqueda, filtros, ordenamiento]);
 
   const clasesGrid =
     vista === "lista"
@@ -204,7 +213,12 @@ export default function Tienda() {
               setVista={setVista}
             />
 
-            {productosFiltrados.length === 0 ? (
+            {cargando ? (
+              <div className="bg-bg-card border border-lila/10 rounded-2xl py-20 text-center">
+                <i className="bi bi-arrow-repeat text-3xl text-lila animate-spin" />
+                <p className="text-sm text-text-muted mt-3">Cargando productos…</p>
+              </div>
+            ) : productosFiltrados.length === 0 ? (
               <div className="bg-bg-card border border-lila/10 rounded-2xl py-20 text-center">
                 <div className="w-16 h-16 rounded-full bg-lila/10 mx-auto flex items-center justify-center mb-3">
                   <i className="bi bi-search text-2xl text-lila" />

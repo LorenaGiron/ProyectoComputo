@@ -69,6 +69,13 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
 
   const agotado = producto.stock === 0;
 
+  const stockTallaActual = tallasDisponibles.find((i) => i.talla === tallaSeleccionada)?.stock ?? 0;
+
+  const handleSeleccionarTalla = (talla) => {
+    setTallaSeleccionada(talla);
+    setCantidad(1);
+  };
+
   const handleAgregar = () => {
     onAgregarAlCarrito(producto, { talla: tallaSeleccionada, cantidad });
     onCerrar();
@@ -123,7 +130,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
                 {tallasDisponibles.map((item) => (
                   <button
                     key={item.talla}
-                    onClick={() => setTallaSeleccionada(item.talla)}
+                    onClick={() => handleSeleccionarTalla(item.talla)}
                     className={`min-w-[44px] h-10 px-3 rounded-lg text-sm font-bold border-2 transition-all ${
                       tallaSeleccionada === item.talla
                         ? "bg-lila text-oscuro border-lila"
@@ -154,8 +161,9 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
                   {cantidad}
                 </span>
                 <button
-                  onClick={() => setCantidad((c) => c + 1)}
-                  className="w-10 h-10 text-lila-soft hover:bg-lila/10 rounded-r-lg transition"
+                  onClick={() => setCantidad((c) => Math.min(c + 1, stockTallaActual))}
+                  disabled={cantidad >= stockTallaActual}
+                  className="w-10 h-10 text-lila-soft hover:bg-lila/10 rounded-r-lg transition disabled:opacity-30"
                 >
                   <i className="bi bi-plus text-lg" />
                 </button>
