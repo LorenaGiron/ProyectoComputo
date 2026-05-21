@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../services/api";
+import { fetchNotifications } from "../services/notifications.service";
 
 export default function Header() {
   const { usuario } = useAuth();
@@ -19,8 +20,12 @@ export default function Header() {
   const [resultados, setResultados] = useState(null);
   const [buscando, setBuscando] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [notifs, setNotifs] = useState([]);
+  const [totalNotifs, setTotalNotifs] = useState(0);
+  const [mostrarNotifs, setMostrarNotifs] = useState(false);
   
   const buscadorRef = useRef(null);
+  const notifsRef = useRef(null);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -72,6 +77,29 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickFuera);
     return () => document.removeEventListener("mousedown", handleClickFuera);
   }, []);
+
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const data = await fetchNotifications()
+        setNotifs(data.items   ?? [])
+        setTotalNotifs(data.total ?? 0)
+      } catch { /* silencioso */ }
+    }
+    cargar()
+    const intervalo = setInterval(cargar, 10_000) // refresca 
+    return () => clearInterval(intervalo)
+  }, [])
+
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (notifsRef.current && !notifsRef.current.contains(e.target)) {
+        setMostrarNotifs(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickFuera)
+    return () => document.removeEventListener("mousedown", handleClickFuera)
+  }, [])
 
   const obtenerConfiguracionRenglon = (tipo, item) => {
     switch (tipo) {
@@ -178,20 +206,88 @@ export default function Header() {
       {/* Acciones del Usuario (Derecha) */}
       <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto justify-end">
         
-        {/* Notificaciones  */}
-        <div className="relative cursor-pointer group" title="Notificaciones">
-          <div className="relative w-6 h-6 flex items-center justify-center">
-            {/* Ícono Contorno  */}
-            <i className="bi bi-bell text-xl transition-all duration-300 opacity-100 group-hover:opacity-0 group-hover:scale-110 text-oscuro dark:text-lila"></i>
-            
-            {/* Ícono Relleno */}
-            <i className="bi bi-bell-fill text-xl absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 text-oscuro dark:text-lila"></i>
+        {/* Notificaciones*/}
+        <div ref={notifsRef} className="relative">
+          <div 
+            onClick={() => setMostrarNotifs((v) => !v)}
+            className="relative cursor-pointer group" 
+            title="Notificaciones"
+          >
+            <div className="relative w-6 h-6 flex items-center justify-center">
+              {/* Ícono Contorno */}
+              <i className="bi bi-bell text-xl transition-all duration-300 opacity-100 group-hover:opacity-0 group-hover:scale-110 text-oscuro/70 hover:text-oscuro dark:text-lila dark:hover:text-lila-soft"></i>
+              
+              {/* Ícono Relleno */}
+              <i className="bi bi-bell-fill text-xl absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 text-oscuro dark:text-lila"></i>
+              
+              {/* Punto/Contador de notificación dinámico */}
+              {totalNotifs > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center leading-none shadow-sm z-10 group-hover:scale-110 transition-transform">
+                  {totalNotifs > 99 ? "99+" : totalNotifs}
+                </span>
+              )}
+            </div>
           </div>
+
+          {/* El Dropdown de Notificaciones (Viene de Main) */}
+          {mostrarNotifs && (
+            <div className="absolute right-0 top-full mt-3 w-80 bg-blanco border border-gris/20 rounded-xl shadow-xl z-50 overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl">
+              
+              {/* Header del dropdown */}
+              <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
+                <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">Notificaciones</p>
+                {totalNotifs > 0 && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-lila/20 text-lila font-semibold">
+                    {totalNotifs}
+                  </span>
+                )}
+              </div>
+
+              {/* Lista */}
+              <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                {notifs.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-sm text-gris opacity-60 dark:text-lila-soft">
+                    <i className="bi bi-check-circle text-2xl block mb-2" />
+                    Todo en orden
+                  </div>
+                ) : (
+                  notifs.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => { navigate(n.ruta); setMostrarNotifs(false); }}
+                      className="px-4 py-3 border-b border-gris/5 hover:bg-bg cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
+                    >
+                      <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 
+                        ${n.nivel === 'critico'    ? 'bg-rojo/10 text-rojo dark:bg-red-500/20 dark:text-red-400'    :
+                          n.nivel === 'advertencia' ? 'bg-amarillo/10 text-amarillo dark:bg-yellow-500/20 dark:text-yellow-400' :
+                                                      'bg-lila/20 text-lila-mid dark:text-lila'}`}>
+                        <i className={`bi ${n.icon} text-sm`} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-oscuro m-0 truncate dark:text-blanco">{n.titulo}</p>
+                        <p className="text-xs text-gris m-0 mt-0.5 truncate dark:text-lila-soft">{n.mensaje}</p>
+                      </div>
+                      <i className="bi bi-arrow-right text-xs text-gris shrink-0 mt-1 dark:text-lila-soft" />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              {notifs.length > 0 && (
+                <div className="px-4 py-2 border-t border-gris/10 text-center dark:border-lila/10">
+                  <p className="text-xs text-gris m-0 dark:text-lila-soft">
+                    Haz clic en cada aviso para ir a resolverlo
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Usuario  */}
+        {/* Perfil del Usuario */}
         <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm bg-blanco border border-oscuro/10 hover:border-oscuro/30 dark:bg-bg-card dark:border-lila-soft/20 dark:hover:border-lila-mid">
-          <i className="bi bi-person-circle text-2xl text-oscuro dark:text-lila-mid"></i>
+          <i className="bi bi-person-circle text-2xl text-oscuro/70 dark:text-lila-mid"></i>
           <div className="text-left leading-tight hidden sm:block">
             <p className="m-0 font-semibold text-sm text-oscuro dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
             <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-oscuro/70 dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
