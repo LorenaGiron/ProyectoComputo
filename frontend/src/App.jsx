@@ -6,6 +6,7 @@ import Recepciones from "./pages/Recepciones";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Productos from './pages/Productos'
+import Ventas from './pages/Ventas'
 import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
@@ -121,13 +122,25 @@ function App() {
           }
         />
 
+        {/* Ventas */}
+        <Route
+          path="/ventas"
+          element={
+            <ProtectedRoute requiredPage="ventas">
+              <Layout>
+                <Ventas />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Tienda (para clientes) */}
         <Route
           path="/tienda"
           element={
-            //<ProtectedRoute requiredPage="tienda">
+            <ProtectedRoute requiredPage="tienda">
               <Tienda />
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 
