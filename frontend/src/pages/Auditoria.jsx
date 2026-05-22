@@ -251,19 +251,19 @@ export default function Auditoria() {
               <tr
                 key={l.id}
                 onClick={() => handleVerDetalle(l)}
-                className="border-b border-lila/5 hover:bg-lila/5 transition-colors text-white cursor-pointer"
+                className="border-b  hover:bg-lila/5 transition-colors  cursor-pointer"
               >
                 <td className="p-4 text-center"><ActionBadge action={l.action} /></td>
                 <td className="p-4 text-center"><ResourceBadge resource={l.resource} /></td>
-                <td className="p-4 text-center font-mono text-xs text-white">{l.resourceId || "—"}</td>
-                <td className="p-4 text-center text-sm font-medium text-white">{l.usuario || "—"}</td>
+                <td className="p-4 text-center font-mono text-xs ">{l.resourceId || "—"}</td>
+                <td className="p-4 text-center text-sm font-medium ">{l.usuario || "—"}</td>
                 <td
-                  className="p-4 text-center text-xs text-white/80"
+                  className="p-4 text-center text-xs /80"
                   style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                 >
                   {detailKeys || "—"}
                 </td>
-                <td className="p-4 text-center text-xs text-white/60">{fmtDateShort(l.createdAt)}</td>
+                <td className="p-4 text-center text-xs /60">{fmtDateShort(l.createdAt)}</td>
               </tr>
             );
           })
