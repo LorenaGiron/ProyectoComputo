@@ -105,7 +105,7 @@ function Tr({ children, idx }) {
 function Td({ children, mono, color, align = "center" }) {
   return (
     <td
-      className={`p-3 text-xs border-b border-lila/5 ${mono ? "font-mono" : "font-poppins"}`}
+      className={`p-3 text-xs border-b ${mono ? "font-mono" : "font-poppins"}`}
       style={{ textAlign: align, color: color || C.lilaSoft }}
     >
       {children}

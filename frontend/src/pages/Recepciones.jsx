@@ -168,7 +168,7 @@ function ModalForm({ row, esNuevo, onClose, onGuardar }) {
                 style={{ backgroundColor: "#56538E", color: "#E7D6FF" }}>
                 {esNuevo ? "NUEVO" : row.folio}
               </span>
-              <h2 className="text-lg font-extrabold text-white">
+              <h2 className="text-lg font-extrabold ">
                 {esNuevo ? "Nueva Recepción" : "Editar Recepción"}
               </h2>
             </div>
@@ -373,7 +373,7 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
             </div>
           </div>
 
-          <h2 className="text-xl font-extrabold text-white mb-2">{row.supplierNombre}</h2>
+          <h2 className="text-xl font-extrabold  mb-2">{row.supplierNombre}</h2>
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-sm" style={{ color: "#C9B8E8" }}>
               <Calendar size={13} style={{ color: "#A68DC8" }} />{row.fecha}
@@ -391,8 +391,8 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
           style={{ border: "1px solid #A68DC8", backgroundColor: "#2C2A48" }}>
           <div className="grid grid-cols-3">
             {[
-              { label: "Items distintos",  value: row.items.length,      color: "text-white" },
-              { label: "Unidades totales", value: unidadesTotales,        color: "text-white" },
+              { label: "Items distintos",  value: row.items.length,      color: "" },
+              { label: "Unidades totales", value: unidadesTotales,        color: "" },
               { label: "Total",            value: formatMoney(row.total), color: "text-[#8DB051]" },
             ].map((stat, i) => (
               <div key={i} className="px-4 py-3 text-center"
@@ -419,7 +419,7 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
                     : <Package size={20} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{item.sku}</p>
+                  <p className="text-sm font-bold ">{item.sku}</p>
                   <p className="text-xs" style={{ color: "#C9B8E8" }}>{item.productNombre}</p>
                 </div>
                 {[
@@ -624,16 +624,16 @@ export default function Recepciones() {
 
         <Tabla encabezados={ENCABEZADOS}>
           {loading ? (
-            <tr><td colSpan={8} className="text-center py-10 text-sm text-lila-soft opacity-50">Cargando...</td></tr>
+            <tr><td colSpan={8} className="text-center py-10 text-sm  opacity-50">Cargando...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={8} className="text-center py-10 text-sm text-lila-soft opacity-50">Sin resultados</td></tr>
+            <tr><td colSpan={8} className="text-center py-10 text-sm  opacity-50">Sin resultados</td></tr>
           ) : rows.map((row) => (
-            <tr key={row.id} className="border-t border-lila/10 hover:bg-lila/5 transition-colors">
-              <td className="p-4 text-center text-sm font-bold text-blanco">{row.folio}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.supplierNombre}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.fecha}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.createdBy || "—"}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.items.length}</td>
+            <tr key={row.id} className="border-t hover:bg-lila/5 transition-colors">
+              <td className="p-4 text-center text-sm font-bold ">{row.folio}</td>
+              <td className="p-4 text-center text-sm ">{row.supplierNombre}</td>
+              <td className="p-4 text-center text-sm ">{row.fecha}</td>
+              <td className="p-4 text-center text-sm ">{row.createdBy || "—"}</td>
+              <td className="p-4 text-center text-sm ">{row.items.length}</td>
               <td className="p-4 text-center text-sm font-bold text-verde">{formatMoney(row.total)}</td>
               <td className="p-4 text-center">
                 <Etiquetas contenido={row.status === "CONFIRMED" ? "Confirmado" : "Draft"} />
