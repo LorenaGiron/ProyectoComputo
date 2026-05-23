@@ -1,4 +1,5 @@
 import { ventasRepository } from './ventas.repository.js'
+import { inventoryRepository } from '../inventory/inventory.repository.js'
 import { logAuditEvent } from '../../utils/audit.js'
 
 export class VentasService {
@@ -47,6 +48,25 @@ export class VentasService {
 
     const created = await ventasRepository.create(data)
     const sanitized = this.sanitize(created)
+
+    for (const item of payload.items) {
+      const producto = await inventoryRepository.findProductById(item.productoId)
+      if (!producto) continue
+
+      const inventario = Array.isArray(producto.inventario) ? producto.inventario : []
+      const updatedInventario = inventario.map((entry) =>
+        entry.talla === item.talla
+          ? { ...entry, stock: Math.max(0, entry.stock - item.cantidad) }
+          : entry
+      )
+      const nuevoStock = updatedInventario.reduce((sum, e) => sum + (e.stock || 0), 0)
+
+      await inventoryRepository.updateProductStock(item.productoId, {
+        inventario: updatedInventario,
+        stock: nuevoStock,
+        updatedAt: new Date().toISOString(),
+      })
+    }
 
     await logAuditEvent({
       action: 'CREATE',

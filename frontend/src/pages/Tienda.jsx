@@ -52,8 +52,16 @@ export default function Tienda() {
   }, []);
 
   const agregarAlCarrito = (producto, { talla, cantidad = 1 }) => {
+    const stockTalla = producto.inventario?.find((i) => i.talla === talla)?.stock ?? 0;
+
     setCarrito((prev) => {
       const existe = prev.find((i) => i.producto.id === producto.id && i.talla === talla);
+      const cantidadEnCarrito = existe ? existe.cantidad : 0;
+
+      if (cantidadEnCarrito + cantidad > stockTalla) {
+        return prev;
+      }
+
       if (existe) {
         return prev.map((i) =>
           i.producto.id === producto.id && i.talla === talla
