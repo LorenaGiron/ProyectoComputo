@@ -90,8 +90,8 @@ function SectionHeader({ title, icon, subtitle, isGrafica, onToggle, extra }) {
 function Panel({ children, className = "" }) {
   return (
     <div
-      className={`rounded-2xl border border-lila/10 shadow-lg p-5 w-full ${className}`}
-      style={{ background: "rgba(35,30,60,0.6)", backdropFilter: "blur(8px)" }}
+      className={`rounded-2xl border border-lila/10 shadow-lg p-5 w-full
+        bg-blanco dark:bg-[rgba(35,30,60,0.6)] backdrop-blur-sm ${className}`}
     >
       {children}
     </div>
@@ -270,10 +270,10 @@ export default function Dashboard() {
         onClose={() => setToast({ message: "", type: "error" })}
       />
 
-      {/* ── Encabezado ───────────────────────────────────────── */}
+      {/* ── Encabezado ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-lila m-0">Dashboard</h1>
+          <h1 className="text-xl font-bold text-oscuro dark:text-lila m-0">Dashboard</h1>
           <p className="text-xs text-text-muted mt-1 m-0">
             {new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "2-digit" })}
           </p>
@@ -286,27 +286,27 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* ── KPI Cards ─────────────────────────────────────────── */}
+      {/* ── KPI Cards ── */}
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-28 rounded-2xl animate-pulse border border-lila/10"
-              style={{ background: "rgba(35,30,60,0.6)" }} />
+            <div key={i} className="h-28 rounded-2xl animate-pulse border border-lila/10
+              bg-oscuro/5 dark:bg-[rgba(35,30,60,0.6)]" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { label: "Productos",   value: fmt(t.products),             sub: `${fmt(t.activeProducts)} activos`,  accent: C.lilaMid,  icon: "bi bi-box-seam",            pct: pct(t.activeProducts,  t.products)   },
-            { label: "Clientes",    value: fmt(t.clients),              sub: `${fmt(t.activeClients)} activos`,   accent: C.azul,     icon: "bi bi-people",               pct: pct(t.activeClients,   t.clients)    },
-            { label: "Proveedores", value: fmt(t.suppliers),            sub: `${fmt(t.activeSuppliers)} activos`, accent: C.verdeMid, icon: "bi bi-truck",                pct: pct(t.activeSuppliers, t.suppliers)  },
-            { label: "Recepciones", value: fmt(t.recepciones),          sub: fmtCur(valorRecepTotal) + " reciente", accent: C.naranja, icon: "bi bi-clipboard-check",    pct: null                                  },
-            { label: "Bajo stock",  value: fmt(summary?.lowStockCount), sub: "requieren reorden",                 accent: C.rojo,     icon: "bi bi-exclamation-triangle", pct: null                                  },
+            { label: "Productos",   value: fmt(t.products),             sub: `${fmt(t.activeProducts)} activos`,    accent: C.lilaMid,  icon: "bi bi-box-seam",            pct: pct(t.activeProducts,  t.products)  },
+            { label: "Clientes",    value: fmt(t.clients),              sub: `${fmt(t.activeClients)} activos`,     accent: C.azul,     icon: "bi bi-people",               pct: pct(t.activeClients,   t.clients)   },
+            { label: "Proveedores", value: fmt(t.suppliers),            sub: `${fmt(t.activeSuppliers)} activos`,   accent: C.verdeMid, icon: "bi bi-truck",                pct: pct(t.activeSuppliers, t.suppliers) },
+            { label: "Recepciones", value: fmt(t.recepciones),          sub: fmtCur(valorRecepTotal) + " reciente", accent: C.naranja,  icon: "bi bi-clipboard-check",      pct: null                                },
+            { label: "Bajo stock",  value: fmt(summary?.lowStockCount), sub: "requieren reorden",                   accent: C.rojo,     icon: "bi bi-exclamation-triangle", pct: null                                },
           ].map((k) => (
             <div
               key={k.label}
-              className="rounded-2xl border border-lila/10 p-4 flex flex-col gap-2 relative overflow-hidden"
-              style={{ background: "rgba(35,30,60,0.6)" }}
+              className="rounded-2xl border border-lila/10 p-4 flex flex-col gap-2 relative overflow-hidden
+                bg-blanco dark:bg-[rgba(35,30,60,0.6)]"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs text-text-muted font-medium">{k.label}</span>
@@ -315,7 +315,7 @@ export default function Dashboard() {
                   <i className={`${k.icon} text-sm`} />
                 </span>
               </div>
-              <p className="text-2xl font-bold text-blanco m-0">{k.value}</p>
+              <p className="text-2xl font-bold text-oscuro dark:text-blanco m-0">{k.value}</p>
               <p className="text-xs m-0" style={{ color: k.accent }}>{k.sub}</p>
               {k.pct !== null && (
                 <div className="mt-1">
@@ -330,7 +330,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Alerta bajo stock ─────────────────────────────────── */}
+      {/* ── Alerta bajo stock ── */}
       {!loading && summary?.lowStockCount > 0 && (
         <div
           className="flex items-center gap-3 rounded-xl px-5 py-3 text-sm font-medium"
@@ -349,7 +349,6 @@ export default function Dashboard() {
       ════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-        {/* ── Bajo stock (2/3) ── */}
         <Panel className="xl:col-span-2">
           <SectionHeader
             title="Inventario · Bajo stock"
@@ -406,7 +405,6 @@ export default function Dashboard() {
           )}
         </Panel>
 
-        {/* ── Valor de recepciones (1/3) ── */}
         <Panel>
           <SectionHeader
             title="Valor recepciones"
@@ -467,7 +465,6 @@ export default function Dashboard() {
       ════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
-        {/* ── Recepciones ── */}
         <Panel>
           <SectionHeader
             title="Recepciones recientes"
@@ -536,7 +533,6 @@ export default function Dashboard() {
           )}
         </Panel>
 
-        {/* ── Movimientos ── */}
         <Panel>
           <SectionHeader
             title="Movimientos de inventario"

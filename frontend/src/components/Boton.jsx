@@ -6,25 +6,42 @@ export default function Boton({
   tipo = "button" 
 }) {
   
-  // 2. Agregamos 'cursor-pointer' a las clases base
   const baseClasses = "px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer";
 
-  // Los "trajes" que se puede poner el botón
   const estilos = {
     // Guardar, Aceptar, Nuevo, Exportar
-    claro: "bg-lila text-oscuro-card border border-lila hover:bg-oscuro-card hover:text-lila",
-    
+    claro: `
+      bg-lila text-oscuro-card border border-lila
+      hover:bg-oscuro-card hover:text-lila
+      dark:bg-lila dark:text-oscuro-card dark:border-lila
+      dark:hover:bg-oscuro-card dark:hover:text-lila
+    `,
+
     // Eliminar, Cancelar
-    oscuro: "bg-oscuro-card text-lila border border-lila hover:bg-lila hover:text-oscuro-card",
-    
+    oscuro: `
+      bg-oscuro/10 text-oscuro border border-oscuro/30
+      hover:bg-oscuro hover:text-blanco
+      dark:bg-oscuro-card dark:text-lila dark:border-lila
+      dark:hover:bg-lila dark:hover:text-oscuro-card
+    `,
+
     // Para acciones secundarias (Cerrar, Ver detalles)
-    secundario: "bg-lila/10 text-blanco border border-lila/20 hover:bg-lila/30",
-    
-    // Sin fondo, solo texto 
-    fantasma: "text-lila-soft hover:text-blanco hover:bg-lila/10 bg-transparent"
+    secundario: `
+      bg-oscuro/5 text-oscuro/70 border border-oscuro/15
+      hover:bg-oscuro/15 hover:text-oscuro
+      dark:bg-lila/10 dark:text-blanco dark:border-lila/20
+      dark:hover:bg-lila/30 dark:hover:text-blanco
+    `,
+
+    // Sin fondo, solo texto
+    fantasma: `
+      bg-transparent text-oscuro/60
+      hover:text-oscuro hover:bg-oscuro/8
+      dark:text-lila-soft
+      dark:hover:text-blanco dark:hover:bg-lila/10
+    `,
   };
 
-  // 3. Actualizamos el fallback para que coincida con tus nuevos nombres
   const estiloSeleccionado = estilos[variante] || estilos.claro;
 
   return (

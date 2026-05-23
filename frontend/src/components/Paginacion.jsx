@@ -49,19 +49,21 @@ export default function Paginacion({
     return paginas
   }
 
-  const paginas  = getPaginas()
+  const paginas   = getPaginas()
   const esPrimera = paginaActual === 1
   const esUltima  = paginaActual === totalPaginas
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
 
-      {/* Botón Exportar con dropdown */}
+      {/* ── Botón Exportar con dropdown ── */}
       <div className="relative" ref={menuRef}>
         <button
           onClick={() => setMostrarMenu((v) => !v)}
           disabled={exportando}
-          className="bg-transparent text-lila-soft border border-lila/20 rounded-lg px-5 py-2 font-bold cursor-pointer hover:bg-lila hover:text-oscuro transition-all active:scale-95 w-full sm:w-auto flex items-center gap-2"
+          className="bg-blanco rounded-lg px-5 py-2 font-bold cursor-pointer transition-all active:scale-95 w-full sm:w-auto flex items-center gap-2 border
+            text-oscuro border-oscuro/20 hover:bg-oscuro hover:text-blanco hover:border-oscuro
+            dark:bg-transparent dark:text-lila-soft dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
         >
           {exportando ? (
             <>
@@ -78,75 +80,91 @@ export default function Paginacion({
         </button>
 
         {mostrarMenu && (
-          <div
-            className="absolute left-0 bottom-full mb-2 rounded-xl overflow-hidden shadow-2xl z-50 min-w-[160px]"
-            style={{ backgroundColor: "#2C2A48", border: "1px solid #56538E" }}
-          >
+          <div className="absolute left-0 bottom-full mb-2 rounded-xl overflow-hidden shadow-2xl z-50 min-w-[160px]
+            bg-blanco border border-oscuro/15
+            dark:bg-[#2C2A48] dark:border-[#56538E]">
             <button
               onClick={() => handleExportar('pdf')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors hover:bg-white/5"
-              style={{ color: "#E7D6FF" }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors
+                text-oscuro hover:bg-oscuro/5
+                dark:text-[#E7D6FF] dark:hover:bg-white/5"
             >
-              <i className="bi bi-file-earmark-pdf text-base" style={{ color: "#e05c5c" }} />
+              <i className="bi bi-file-earmark-pdf text-base text-rojo" />
               Exportar PDF
             </button>
-            <div style={{ height: "1px", backgroundColor: "rgba(86,83,142,0.4)" }} />
+            <div className="h-px bg-oscuro/10 dark:bg-[rgba(86,83,142,0.4)]" />
             <button
               onClick={() => handleExportar('excel')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors hover:bg-white/5"
-              style={{ color: "#E7D6FF" }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors
+                text-oscuro hover:bg-oscuro/5
+                dark:text-[#E7D6FF] dark:hover:bg-white/5"
             >
-              <i className="bi bi-file-earmark-excel text-base" style={{ color: "#8DB051" }} />
+              <i className="bi bi-file-earmark-excel text-base text-[#8DB051]" />
               Exportar Excel
             </button>
           </div>
         )}
       </div>
 
-      {/* Contador */}
-      <span className="text-text-muted text-sm font-medium">
+      {/* ── Contador ── */}
+      <span className="text-sm font-medium
+        text-oscuro/50
+        dark:text-text-muted">
         {rangoSiguiente} de {totalRegistros.toLocaleString()}
       </span>
 
-      {/* Botones de navegación */}
+      {/* ── Botones de navegación ── */}
       <div className="flex gap-2">
+
+        {/* Anterior */}
         <button
           onClick={() => !esPrimera && onCambiarPagina("‹")}
           disabled={esPrimera}
-          className="w-9 h-9 rounded-lg font-bold transition-all flex items-center justify-center border border-lila/20 text-lila-soft disabled:opacity-30 disabled:cursor-not-allowed hover:bg-lila hover:text-oscuro active:scale-90"
+          className="w-9 h-9 rounded-lg font-bold transition-all flex items-center justify-center border
+            disabled:opacity-30 disabled:cursor-not-allowed active:scale-90
+            bg-blanco text-oscuro border-oscuro/20 hover:bg-oscuro hover:text-blanco hover:border-oscuro
+            dark:bg-transparent dark:text-lila-soft dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
         >
           ‹
         </button>
 
+        {/* Páginas */}
         {paginas.map((p, i) =>
           p === "..." ? (
-            <span key={i} className="w-9 h-9 flex items-center justify-center text-lila-soft opacity-50 text-sm">
+            <span key={i} className="w-9 h-9 flex items-center justify-center text-sm
+              text-oscuro/40
+              dark:text-lila-soft dark:opacity-50">
               ...
             </span>
           ) : (
             <button
               key={i}
               onClick={() => onCambiarPagina(p)}
-              className={`w-9 h-9 rounded-lg font-bold transition-all hover:scale-110 active:scale-90 flex items-center justify-center ${
-                p === String(paginaActual)
-                  ? "bg-lila text-oscuro border-none"
-                  : "bg-transparent text-lila-soft border border-lila/20 hover:bg-lila hover:text-oscuro"
-              }`}
+              className={`w-9 h-9 rounded-lg font-bold transition-all hover:scale-110 active:scale-90 flex items-center justify-center border
+                ${p === String(paginaActual)
+                  ? "bg-lila text-oscuro border-lila"
+                  : "bg-blanco text-oscuro border-oscuro/20 hover:bg-oscuro hover:text-blanco hover:border-oscuro dark:bg-transparent dark:text-lila-soft dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
+                }`}
             >
               {p}
             </button>
           )
         )}
 
+        {/* Siguiente */}
         <button
           onClick={() => !esUltima && onCambiarPagina("›")}
           disabled={esUltima}
-          className="w-9 h-9 rounded-lg font-bold transition-all flex items-center justify-center border border-lila/20 text-lila-soft disabled:opacity-30 disabled:cursor-not-allowed hover:bg-lila hover:text-oscuro active:scale-90"
+          className="w-9 h-9 rounded-lg font-bold transition-all flex items-center justify-center border
+            disabled:opacity-30 disabled:cursor-not-allowed active:scale-90
+            bg-blanco text-oscuro border-oscuro/20 hover:bg-oscuro hover:text-blanco hover:border-oscuro
+            dark:bg-transparent dark:text-lila-soft dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
         >
           ›
         </button>
+
       </div>
-      
+
     </div>
   )
 }

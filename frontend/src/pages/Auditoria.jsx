@@ -162,14 +162,14 @@ export default function Auditoria() {
   };
 
   const selectCls =
-    "bg-bg-card text-lila-soft border border-lila/20 rounded-lg px-3 py-2 text-sm cursor-pointer outline-none hover:border-lila transition-colors shadow-sm";
+  "bg-blanco dark:bg-bg-card text-oscuro dark:text-lila-soft border border-oscuro/20 dark:border-lila/20 rounded-lg px-3 py-2 text-sm cursor-pointer outline-none hover:border-oscuro dark:hover:border-lila transition-colors shadow-sm";
 
   const encabezados = ["Acción", "Recurso", "Resource ID", "Usuario", "Detalles", "Fecha"];
 
   return (
     <div className="p-6 flex flex-col gap-5">
 
-      <h1 className="text-2xl font-bold text-blanco m-0">Auditoría</h1>
+      <h1 className="text-2xl font-bold text-oscuro dark:text-blanco m-0">Auditoría</h1>
 
       {/* ── KPI Cards ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

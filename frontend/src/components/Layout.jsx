@@ -3,7 +3,9 @@ import Header from "./Header";
 
 export default function Layout({ children }) {
   return (
-    <div className="flex h-screen bg-oscuro font-poppins overflow-hidden w-full">
+    <div className="flex h-screen font-poppins overflow-hidden w-full
+      bg-bg
+      dark:bg-oscuro">
       <Sidebar />
 
       <div className="flex-1 flex flex-col relative w-full overflow-hidden">

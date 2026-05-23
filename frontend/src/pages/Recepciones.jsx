@@ -546,7 +546,8 @@ export default function Recepciones() {
     : `${(paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`;
 
   return (
-    <div className="flex flex-col min-h-screen bg-oscuro">
+    <div className="flex flex-col min-h-screen">
+    
       <div className="flex-1 p-6 lg:p-8 space-y-6">
 
         <h1 className="text-2xl lg:text-3xl font-extrabold tracking-widest text-blanco uppercase">
