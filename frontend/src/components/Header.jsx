@@ -85,8 +85,8 @@ export default function Header() {
       } catch { /* silencioso */ }
     };
     cargar();
-    const intervalo = setInterval(cargar, 10_000);
-    return () => clearInterval(intervalo);
+    //const intervalo = setInterval(cargar, 90_000);
+    //return () => clearInterval(intervalo);
   }, []);
 
   // Click fuera del portal — compara contra campanaRef porque notifsRef
@@ -131,18 +131,18 @@ export default function Header() {
   }
 
   return (
-    <header className="flex flex-col md:flex-row justify-between items-center gap-4 w-full px-4 sm:px-6 lg:px-8 py-4 z-50 transition-colors duration-300 bg-lila border-b border-oscuro/10 dark:bg-oscuro dark:border-lila-soft/10">
+    <header className="flex flex-col md:flex-row justify-between items-center gap-4 w-full px-4 sm:px-6 lg:px-8 py-4 z-50 transition-colors duration-300 bg-blanco border-b border-lila dark:bg-oscuro dark:border-lila-soft/10">
       
       {/* Buscador */}
       <div ref={buscadorRef} className="relative w-full flex-1 md:max-w-lg lg:max-w-xl xl:max-w-2xl z-50">
-        <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-sm text-oscuro/50 dark:text-lila-soft"></i>
-        <input
-          type="text"
+        <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-sm text-morado dark:text-lila-soft"></i>
+        <input 
+          type="text" 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setMostrarModal(true)}
-          placeholder="Buscar en todo el sitio"
-          className="w-full rounded-full pl-10 pr-4 py-2.5 text-sm outline-none transition-all shadow-sm bg-blanco border border-blanco/50 text-oscuro placeholder:text-oscuro/50 focus:ring-2 focus:ring-oscuro/20 dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:focus:ring-1 dark:focus:ring-lila dark:hover:border-lila dark:placeholder-lila/30"
+          placeholder="Buscar en todo el sitio" 
+          className="w-full rounded-full pl-10 pr-4 py-2.5 text-sm outline-none transition-all shadow-sm bg-lila/30 border border-lila text-oscuro placeholder:text-morado focus:ring-2 focus:ring-lila-mid/40 dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:focus:ring-1 dark:focus:ring-lila dark:hover:border-lila dark:placeholder-lila/30"
         />
 
         {mostrarModal && (
@@ -161,20 +161,27 @@ export default function Header() {
                     return (
                       <div
                         key={`${item._categoriaBackend}-${item.id}-${index}`}
-                        onClick={() => { setMostrarModal(false); navigate(config.ruta); }}
-                        className="px-3 py-2.5 rounded-lg cursor-pointer transition-all flex justify-between items-center group gap-4 hover:bg-bg dark:hover:bg-lila/10"
+                        onClick={() => {
+                          setMostrarModal(false);
+                          navigate(config.ruta);
+                        }}
+                        className="px-3 py-2.5 rounded-lg cursor-pointer transition-all flex justify-between items-center group gap-4 hover:bg-lila/30 dark:hover:bg-lila/10"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="p-2 rounded-lg flex items-center justify-center bg-bg border border-oscuro/5 dark:bg-oscuro/40 dark:border-lila/5">
+                          <div className="p-2 rounded-lg flex items-center justify-center bg-bg/30 border border-oscuro/5 dark:bg-oscuro/40 dark:border-lila/5">
                             <i className={`bi ${config.icon} text-base`}></i>
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-medium truncate text-oscuro group-hover:text-lila-mid dark:text-blanco dark:group-hover:text-lila">{config.titulo}</span>
-                            <span className="text-xs truncate text-gris dark:text-text-muted">{config.sub}</span>
+                            <span className="text-sm font-medium truncate text-oscuro group-hover:text-morado dark:text-blanco dark:group-hover:text-lila">
+                              {config.titulo}
+                            </span>
+                            <span className="text-xs truncate text-gris dark:text-text-muted">
+                              {config.sub}
+                            </span>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md transition-colors bg-blanco border border-gris/20 text-gris group-hover:border-lila-mid/50 group-hover:text-lila-mid group-hover:bg-bg dark:bg-oscuro dark:border-lila/10 dark:text-lila-soft dark:group-hover:border-lila dark:group-hover:text-blanco">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md transition-colors bg-blanco border border-lila-mid text-lila-mid group-hover:border-morado group-hover:text-lila-morado group-hover:bg-lila/50 dark:bg-oscuro dark:border-lila/10 dark:text-lila-soft dark:group-hover:border-lila dark:group-hover:text-blanco">
                             <i className="bi bi-box-arrow-in-right mr-1 opacity-70"></i>
                             {config.tag}
                           </span>
@@ -215,10 +222,15 @@ export default function Header() {
             title="Notificaciones"
           >
             <div className="relative w-6 h-6 flex items-center justify-center">
-              <i className="bi bi-bell text-xl transition-all duration-300 opacity-100 group-hover:opacity-0 group-hover:scale-110 text-oscuro/70 hover:text-oscuro dark:text-lila dark:hover:text-lila-soft"></i>
-              <i className="bi bi-bell-fill text-xl absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 text-oscuro dark:text-lila"></i>
+              {/* Ícono Contorno */}
+              <i className="bi bi-bell text-xl transition-all duration-300 opacity-100 group-hover:opacity-0 group-hover:scale-110 text-lila-mid hover:text-morado dark:text-lila dark:hover:text-lila-soft"></i>
+              
+              {/* Ícono Relleno */}
+              <i className="bi bi-bell-fill text-xl absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 text-morado dark:text-lila"></i>
+              
+              {/* Punto/Contador de notificación dinámico */}
               {totalNotifs > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center leading-none shadow-sm z-10 group-hover:scale-110 transition-transform">
+                <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center leading-none shadow-sm z-10 group-hover:scale-110 transition-transform">
                   {totalNotifs > 99 ? "99+" : totalNotifs}
                 </span>
               )}
@@ -236,7 +248,7 @@ export default function Header() {
               <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
                 <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">Notificaciones</p>
                 {totalNotifs > 0 && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-lila/20 text-lila font-semibold">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-lila/30 text-morado font-semibold dark:bg-lila/20 dark:text-lila">
                     {totalNotifs}
                   </span>
                 )}
@@ -254,19 +266,19 @@ export default function Header() {
                     <div
                       key={n.id}
                       onClick={() => { navigate(n.ruta); setMostrarNotifs(false); }}
-                      className="px-4 py-3 border-b border-gris/5 hover:bg-bg cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
+                      className="px-4 py-3 border-b border-lila/10 hover:bg-lila/10 cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
                     >
-                      <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0
-                        ${n.nivel === 'critico'      ? 'bg-rojo/10 text-rojo dark:bg-red-500/20 dark:text-red-400' :
-                          n.nivel === 'advertencia'  ? 'bg-amarillo/10 text-amarillo dark:bg-yellow-500/20 dark:text-yellow-400' :
-                                                       'bg-lila/20 text-lila-mid dark:text-lila'}`}>
+                      <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 
+                        ${n.nivel === 'critico'    ? 'bg-rojo/10 text-rojo dark:bg-red-500/20 dark:text-red-400'    :
+                          n.nivel === 'advertencia' ? 'bg-amarillo/10 text-amarillo dark:bg-yellow-500/20 dark:text-yellow-400' :
+                                                      'bg-lila/30 text-morado dark:bg-lila/20 dark:text-lila-mid'}`}>
                         <i className={`bi ${n.icon} text-sm`} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-oscuro m-0 truncate dark:text-blanco">{n.titulo}</p>
                         <p className="text-xs text-gris m-0 mt-0.5 truncate dark:text-lila-soft">{n.mensaje}</p>
                       </div>
-                      <i className="bi bi-arrow-right text-xs text-gris shrink-0 mt-1 dark:text-lila-soft" />
+                      <i className="bi bi-arrow-right text-xs text-lila-mid shrink-0 mt-1 dark:text-lila-soft" />
                     </div>
                   ))
                 )}
@@ -274,7 +286,7 @@ export default function Header() {
 
               {/* Footer */}
               {notifs.length > 0 && (
-                <div className="px-4 py-2 border-t border-gris/10 text-center dark:border-lila/10">
+                <div className="px-4 py-2 border-t border-lila/20 text-center dark:border-lila/10">
                   <p className="text-xs text-gris m-0 dark:text-lila-soft">
                     Haz clic en cada aviso para ir a resolverlo
                   </p>
@@ -286,22 +298,26 @@ export default function Header() {
         </div>
 
         {/* Perfil del Usuario */}
-        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm bg-blanco border border-oscuro/10 hover:border-oscuro/30 dark:bg-bg-card dark:border-lila-soft/20 dark:hover:border-lila-mid">
-          <i className="bi bi-person-circle text-2xl text-oscuro/70 dark:text-lila-mid"></i>
-          <div className="text-left leading-tight hidden sm:block">
-            <p className="m-0 font-semibold text-sm text-oscuro dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
-            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-oscuro/70 dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
+        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-sm group bg-lila/30 border border-lila hover:bg-lila hover:border-morado dark:bg-bg-card dark:border-lila-soft/20 dark:hover:bg-lila/10 dark:hover:border-lila-mid">
+          <i className="bi bi-person-circle text-2xl text-morado group-hover:text-blanco transition-colors dark:text-lila-mid dark:group-hover:text-lila"></i>
+          <div className="text-left leading-tight hidden sm:block transition-colors">
+            <p className="m-0 font-semibold text-sm text-morado group-hover:text-blanco dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
+            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-mid group-hover:text-lila/80 dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
           </div>
-          <i className="bi bi-chevron-down text-xs ml-1 text-oscuro/50 dark:text-lila-soft"></i>
+          <i className="bi bi-chevron-down text-xs ml-1 text-lila-mid group-hover:text-blanco transition-colors dark:text-lila-soft"></i>
         </div>
 
         {/* Botón cambio de Tema */}
         <button
           onClick={toggleTheme}
-          className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-colors cursor-pointer shadow-sm active:scale-95 bg-blanco text-oscuro border border-oscuro/10 hover:bg-oscuro hover:text-lila dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
+          className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95 bg-blanco text-lila-mid border border-lila hover:bg-morado hover:text-blanco hover:border-morado dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
           title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
         >
-          {isDark ? <i className="bi bi-sun-fill text-lg"></i> : <i className="bi bi-moon-stars-fill text-lg"></i>}
+          {isDark ? (
+            <i className="bi bi-sun-fill text-lg transition-transform group-hover:rotate-90"></i>
+          ) : (
+            <i className="bi bi-moon-stars-fill text-lg transition-transform group-hover:-rotate-12"></i>
+          )}
         </button>
       </div>
     </header>
