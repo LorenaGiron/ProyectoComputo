@@ -267,19 +267,19 @@ export default function Clientes() {
           <div className="grid gap-4 sm:grid-cols-2 mb-6">
             <div className="rounded-2xl border border-lila/20 bg-[#1E1A35] p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-lila-soft mb-2">Nombre</p>
-              <p className="text-base font-semibold text-white">{cliente.nombre || "—"}</p>
+              <p className="text-base font-semibold ">{cliente.nombre || "—"}</p>
             </div>
             <div className="rounded-2xl border border-lila/20 bg-[#1E1A35] p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-lila-soft mb-2">RFC</p>
-              <p className="text-base font-semibold text-white">{cliente.rfc || "—"}</p>
+              <p className="text-base font-semibold ">{cliente.rfc || "—"}</p>
             </div>
             <div className="rounded-2xl border border-lila/20 bg-[#1E1A35] p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-lila-soft mb-2">Email</p>
-              <p className="text-base font-semibold text-white">{cliente.email || "—"}</p>
+              <p className="text-base font-semibold ">{cliente.email || "—"}</p>
             </div>
             <div className="rounded-2xl border border-lila/20 bg-[#1E1A35] p-4">
               <p className="text-xs uppercase tracking-[0.25em] text-lila-soft mb-2">Teléfono</p>
-              <p className="text-base font-semibold text-white">{cliente.telefono || "—"}</p>
+              <p className="text-base font-semibold ">{cliente.telefono || "—"}</p>
             </div>
           </div>
 
@@ -453,7 +453,7 @@ export default function Clientes() {
           clientesFiltrados.map((usuario) => (
             <tr
               key={usuario.id}
-              className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white"
+              className="border-b  hover:bg-oscuro/40 transition-colors "
             >
               <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{usuario.nombre}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.rfc}</td>

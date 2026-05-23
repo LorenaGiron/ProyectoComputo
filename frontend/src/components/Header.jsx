@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../services/api";
 import { fetchNotifications } from "../services/notifications.service";
+import { createPortal } from "react-dom";
 
 export default function Header() {
   const { usuario } = useAuth();
@@ -20,10 +21,11 @@ export default function Header() {
   const [resultados, setResultados] = useState(null);
   const [buscando, setBuscando] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [notifs, setNotifs] = useState([]);
+  const campanaRef = useRef(null);                              // ref al botón campana
+  const [posNotifs, setPosNotifs] = useState({ top: 0, right: 0 }); // posición del portal
   const [totalNotifs, setTotalNotifs] = useState(0);
   const [mostrarNotifs, setMostrarNotifs] = useState(false);
-  
+  const [notifs, setNotifs] = useState([]);
   const buscadorRef = useRef(null);
   const notifsRef = useRef(null);
 
@@ -38,9 +40,7 @@ export default function Header() {
     }
   }, [isDark]);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
+  const toggleTheme = () => setIsDark(!isDark);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -52,17 +52,15 @@ export default function Header() {
     const delayDebounce = setTimeout(async () => {
       setBuscando(true);
       setMostrarModal(true);
-
       try {
         const response = await api.get(`/search?q=${encodeURIComponent(query.trim())}`);
-        setResultados(response.data || response); 
+        setResultados(response.data || response);
       } catch (error) {
         console.error("Error en la búsqueda global:", error);
         setResultados(null);
       } finally {
         setBuscando(false);
       }
-
     }, 500);
 
     return () => clearTimeout(delayDebounce);
@@ -81,38 +79,43 @@ export default function Header() {
   useEffect(() => {
     const cargar = async () => {
       try {
-        const data = await fetchNotifications()
-        setNotifs(data.items   ?? [])
-        setTotalNotifs(data.total ?? 0)
+        const data = await fetchNotifications();
+        setNotifs(data.items ?? []);
+        setTotalNotifs(data.total ?? 0);
       } catch { /* silencioso */ }
-    }
-    cargar()
-    //const intervalo = setInterval(cargar, 90_000) // refresca 
-    //return () => clearInterval(intervalo)
-  }, [])
+    };
+    cargar();
+    //const intervalo = setInterval(cargar, 90_000);
+    //return () => clearInterval(intervalo);
+  }, []);
 
+  // Click fuera del portal — compara contra campanaRef porque notifsRef
+  // ya no contiene el dropdown (está en el body)
   useEffect(() => {
     const handleClickFuera = (e) => {
-      if (notifsRef.current && !notifsRef.current.contains(e.target)) {
-        setMostrarNotifs(false)
+      if (
+        notifsRef.current && !notifsRef.current.contains(e.target) &&
+        campanaRef.current && !campanaRef.current.contains(e.target)
+      ) {
+        setMostrarNotifs(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickFuera)
-    return () => document.removeEventListener("mousedown", handleClickFuera)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickFuera);
+    return () => document.removeEventListener("mousedown", handleClickFuera);
+  }, []);
 
   const obtenerConfiguracionRenglon = (tipo, item) => {
     switch (tipo) {
-      case "productos": return { titulo: item.nombre, sub: `SKU: ${item.sku || 'N/A'} | ${item.marca || ''}`, ruta: "/productos", tag: "Productos", icon: "bi-box-seam text-blue-500 dark:text-azul" };
-      case "clientes": return { titulo: item.nombre, sub: item.email || item.rfc || '', ruta: "/clientes", tag: "Clientes", icon: "bi-people text-pink-500 dark:text-rosa" };
+      case "productos":   return { titulo: item.nombre, sub: `SKU: ${item.sku || 'N/A'} | ${item.marca || ''}`, ruta: "/productos",   tag: "Productos",   icon: "bi-box-seam text-blue-500 dark:text-azul" };
+      case "clientes":    return { titulo: item.nombre, sub: item.email || item.rfc || '', ruta: "/clientes",    tag: "Clientes",    icon: "bi-people text-pink-500 dark:text-rosa" };
       case "proveedores": return { titulo: item.nombre, sub: item.contacto || item.giro || '', ruta: "/proveedores", tag: "Proveedores", icon: "bi-truck text-orange-500 dark:text-naranja" };
-      case "usuarios": return { titulo: `${item.nombre} ${item.apellido || ''}`, sub: `@${item.usuario} | ${item.email || ''}`, ruta: "/usuarios", tag: "Usuarios", icon: "bi-person-badge text-green-500 dark:text-verde" };
+      case "usuarios":    return { titulo: `${item.nombre} ${item.apellido || ''}`, sub: `@${item.usuario} | ${item.email || ''}`, ruta: "/usuarios",   tag: "Usuarios",    icon: "bi-person-badge text-green-500 dark:text-verde" };
       case "recepciones": return { titulo: `Recepción de: ${item.proveedor}`, sub: item.comentarios || 'Sin comentarios', ruta: "/recepciones", tag: "Recepciones", icon: "bi-file-earmark-arrow-down text-purple-500 dark:text-lila-mid" };
-      case "auditoria": return { titulo: `Acción: ${item.action}`, sub: `${item.usuario || 'Sistema'} — ${item.details || ''}`, ruta: "/auditoria", tag: "Auditoría", icon: "bi-shield-check text-red-500 dark:text-error-text" };
-      case "inventario": return { titulo: `Movimiento: ${item.tipo}`, sub: `${item.productNombre || ''} (${item.motivo || ''})`, ruta: "/dashboard", tag: "Inventario", icon: "bi-arrow-left-right text-yellow-600 dark:text-yellow-500" };
-      case "permisos": return { titulo: item.nombre, sub: `Módulo: ${item.modulo || ''}`, ruta: "/usuarios", tag: "Permisos", icon: "bi-key text-cyan-600 dark:text-cyan-400" };
-      case "roles": return { titulo: `Rol: ${item.nombre}`, sub: 'Configuración de seguridad', ruta: "/usuarios", tag: "Roles", icon: "bi-shield-lock text-purple-600 dark:text-purple-400" };
-      default: return { titulo: "Registro", sub: "", ruta: "/dashboard", tag: "Sistema", icon: "bi-gear text-gris" };
+      case "auditoria":   return { titulo: `Acción: ${item.action}`, sub: `${item.usuario || 'Sistema'} — ${item.details || ''}`, ruta: "/auditoria",   tag: "Auditoría",   icon: "bi-shield-check text-red-500 dark:text-error-text" };
+      case "inventario":  return { titulo: `Movimiento: ${item.tipo}`, sub: `${item.productNombre || ''} (${item.motivo || ''})`, ruta: "/dashboard",   tag: "Inventario",  icon: "bi-arrow-left-right text-yellow-600 dark:text-yellow-500" };
+      case "permisos":    return { titulo: item.nombre, sub: `Módulo: ${item.modulo || ''}`, ruta: "/usuarios",   tag: "Permisos",    icon: "bi-key text-cyan-600 dark:text-cyan-400" };
+      case "roles":       return { titulo: `Rol: ${item.nombre}`, sub: 'Configuración de seguridad', ruta: "/usuarios",   tag: "Roles",       icon: "bi-shield-lock text-purple-600 dark:text-purple-400" };
+      default:            return { titulo: "Registro", sub: "", ruta: "/dashboard", tag: "Sistema", icon: "bi-gear text-gris" };
     }
   };
 
@@ -144,7 +147,6 @@ export default function Header() {
 
         {mostrarModal && (
           <div className="absolute top-full left-0 right-0 mt-2 rounded-xl shadow-xl overflow-hidden animate-fade-in flex flex-col max-h-[45vh] bg-blanco border border-oscuro/10 dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl">
-            
             <div className="overflow-y-auto p-2 flex-1 custom-scrollbar">
               {buscando ? (
                 <div className="p-8 text-center flex flex-col items-center justify-center gap-2 text-gris dark:text-lila-soft">
@@ -154,12 +156,10 @@ export default function Header() {
               ) : listaResultadosPlana.length > 0 ? (
                 <div className="space-y-1">
                   <p className="px-3 py-1 text-[11px] font-bold tracking-wider uppercase text-gris dark:text-lila-soft/60">Coincidencias encontradas</p>
-                  
                   {listaResultadosPlana.map((item, index) => {
                     const config = obtenerConfiguracionRenglon(item._categoriaBackend, item);
-                    
                     return (
-                      <div 
+                      <div
                         key={`${item._categoriaBackend}-${item.id}-${index}`}
                         onClick={() => {
                           setMostrarModal(false);
@@ -167,7 +167,6 @@ export default function Header() {
                         }}
                         className="px-3 py-2.5 rounded-lg cursor-pointer transition-all flex justify-between items-center group gap-4 hover:bg-lila/30 dark:hover:bg-lila/10"
                       >
-                        {/* Izquierda: Icono + Textos */}
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="p-2 rounded-lg flex items-center justify-center bg-bg/30 border border-oscuro/5 dark:bg-oscuro/40 dark:border-lila/5">
                             <i className={`bi ${config.icon} text-base`}></i>
@@ -181,8 +180,6 @@ export default function Header() {
                             </span>
                           </div>
                         </div>
-
-                        {/* Derecha: Indicador de página */}
                         <div className="shrink-0">
                           <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md transition-colors bg-blanco border border-lila-mid text-lila-mid group-hover:border-morado group-hover:text-lila-morado group-hover:bg-lila/50 dark:bg-oscuro dark:border-lila/10 dark:text-lila-soft dark:group-hover:border-lila dark:group-hover:text-blanco">
                             <i className="bi bi-box-arrow-in-right mr-1 opacity-70"></i>
@@ -205,12 +202,23 @@ export default function Header() {
 
       {/* Acciones del Usuario (Derecha) */}
       <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto justify-end">
-        
+
         {/* Notificaciones */}
-        <div ref={notifsRef} className="relative">
-          <div 
-            onClick={() => setMostrarNotifs((v) => !v)}
-            className="relative cursor-pointer group" 
+        <div className="relative">
+          {/* Botón campana — tiene su propio ref para calcular posición */}
+          <div
+            ref={campanaRef}
+            onClick={() => {
+              if (!mostrarNotifs) {
+                const rect = campanaRef.current.getBoundingClientRect();
+                setPosNotifs({
+                  top: rect.bottom + 12,
+                  right: window.innerWidth - rect.right,
+                });
+              }
+              setMostrarNotifs((v) => !v);
+            }}
+            className="relative cursor-pointer group"
             title="Notificaciones"
           >
             <div className="relative w-6 h-6 flex items-center justify-center">
@@ -229,12 +237,15 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Dropdown de Notificaciones (Bordes ajustados al tema lila) */}
-          {mostrarNotifs && (
-            <div className="absolute right-0 top-full mt-3 w-80 bg-blanco border border-lila/30 rounded-xl shadow-xl z-50 overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl">
-              
-              {/* Header del dropdown */}
-              <div className="px-4 py-3 border-b border-lila/20 flex items-center justify-between dark:border-lila/10">
+          {/* Dropdown renderizado en el body mediante portal */}
+          {mostrarNotifs && createPortal(
+            <div
+              ref={notifsRef}
+              style={{ position: "fixed", top: posNotifs.top, right: posNotifs.right }}
+              className="w-80 bg-blanco border border-gris/20 rounded-xl shadow-xl z-[9999] overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl"
+            >
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
                 <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">Notificaciones</p>
                 {totalNotifs > 0 && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-lila/30 text-morado font-semibold dark:bg-lila/20 dark:text-lila">
@@ -281,7 +292,8 @@ export default function Header() {
                   </p>
                 </div>
               )}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
 
@@ -296,7 +308,7 @@ export default function Header() {
         </div>
 
         {/* Botón cambio de Tema */}
-        <button 
+        <button
           onClick={toggleTheme}
           className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95 bg-blanco text-lila-mid border border-lila hover:bg-morado hover:text-blanco hover:border-morado dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
           title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}

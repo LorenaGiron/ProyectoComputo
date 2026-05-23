@@ -30,23 +30,23 @@ export default function ToolBar({
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5 w-full">
       <div className="flex flex-col sm:flex-row gap-4 w-full lg:flex-1">
         
-         {/* Filtro */}
+        {/* Filtro */}
         <div className="relative w-full sm:w-40" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="bg-bg-card text-lila border border-lila/20 rounded-lg px-4 py-2.5 text-sm cursor-pointer outline-none hover:border-lila transition-colors shadow-sm flex items-center justify-between w-full h-full"
+            className="bg-blanco text-oscuro border border-oscuro/20 rounded-lg px-4 py-2.5 text-sm cursor-pointer outline-none hover:border-oscuro transition-colors shadow-sm flex items-center justify-between w-full h-full dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:border-lila"
           >
             <span className="font-medium">{filtroActual}</span>
             <i className={`bi bi-chevron-down text-xs transition-transform duration-300 ${isDropdownOpen ? "rotate-180" : ""}`}></i>
           </button>
 
           {isDropdownOpen && (
-            <ul className="absolute top-full left-0 mt-2 w-full bg-bg-card border border-lila/20 rounded-lg shadow-xl z-50 overflow-hidden py-1">
+            <ul className="absolute top-full left-0 mt-2 w-full bg-blanco border border-oscuro/20 rounded-lg shadow-xl z-50 overflow-hidden py-1 dark:bg-bg-card dark:border-lila/20">
               {opcionesFiltro.map((opcion, i) => (
                 <li
                   key={i}
                   onClick={() => { setFiltro(opcion.value); setIsDropdownOpen(false); }}
-                  className="px-4 py-2.5 text-sm text-lila hover:bg-lila hover:text-oscuro cursor-pointer transition-colors"
+                  className="px-4 py-2.5 text-sm text-oscuro hover:bg-oscuro hover:text-blanco cursor-pointer transition-colors dark:text-lila dark:hover:bg-lila dark:hover:text-oscuro"
                 >
                   {opcion.label}
                 </li>
@@ -61,7 +61,7 @@ export default function ToolBar({
           placeholder={placeholderBuscar}
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="bg-bg-card text-lila border border-lila/20 rounded-lg px-4 py-2.5 text-sm w-full sm:w-80 lg:w-96 outline-none hover:border-lila focus:ring-1 focus:ring-lila transition-all shadow-sm placeholder-lila/30"
+          className="bg-blanco text-oscuro border border-oscuro/20 rounded-lg px-4 py-2.5 text-sm w-full sm:w-80 lg:w-96 outline-none hover:border-oscuro focus:ring-1 focus:ring-oscuro transition-all shadow-sm placeholder-oscuro/30 dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:border-lila dark:focus:ring-lila dark:placeholder-lila/30"
         />
       </div>
 

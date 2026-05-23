@@ -288,7 +288,7 @@ export default function Productos() {
       />
 
       {cargando ? (
-        <div className="p-20 text-center text-lila-soft italic">Cargando catálogo...</div>
+        <div className="p-20 text-center  italic">Cargando catálogo...</div>
       ) : (
         <Tabla encabezados={encabezadosProductos}>
           {datosPaginados.map((row, i) => {
@@ -296,10 +296,10 @@ export default function Productos() {
             const estadoTexto = row.activo !== false ? "Activo" : "Inactivo";
             
             return (
-              <tr key={i} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+              <tr key={i} className="border-b  hover:bg-oscuro/40 transition-colors ">
                 <td className="p-4 text-center text-sm font-mono">{row.sku}</td>
-                <td className="p-4 text-center text-sm font-medium text-blanco">{row.nombre}</td>
-                <td className="p-4 text-center text-xs font-bold text-lila-soft uppercase tracking-wider">
+                <td className="p-4 text-center text-sm font-medium ">{row.nombre}</td>
+                <td className="p-4 text-center text-xs font-bold  uppercase tracking-wider">
                   {row.departamento}
                 </td>
                 <td className="p-4 text-center">
