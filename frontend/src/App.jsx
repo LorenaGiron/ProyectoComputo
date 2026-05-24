@@ -134,6 +134,11 @@ function App() {
             <ProtectedRoute requiredPage="roles">
               <Layout>
                 <Roles />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Ventas */}
         <Route
           path="/ventas"

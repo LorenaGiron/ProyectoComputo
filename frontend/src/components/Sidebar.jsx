@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, Shield, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, ShoppingCart, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, Shield, ShoppingCart, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import Boton from "./Boton";
 
