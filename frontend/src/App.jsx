@@ -11,6 +11,7 @@ import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
 import Tienda from "./pages/Tienda";
+import Roles from "./pages/Roles";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 
@@ -126,6 +127,13 @@ function App() {
           }
         />
 
+        {/* Roles */}
+        <Route
+          path="/roles"
+          element={
+            <ProtectedRoute requiredPage="roles">
+              <Layout>
+                <Roles />
         {/* Ventas */}
         <Route
           path="/ventas"
