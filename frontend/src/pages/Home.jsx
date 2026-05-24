@@ -530,23 +530,40 @@ export default function Home() {
       <GlobalStyles />
 
       {/* ── HEADER ── */}
-      <header style={s.header}>
-        <AuraLogo size={32} color="var(--color-oscuro-card)" />
-        <button
-          style={s.signInBtn}
-          onClick={() => navigate("/login")}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(201,184,232,0.6)";
-            e.currentTarget.style.boxShadow = "0 2px 12px rgba(166,141,200,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(201,184,232,0.35)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          SIGN IN
-        </button>
-      </header>
+<header style={s.header}>
+  <AuraLogo size={32} color="var(--color-oscuro-card)" />
+    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+    <button
+      style={s.signInBtn}
+      onClick={() => navigate("/Register")}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(201,184,232,0.6)";
+        e.currentTarget.style.boxShadow = "0 2px 12px rgba(166,141,200,0.3)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "rgba(201,184,232,0.35)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      REGISTER
+    </button>
+
+    <button
+      style={s.signInBtn}
+      onClick={() => navigate("/login")}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(201,184,232,0.6)";
+        e.currentTarget.style.boxShadow = "0 2px 12px rgba(166,141,200,0.3)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "rgba(201,184,232,0.35)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      SIGN IN
+    </button>
+  </div>
+</header>
 
       {/* ── HERO ── */}
       <section style={s.hero}>
@@ -559,6 +576,34 @@ export default function Home() {
             Acompañamos a nuestros clientes en cada momento de su estilo. En Aura
             materializamos la esencia de quienes se atreven a destacar.
           </p>
+          <button
+            className="fade-up delay-3"
+            onClick={() => navigate("/tienda")}
+            style={{
+              fontFamily: "var(--font-tag)",
+              fontSize: "13px",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              padding: "14px 36px",
+              background: "var(--color-oscuro)",
+              color: "var(--color-lila-soft)",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              transition: "background 0.25s, transform 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--color-oscuro-card)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--color-oscuro)";
+              e.currentTarget.style.transform = "none";
+            }}
+        >
+            Ir a tienda
+  </button>
+  
         </div>
         <div style={s.heroRight}>
           <img src={heroCollage} alt="Hero collage AURA" style={s.heroImg} />
