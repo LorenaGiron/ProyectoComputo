@@ -13,7 +13,6 @@ import auditRoutes from '../modules/audit/audit.routes.js'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes.js'
 import searchRoutes from '../modules/search/search.routes.js'
 import ventasRoutes from '../modules/ventas/ventas.routes.js'
-import searchRoutes from '../modules/search/search.routes.js';
 import notificationsRoutes from '../modules/notifications/notifications.routes.js'
 
 const router = Router()

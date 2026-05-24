@@ -4,6 +4,7 @@ import { X, Calendar, User, Package } from "lucide-react";
 
 import useTitulo from "../hooks/useTitulo";
 
+import Encabezado from "../components/Encabezado";
 import Tarjetas      from "../components/Tarjetas";
 import ToolBar       from "../components/ToolBar";
 import Tabla         from "../components/Tabla";
@@ -546,14 +547,15 @@ export default function Recepciones() {
     : `${(paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`;
 
   return (
-    <div className="flex flex-col min-h-screen bg-oscuro">
+    <div className="flex flex-col min-h-screen">
       <div className="flex-1 p-6 lg:p-8 space-y-6">
 
-        <h1 className="text-2xl lg:text-3xl font-extrabold tracking-widest text-blanco uppercase">
-          Recepciones
-        </h1>
+        <Encabezado 
+          titulo="Recepciones" 
+          onActualizar={refetch} 
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8 -mt-6!">
           <Tarjetas 
             label="Historial"       
             value={stats.total}       

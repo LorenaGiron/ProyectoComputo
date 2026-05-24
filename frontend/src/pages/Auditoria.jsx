@@ -6,6 +6,7 @@ import Modal from "../components/Modal";
 import ModalAuditoria from "../components/ModalAuditoria";
 import { useAuth } from "../hooks/useAuth";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const LIMIT = 7;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -167,9 +168,12 @@ export default function Auditoria() {
   const encabezados = ["Acción", "Recurso", "Resource ID", "Usuario", "Detalles", "Fecha"];
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 transition-colors duration-300">
 
-      <h1 className="text-2xl font-bold text-blanco m-0">Auditoría</h1>
+      <Encabezado 
+        titulo="Auditoría" 
+        onActualizar={fetchAuth} 
+      />
 
       {/* ── KPI Cards ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
