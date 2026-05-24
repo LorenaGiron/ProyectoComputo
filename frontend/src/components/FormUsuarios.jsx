@@ -3,7 +3,7 @@ import { canPerformAction } from "../utils/permissionMapper";
 import Input from "./Input";
 import Boton from "./Boton";
 
-export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogeado, esNuevo = false }) {
+export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogeado, esNuevo = false, rolesDisponibles: rolesDispProp = [] }) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -16,12 +16,30 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
 
   const [errores, setErrores] = useState({});
 
-  // Determinar roles disponibles según permisos
-  const rolesDisponibles = () => {
-    // Los CLIENTE se crean desde la página de Clientes, no desde aquí
+  // Determinar roles disponibles según permisos o prop recibida
+  const getRolesDisponibles = () => {
+    // Si recibimos roles como prop desde el padre (Usuarios.jsx)
+    if (rolesDispProp && rolesDispProp.length > 0) {
+      // Extraer identificadores de roles, excluyendo CLIENTE
+      return rolesDispProp
+        .filter(rol => {
+          // Filtrar según permisos del usuario actual
+          const esAdmin = usuarioLogeado?.roleId === "role_admin" || usuarioLogeado?.roleId === "ADMIN";
+          
+          const rolId = rol.id || rol.nombre;
+          if (rolId === "CLIENTE") return false;
+          if (!esAdmin && rolId === "GERENTE") return false;
+          return true;
+        })
+        .map(rol => ({
+          id: rol.id || rol.nombre,
+          nombre: rol.nombre || rol.id
+        }));
+    }
+
+    // Fallback: roles hardcodeados según permisos
     const rolesBase = ["BODEGUERO", "VENDEDOR"];
     
-    // Verificar permisos dinámicos primero
     const esAdmin = canPerformAction(usuarioLogeado?.permissions, 'roles', 'create')
       || usuarioLogeado?.roleId === "role_admin";
     
@@ -29,10 +47,14 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
       || usuarioLogeado?.roleId === "GERENTE";
     
     if (esAdmin) {
-      return ["GERENTE", "BODEGUERO", "VENDEDOR"];
+      return [
+        { id: "GERENTE", nombre: "GERENTE" },
+        { id: "BODEGUERO", nombre: "BODEGUERO" },
+        { id: "VENDEDOR", nombre: "VENDEDOR" }
+      ];
     }
     if (esGerente) {
-      return rolesBase;
+      return rolesBase.map(r => ({ id: r, nombre: r }));
     }
     return [];
   };
@@ -93,7 +115,7 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
     }
   };
 
-  const rolesOpciones = rolesDisponibles();
+  const rolesOpciones = getRolesDisponibles();
   const puedeEditar = usuarioLogeado?.roleId === "role_admin" || usuarioLogeado?.roleId === "GERENTE";
 
   if (!puedeEditar && !esNuevo) {
@@ -231,9 +253,13 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-oscuro border border-lila/20 rounded-lg text-blanco outline-none focus:border-lila transition-all"
               >
-                {rolesOpciones.map(rol => (
-                  <option key={rol} value={rol}>{rol}</option>
-                ))}
+                {rolesOpciones.map(rol => {
+                  const rolId = typeof rol === 'object' ? rol.id : rol;
+                  const rolNombre = typeof rol === 'object' ? rol.nombre : rol;
+                  return (
+                    <option key={rolId} value={rolId}>{rolNombre}</option>
+                  );
+                })}
               </select>
             </div>
 

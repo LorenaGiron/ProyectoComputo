@@ -11,7 +11,8 @@ const ROLE_PERMISSIONS = {
     "clientes",
     "proveedores",
     "usuarios",
-    "auditoria"
+    "auditoria",
+    "roles"
   ],
   "GERENTE": [
     "dashboard",
@@ -20,7 +21,8 @@ const ROLE_PERMISSIONS = {
     "clientes",
     "proveedores",
     "usuarios",
-    "auditoria"
+    "auditoria",
+    "roles"
   ],
   "BODEGUERO": [
     "productos",

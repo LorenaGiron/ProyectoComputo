@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, Shield, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import Boton from "./Boton";
 
@@ -24,6 +24,7 @@ const navItems = [
   {
     section: "CONTROL",
     items: [
+      { label: "Roles",       ruta: "/roles",       icon: Shield,          permiso: "roles:read" },
       { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck,     permiso: "audit:read" },
     ],
   },
@@ -44,12 +45,15 @@ export default function Sidebar() {
 
   const tienePermiso = (permisoRequerido) => {
     if (!permisoRequerido) return true; 
-    if (!usuario?.permissions) return false; 
     
-    return usuario.permissions.includes(permisoRequerido) || 
-           usuario.roleId === "role_admin" || 
-           usuario.roleId === "ADMIN" ||
-           usuario.roleId === "GERENTE";
+    // Permitir a admins directamente
+    if (usuario?.roleId === "role_admin" || usuario?.roleId === "ADMIN" || usuario?.roleId === "GERENTE") {
+      return true;
+    }
+    
+    // Para otros, verificar permisos dinámicos
+    if (!usuario?.permissions) return false; 
+    return usuario.permissions.includes(permisoRequerido);
   };
 
   return (
