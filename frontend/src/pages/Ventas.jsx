@@ -7,6 +7,7 @@ import AccionesTabla from "../components/AccionesTabla";
 import Etiquetas from "../components/Etiquetas";
 import Paginacion from "../components/Paginacion";
 import ModalConfirmacion from "../components/ModalConfirmacion";
+import Encabezado from "../components/Encabezado";
 import { api } from "../services/api";
 
 const LIMIT = 10;
@@ -173,9 +174,10 @@ export default function Ventas() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Ventas
-      </h1>
+      <Encabezado 
+        titulo="Ventas" 
+        onActualizar={() => setRefresh((r) => r + 1)}
+      />
 
       <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
         <Tarjetas

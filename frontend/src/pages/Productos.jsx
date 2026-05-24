@@ -4,6 +4,7 @@ import { uploadImageToCloudinary } from "../services/cloudinaryClient";
 
 import useTitulo from "../hooks/useTitulo";
 
+import Encabezado from "../components/Encabezado";
 import Tarjetas from "../components/Tarjetas";
 import Etiquetas from "../components/Etiquetas";
 import ToolBar from "../components/ToolBar";
@@ -241,9 +242,10 @@ export default function Productos() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Catálogo de Productos
-      </h1>
+      <Encabezado 
+        titulo="Productos" 
+        onActualizar={fetchProductos} 
+      />
 
       <div className="flex flex-col xl:flex-row gap-6 mb-8 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full xl:w-7/12">

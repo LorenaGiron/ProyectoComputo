@@ -266,7 +266,7 @@ export default function Header() {
                     <div
                       key={n.id}
                       onClick={() => { navigate(n.ruta); setMostrarNotifs(false); }}
-                      className="px-4 py-3 border-b border-lila/10 hover:bg-lila/10 cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
+                      className="px-4 py-3 border-b border-lila/10 hover:bg-lila/30 cursor-pointer transition-colors flex items-start gap-3 dark:border-lila/5 dark:hover:bg-lila/10"
                     >
                       <div className={`mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 
                         ${n.nivel === 'critico'    ? 'bg-rojo/10 text-rojo dark:bg-red-500/20 dark:text-red-400'    :
@@ -298,19 +298,19 @@ export default function Header() {
         </div>
 
         {/* Perfil del Usuario */}
-        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-sm group bg-lila/30 border border-lila hover:bg-lila hover:border-morado dark:bg-bg-card dark:border-lila-soft/20 dark:hover:bg-lila/10 dark:hover:border-lila-mid">
-          <i className="bi bi-person-circle text-2xl text-morado group-hover:text-blanco transition-colors dark:text-lila-mid dark:group-hover:text-lila"></i>
+        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-sm group bg-lila/30 border border-lila hover:bg-lila hover:border-lila-soft dark:bg-bg-card dark:border-lila-soft/20 dark:hover:bg-lila/10 dark:hover:border-lila-mid">
+          <i className="bi bi-person-circle text-2xl text-morado group-hover:text-morado transition-colors dark:text-lila-mid dark:group-hover:text-lila"></i>
           <div className="text-left leading-tight hidden sm:block transition-colors">
-            <p className="m-0 font-semibold text-sm text-morado group-hover:text-blanco dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
-            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-mid group-hover:text-lila/80 dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
+            <p className="m-0 font-semibold text-sm text-morado group-hover:text-morado dark:text-blanco">{usuario?.nombre || "Usuario"}</p>
+            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-mid group-hover:text-lila-mid dark:text-lila-soft">{usuario?.role || "Invitado"}</p>
           </div>
-          <i className="bi bi-chevron-down text-xs ml-1 text-lila-mid group-hover:text-blanco transition-colors dark:text-lila-soft"></i>
+          <i className="bi bi-chevron-down text-xs ml-1 text-lila-mid group-hover:text-morado transition-colors dark:text-lila-soft"></i>
         </div>
 
         {/* Botón cambio de Tema */}
         <button
           onClick={toggleTheme}
-          className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95 bg-blanco text-lila-mid border border-lila hover:bg-morado hover:text-blanco hover:border-morado dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
+          className="relative group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95 bg-blanco text-morado border border-lila hover:bg-morado hover:text-blanco hover:border-morado dark:bg-bg-card dark:text-lila dark:border-lila/20 dark:hover:bg-lila dark:hover:text-oscuro"
           title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
         >
           {isDark ? (
