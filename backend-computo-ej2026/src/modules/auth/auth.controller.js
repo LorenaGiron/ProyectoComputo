@@ -7,6 +7,11 @@ export class AuthController {
     return res.status(200).json(result)
   }
 
+  async register(req, res) {
+    const result = await authService.register(req.body)
+    return res.status(201).json(result)
+}
+
   async me(req, res) {
     const userId = req.user?.sub
 
