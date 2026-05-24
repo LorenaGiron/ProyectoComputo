@@ -15,6 +15,7 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import FormUsuarios from "../components/FormUsuarios";
 import AvatarUser from "../components/AvatarUser";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 /* ─── Página principal ─── */
 const LIMIT = 10;
@@ -306,9 +307,10 @@ export default function Usuarios() {
         onClose={() => setToastMessage("")}
       />
 
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Gestión de Usuarios
-      </h1>
+      <Encabezado 
+        titulo="Gestión de Usuarios" 
+        onActualizar={fetchUsuarios} 
+      />
 
       {/* Tarjetas de estadísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">

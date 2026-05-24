@@ -176,6 +176,14 @@ export default function Login() {
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
+            <div className="text-center mt-3">
+              <span className="font-poppins text-sm opacity-60">¿No tienes cuenta? </span>
+              <Link 
+                to="/Register"
+                className="font-poppins text-sm text-lila opacity-80 hover:opacity-100 transition-opacity underline underline-offset-2">
+                Regístrate
+              </Link>
+          </div>
           </form>
         </div>
 
@@ -217,6 +225,8 @@ export default function Login() {
             <p>Si desconoce quién es el administrador asignado,</p>
             <p>contacte al responsable de su área o departamento.</p>
           </div>
+
+          
 
           <div className="mt-12 font-cinzel tracking-widest text-xl opacity-90">
             A U R A

@@ -11,6 +11,13 @@ export default function Etiquetas({ contenido }) {
     Pendiente: "bg-amarillo/20 text-amarillo border-amarillo/30",
     Draft: "bg-amarillo/20 text-amarillo border-amarillo/30",
 
+    // --- ESTADOS VENTAS ---
+    pendiente:  "bg-amarillo/20 text-amarillo border-amarillo/30",
+    pagado:     "bg-verde/20 text-verde border-verde/30",
+    enviado:    "bg-azul/20 text-azul border-azul/30",
+    entregado:  "bg-verde/20 text-verde border-verde/30",
+    cancelado:  "bg-rojo/20 text-rojo border-rojo/30",
+
     // --- ROLES ---
     Admin: "bg-azul/20 text-azul border-azul/30",
     BODEGUERO: "bg-lila-mid/20 text-lila-mid border-lila-mid/30",

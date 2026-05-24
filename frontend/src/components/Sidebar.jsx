@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, Shield, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, ClipboardList, Users, Truck, UserCog, ShieldCheck, ShoppingCart, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import Boton from "./Boton";
 
@@ -16,6 +17,7 @@ const navItems = [
     section: "GESTIÓN",
     items: [
       { label: "Recepciones", ruta: "/recepciones", icon: ClipboardList,   permiso: "recepciones:read" },
+      { label: "Ventas",      ruta: "/ventas",      icon: ShoppingCart,    permiso: "ventas:read" },
       { label: "Clientes",    ruta: "/clientes",    icon: Users,           permiso: "clients:read" },
       { label: "Proveedores", ruta: "/proveedores", icon: Truck,           permiso: "suppliers:read" },
       { label: "Usuarios",    ruta: "/usuarios",    icon: UserCog,         permiso: "users:read" },

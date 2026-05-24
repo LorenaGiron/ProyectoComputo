@@ -10,6 +10,7 @@ import Tabla from "../components/Tabla";
 import Etiquetas from "../components/Etiquetas";
 import Toast from "../components/Toast";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -271,20 +272,10 @@ export default function Dashboard() {
       />
 
       {/* ── Encabezado ───────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-lila m-0">Dashboard</h1>
-          <p className="text-xs text-text-muted mt-1 m-0">
-            {new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "2-digit" })}
-          </p>
-        </div>
-        <button
-          onClick={fetchSummary}
-          className="flex items-center gap-2 bg-transparent text-lila-soft border border-lila/20 rounded-xl px-4 py-2 text-xs font-bold hover:bg-lila hover:text-oscuro transition-all active:scale-95 cursor-pointer"
-        >
-          <i className="bi bi-arrow-clockwise" /> Actualizar
-        </button>
-      </div>
+      <Encabezado 
+        titulo="Dashboard" 
+        onActualizar={fetchSummary} 
+      />
 
       {/* ── KPI Cards ─────────────────────────────────────────── */}
       {loading ? (

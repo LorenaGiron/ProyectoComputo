@@ -8,6 +8,17 @@ const ROLE_PERMISSIONS = {
     "dashboard",
     "productos",
     "recepciones",
+    "ventas",
+    "clientes",
+    "proveedores",
+    "usuarios",
+    "auditoria"
+  ],
+  "ADMIN": [
+    "dashboard",
+    "productos",
+    "recepciones",
+    "ventas",
     "clientes",
     "proveedores",
     "usuarios",
@@ -18,6 +29,7 @@ const ROLE_PERMISSIONS = {
     "dashboard",
     "productos",
     "recepciones",
+    "ventas",
     "clientes",
     "proveedores",
     "usuarios",
@@ -27,11 +39,13 @@ const ROLE_PERMISSIONS = {
   "BODEGUERO": [
     "productos",
     "recepciones",
+    "ventas",
     "clientes",
     "proveedores"
   ],
   "VENDEDOR": [
     "productos",
+    "ventas",
     "clientes"
   ],
   "CLIENTE": [
@@ -60,12 +74,11 @@ export function useProtectedRoute(requiredPage) {
     if (hasAccess) {
       return { isAuthorized: true, userRole };
     }
-    return { isAuthorized: false, reason: "insufficient-permissions", userRole };
   }
 
-  // Fallback a mapeo estático si no hay permisos dinámicos
+  // Fallback a mapeo estático por rol (cubre permisos nuevos no presentes en el token actual)
   const allowedPages = ROLE_PERMISSIONS[userRole] || [];
-  
+
   if (!allowedPages.includes(requiredPage)) {
     return { isAuthorized: false, reason: "insufficient-permissions", userRole };
   }

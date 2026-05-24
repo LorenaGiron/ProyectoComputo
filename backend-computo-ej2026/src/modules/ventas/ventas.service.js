@@ -1,0 +1,133 @@
+import { ventasRepository } from './ventas.repository.js'
+import { inventoryRepository } from '../inventory/inventory.repository.js'
+import { logAuditEvent } from '../../utils/audit.js'
+
+export class VentasService {
+  async list(query) {
+    const { estado = '', page = 1, limit = 10 } = query
+
+    const all = await ventasRepository.findAll()
+
+    let filtered = all
+
+    if (estado) {
+      filtered = filtered.filter((v) => v.estado === estado)
+    }
+
+    const total = filtered.length
+    const start = (page - 1) * limit
+    const items = filtered.slice(start, start + limit).map((v) => this.sanitize(v))
+
+    return { items, total, page, limit }
+  }
+
+  async getById(id) {
+    const venta = await ventasRepository.findById(id)
+
+    if (!venta) {
+      const error = new Error('Venta no encontrada')
+      error.statusCode = 404
+      throw error
+    }
+
+    return this.sanitize(venta)
+  }
+
+  async create(payload, currentUser = null) {
+    const data = {
+      cliente:    payload.cliente,
+      metodoPago: payload.metodoPago,
+      items:      payload.items,
+      subtotal:   Number(payload.subtotal),
+      envio:      Number(payload.envio),
+      total:      Number(payload.total),
+      estado:     'pendiente',
+      createdAt:  new Date().toISOString(),
+      updatedAt:  new Date().toISOString(),
+    }
+
+    const created = await ventasRepository.create(data)
+    const sanitized = this.sanitize(created)
+
+    for (const item of payload.items) {
+      const producto = await inventoryRepository.findProductById(item.productoId)
+      if (!producto) continue
+
+      const inventario = Array.isArray(producto.inventario) ? producto.inventario : []
+      const updatedInventario = inventario.map((entry) =>
+        entry.talla === item.talla
+          ? { ...entry, stock: Math.max(0, entry.stock - item.cantidad) }
+          : entry
+      )
+      const nuevoStock = updatedInventario.reduce((sum, e) => sum + (e.stock || 0), 0)
+
+      await inventoryRepository.updateProductStock(item.productoId, {
+        inventario: updatedInventario,
+        stock: nuevoStock,
+        updatedAt: new Date().toISOString(),
+      })
+    }
+
+    await logAuditEvent({
+      action: 'CREATE',
+      resource: 'ventas',
+      resourceId: created.id,
+      details: {
+        cliente: sanitized.cliente.nombre,
+        total:   sanitized.total,
+        items:   sanitized.items.length,
+      },
+      currentUser
+    })
+
+    return sanitized
+  }
+
+  async updateEstado(id, estado, currentUser = null) {
+    const venta = await ventasRepository.findById(id)
+
+    if (!venta) {
+      const error = new Error('Venta no encontrada')
+      error.statusCode = 404
+      throw error
+    }
+
+    const updated = await ventasRepository.update(id, {
+      estado,
+      updatedAt: new Date().toISOString(),
+    })
+
+    const sanitized = this.sanitize(updated)
+
+    await logAuditEvent({
+      action: 'UPDATE',
+      resource: 'ventas',
+      resourceId: id,
+      details: {
+        estadoAnterior: venta.estado,
+        estadoNuevo:    estado,
+        cliente:        sanitized.cliente.nombre,
+      },
+      currentUser
+    })
+
+    return sanitized
+  }
+
+  sanitize(venta) {
+    return {
+      id:         venta.id,
+      cliente:    venta.cliente,
+      metodoPago: venta.metodoPago || '',
+      items:      Array.isArray(venta.items) ? venta.items : [],
+      subtotal:   Number(venta.subtotal || 0),
+      envio:      Number(venta.envio || 0),
+      total:      Number(venta.total || 0),
+      estado:     venta.estado || 'pendiente',
+      createdAt:  venta.createdAt || null,
+      updatedAt:  venta.updatedAt || null,
+    }
+  }
+}
+
+export const ventasService = new VentasService()

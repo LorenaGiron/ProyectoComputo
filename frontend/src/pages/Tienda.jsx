@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext } from "react";
+import { useState, useMemo, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import HeaderTienda from "../components/tienda/HeaderTienda";
@@ -9,6 +9,10 @@ import RielCategorias from "../components/tienda/RielCategorias";
 import FiltrosSidebar from "../components/tienda/FiltrosSidebar";
 import BarraOrdenamiento from "../components/tienda/BarraOrdenamiento";
 import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
+import VistaRapida from "../components/tienda/VistaRapida";
+import SeccionCarrito from "../components/tienda/SeccionCarrito";
+import ModalCheckout from "../components/tienda/ModalCheckout";
+import { api } from "../services/api";
 import { productosSimulados } from "../components/tienda/datosSimulados";
 import useTitulo from "../hooks/useTitulo";
 
@@ -23,12 +27,93 @@ export default function Tienda() {
   useTitulo("Tienda");
 
   const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
+  const { logout, usuario } = useContext(AuthContext);
+  const claveCarrito = `carrito_${usuario?.id ?? "guest"}`;
+
   const [busqueda, setBusqueda]               = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("todas");
   const [ordenamiento, setOrdenamiento]       = useState("relevancia");
   const [vista, setVista]                     = useState("grid");
   const [filtros, setFiltros]                 = useState(filtrosIniciales);
+  const [productoEnVistaRapida, setProductoEnVistaRapida] = useState(null);
+  const [productos, setProductos]               = useState([]);
+  const [cargando, setCargando]                 = useState(true);
+  const [carrito, setCarrito]                   = useState(
+    () => JSON.parse(localStorage.getItem(`carrito_${usuario?.id ?? "guest"}`) ?? "[]")
+  );
+  const [carritoAbierto, setCarritoAbierto]     = useState(false);
+  const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(claveCarrito, JSON.stringify(carrito));
+  }, [carrito, claveCarrito]);
+
+  useEffect(() => {
+    api.get("/products?activo=true&limit=100")
+      .then((data) => setProductos(data.items ?? []))
+      .catch(() => setProductos([]))
+      .finally(() => setCargando(false));
+  }, []);
+
+  const agregarAlCarrito = (producto, { talla, cantidad = 1 }) => {
+    const stockTalla = producto.inventario?.find((i) => i.talla === talla)?.stock ?? 0;
+
+    setCarrito((prev) => {
+      const existe = prev.find((i) => i.producto.id === producto.id && i.talla === talla);
+      const cantidadEnCarrito = existe ? existe.cantidad : 0;
+
+      if (cantidadEnCarrito + cantidad > stockTalla) {
+        return prev;
+      }
+
+      if (existe) {
+        return prev.map((i) =>
+          i.producto.id === producto.id && i.talla === talla
+            ? { ...i, cantidad: i.cantidad + cantidad }
+            : i
+        );
+      }
+      return [...prev, { producto, talla, cantidad }];
+    });
+    setCarritoAbierto(true);
+  };
+
+  const cambiarCantidad = (productoId, talla, nuevaCantidad) => {
+    if (nuevaCantidad <= 0) {
+      setCarrito((prev) => prev.filter((i) => !(i.producto.id === productoId && i.talla === talla)));
+    } else {
+      setCarrito((prev) =>
+        prev.map((i) =>
+          i.producto.id === productoId && i.talla === talla ? { ...i, cantidad: nuevaCantidad } : i
+        )
+      );
+    }
+  };
+
+  const eliminarDelCarrito = (productoId, talla) => {
+    setCarrito((prev) => prev.filter((i) => !(i.producto.id === productoId && i.talla === talla)));
+  };
+
+  const cantidadCarrito = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+
+  const catalogoRef = useRef(null);
+
+  const scrollAlCatalogo = () => {
+    catalogoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleBuscar = () => {
+    if (busqueda.trim()) {
+      setCategoriaActiva("todas");
+      limpiarFiltros();
+    }
+    scrollAlCatalogo();
+  };
+
+  const seleccionarCategoria = (id) => {
+    setCategoriaActiva(id);
+    scrollAlCatalogo();
+  };
 
   const setFiltro = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
@@ -39,7 +124,7 @@ export default function Tienda() {
   };
 
   const productosFiltrados = useMemo(() => {
-    let lista = [...productosSimulados];
+    let lista = [...productos];
 
     // Filtro por categoría
     if (categoriaActiva !== "todas") {
@@ -96,7 +181,7 @@ export default function Tienda() {
     }
 
     return lista;
-  }, [categoriaActiva, busqueda, filtros, ordenamiento]);
+  }, [productos, categoriaActiva, busqueda, filtros, ordenamiento]);
 
   const clasesGrid =
     vista === "lista"
@@ -111,22 +196,23 @@ export default function Tienda() {
       <HeaderTienda
         busqueda={busqueda}
         setBusqueda={setBusqueda}
-        cantidadCarrito={0}
+        onBuscar={handleBuscar}
+        cantidadCarrito={cantidadCarrito}
         cantidadWishlist={0}
-        onAbrirCarrito={() => {}}
+        onAbrirCarrito={() => setCarritoAbierto(true)}
         categoriaActiva={categoriaActiva}
-        onSeleccionarCategoria={setCategoriaActiva}
+        onSeleccionarCategoria={seleccionarCategoria}
         onLogout={handleLogout}
       />
 
       <HeroCarrusel />
 
       {/* Catálogo */}
-      <section className="max-w-[1480px] mx-auto px-6 lg:px-10 mt-10">
+      <section ref={catalogoRef} className="max-w-[1480px] mx-auto px-6 lg:px-10 mt-10">
 
         <RielCategorias
           categoriaActiva={categoriaActiva}
-          onSeleccionarCategoria={setCategoriaActiva}
+          onSeleccionarCategoria={seleccionarCategoria}
         />
 
         <div className="flex gap-6">
@@ -147,7 +233,12 @@ export default function Tienda() {
               setVista={setVista}
             />
 
-            {productosFiltrados.length === 0 ? (
+            {cargando ? (
+              <div className="bg-bg-card border border-lila/10 rounded-2xl py-20 text-center">
+                <i className="bi bi-arrow-repeat text-3xl text-lila animate-spin" />
+                <p className="text-sm text-text-muted mt-3">Cargando productos…</p>
+              </div>
+            ) : productosFiltrados.length === 0 ? (
               <div className="bg-bg-card border border-lila/10 rounded-2xl py-20 text-center">
                 <div className="w-16 h-16 rounded-full bg-lila/10 mx-auto flex items-center justify-center mb-3">
                   <i className="bi bi-search text-2xl text-lila" />
@@ -170,6 +261,7 @@ export default function Tienda() {
                     key={producto.id}
                     producto={producto}
                     vista={vista}
+                    onVistaRapida={setProductoEnVistaRapida}
                   />
                 ))}
               </div>
@@ -181,11 +273,30 @@ export default function Tienda() {
 
       <FooterTienda />
 
-      {/* Aquí irá CarritoDrawer */}
+      <SeccionCarrito
+        abierto={carritoAbierto}
+        onCerrar={() => setCarritoAbierto(false)}
+        carrito={carrito}
+        onCambiarCantidad={cambiarCantidad}
+        onEliminar={eliminarDelCarrito}
+        onCheckout={() => { setCarritoAbierto(false); setCheckoutAbierto(true); }}
+      />
 
-      {/* Aquí irá VistaRapida */}
+      {productoEnVistaRapida && (
+        <VistaRapida
+          producto={productoEnVistaRapida}
+          onCerrar={() => setProductoEnVistaRapida(null)}
+          onAgregarAlCarrito={agregarAlCarrito}
+        />
+      )}
 
-      {/* Aquí irá ModalCheckout */}
+      {checkoutAbierto && (
+        <ModalCheckout
+          onCerrar={() => setCheckoutAbierto(false)}
+          carrito={carrito}
+          onPedidoConfirmado={() => { setCarrito([]); localStorage.removeItem(claveCarrito); }}
+        />
+      )}
 
     </div>
   );

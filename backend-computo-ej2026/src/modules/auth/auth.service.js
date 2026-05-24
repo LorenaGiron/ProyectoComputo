@@ -37,7 +37,6 @@ export class AuthService {
       throw error
     }
 
-    // Obtener permisos del rol si el usuario tiene roleId
     let userPermissions = Array.isArray(user.permissions) ? user.permissions : []
     
     if (user.roleId && userPermissions.length === 0) {
@@ -81,7 +80,6 @@ export class AuthService {
       throw error
     }
 
-    // Obtener permisos del rol si el usuario tiene roleId
     let userPermissions = Array.isArray(user.permissions) ? user.permissions : []
     
     if (user.roleId && userPermissions.length === 0) {
@@ -114,6 +112,69 @@ export class AuthService {
       activo: user.activo ?? true
     }
   }
+
+  async register(payload) {
+  const { nombre, rfc, email, telefono, usuario, password } = payload  // ← rfc y telefono
+
+  // ← quita el this.
+  const existingUsuario = await authRepository.findByUsuario(usuario)
+  if (existingUsuario) {
+    const error = new Error('El nombre de usuario ya está en uso')
+    error.statusCode = 409
+    error.field = 'usuario'
+    throw error
+  }
+
+  const emailSnapshot = await db
+    .collection('users')
+    .where('email', '==', email)
+    .limit(1)
+    .get()
+
+  if (!emailSnapshot.empty) {
+    const error = new Error('El email ya está registrado')
+    error.statusCode = 409
+    error.field = 'email'
+    throw error
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10)
+
+  const now = new Date().toISOString()
+  const newUserRef = db.collection('users').doc()
+
+  const userData = {
+    nombre,
+    rfc,        
+    telefono,   
+    email,
+    usuario,
+    passwordHash,
+    role: 'CLIENTE',
+    roleId: null,
+    permissions: [],
+    activo: true,
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  await newUserRef.set(userData)
+
+  const newUser = { id: newUserRef.id, ...userData }
+
+  const token = signAccessToken({
+    sub: newUser.id,
+    usuario: newUser.usuario,
+    role: newUser.role,
+    roleId: newUser.roleId,
+    permissions: newUser.permissions,
+  })
+
+  return {
+    token,
+    user: this.sanitizeUser(newUser, newUser.permissions),
+  }
+}
 }
 
 export const authService = new AuthService()

@@ -53,7 +53,7 @@ function ImagenProducto({ producto, className = "" }) {
 }
 
 // Vista en lista
-function TarjetaLista({ producto }) {
+function TarjetaLista({ producto, onVistaRapida }) {
   const tallasDisponibles = producto.inventario
     .filter((i) => i.stock > 0)
     .map((i) => i.talla);
@@ -88,11 +88,11 @@ function TarjetaLista({ producto }) {
         )}
         <div className="mt-auto pt-3">
           <button
-            disabled={agotado}
-            className="bg-lila text-oscuro font-bold px-5 py-2 rounded-lg text-xs hover:bg-lila-soft transition disabled:opacity-40"
+            onClick={() => onVistaRapida(producto)}
+            className="px-5 py-2 rounded-lg border border-lila/20 text-lila-soft text-xs font-bold hover:bg-lila/10 transition"
           >
-            <i className="bi bi-bag-plus mr-1" />
-            Agregar al carrito
+            <i className="bi bi-eye mr-1" />
+            Ver detalle
           </button>
         </div>
       </div>
@@ -101,7 +101,7 @@ function TarjetaLista({ producto }) {
 }
 
 // Vista en grid
-function TarjetaGrid({ producto }) {
+function TarjetaGrid({ producto, onVistaRapida }) {
   const tallasDisponibles = producto.inventario
     .filter((i) => i.stock > 0)
     .map((i) => i.talla);
@@ -123,15 +123,16 @@ function TarjetaGrid({ producto }) {
           </div>
         )}
 
-        {/* Botón agregar al hover */}
-        {!agotado && (
-          <div className="absolute left-3 right-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-            <button className="w-full bg-lila text-oscuro text-xs font-bold py-2 rounded-lg hover:bg-lila-soft transition">
-              <i className="bi bi-bag-plus mr-1" />
-              Agregar al carrito
-            </button>
-          </div>
-        )}
+        {/* Botón ver detalle al hover */}
+        <div className="absolute left-3 right-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+          <button
+            onClick={() => onVistaRapida(producto)}
+            className="w-full bg-oscuro/90 backdrop-blur text-blanco text-xs font-bold py-2 rounded-lg hover:bg-oscuro transition"
+          >
+            <i className="bi bi-eye mr-1" />
+            Ver detalle
+          </button>
+        </div>
       </div>
 
       {/* Info */}
@@ -155,7 +156,7 @@ function TarjetaGrid({ producto }) {
   );
 }
 
-export default function TarjetaProductoTienda({ producto, vista }) {
-  if (vista === "lista") return <TarjetaLista producto={producto} />;
-  return <TarjetaGrid producto={producto} />;
+export default function TarjetaProductoTienda({ producto, vista, onVistaRapida }) {
+  if (vista === "lista") return <TarjetaLista producto={producto} onVistaRapida={onVistaRapida} />;
+  return <TarjetaGrid producto={producto} onVistaRapida={onVistaRapida} />;
 }

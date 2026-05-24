@@ -6,12 +6,14 @@ import Recepciones from "./pages/Recepciones";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Productos from './pages/Productos'
+import Ventas from './pages/Ventas'
 import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
 import Tienda from "./pages/Tienda";
 import Roles from "./pages/Roles";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./pages/Register";
 
 import "./App.css";
 
@@ -37,6 +39,9 @@ function App() {
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+
 
         {/* Dashboard */}
         <Route
@@ -129,6 +134,13 @@ function App() {
             <ProtectedRoute requiredPage="roles">
               <Layout>
                 <Roles />
+        {/* Ventas */}
+        <Route
+          path="/ventas"
+          element={
+            <ProtectedRoute requiredPage="ventas">
+              <Layout>
+                <Ventas />
               </Layout>
             </ProtectedRoute>
           }
@@ -138,9 +150,9 @@ function App() {
         <Route
           path="/tienda"
           element={
-            //<ProtectedRoute requiredPage="tienda">
+            <ProtectedRoute requiredPage="tienda">
               <Tienda />
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 

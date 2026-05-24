@@ -15,6 +15,7 @@ import {
   deleteSupplier,
 } from "../services/suppliers.service";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const LIMIT = 10;
 
@@ -230,9 +231,10 @@ const handleGuardarProveedor = async () => {
   // ─── Render ───────────────────────────────────────────────────────────
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Proveedores
-      </h1>
+      <Encabezado 
+        titulo="Proveedores" 
+        onActualizar={cargarProveedores} 
+      />
 
       {/* Error global */}
       {error && (
