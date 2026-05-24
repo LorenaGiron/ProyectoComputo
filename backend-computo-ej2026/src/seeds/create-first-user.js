@@ -56,7 +56,10 @@ const DEFAULT_PERMISSIONS = [
 
   { code: 'audit:read', nombre: 'Ver auditoría', descripcion: 'Permite consultar la auditoría', modulo: 'audit' },
   { code: 'dashboard:read', nombre: 'Ver dashboard', descripcion: 'Permite consultar el dashboard', modulo: 'dashboard' },
-  { code: 'tienda:read', nombre: 'Ver tienda', descripcion: 'Permite acceder a la tienda en línea', modulo: 'tienda' }
+  { code: 'tienda:read', nombre: 'Ver tienda', descripcion: 'Permite acceder a la tienda en línea', modulo: 'tienda' },
+
+  { code: 'ventas:read', nombre: 'Ver ventas', descripcion: 'Permite listar y ver ventas', modulo: 'ventas' },
+  { code: 'ventas:update', nombre: 'Actualizar ventas', descripcion: 'Permite cambiar el estado de una venta', modulo: 'ventas' }
 ]
 
 async function ensurePermissions() {

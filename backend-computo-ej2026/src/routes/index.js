@@ -11,6 +11,8 @@ import inventoryRoutes from '../modules/inventory/inventory.routes.js'
 import recepcionesRoutes from '../modules/recepciones/recepciones.routes.js'
 import auditRoutes from '../modules/audit/audit.routes.js'
 import dashboardRoutes from '../modules/dashboard/dashboard.routes.js'
+import searchRoutes from '../modules/search/search.routes.js'
+import ventasRoutes from '../modules/ventas/ventas.routes.js'
 import searchRoutes from '../modules/search/search.routes.js';
 import notificationsRoutes from '../modules/notifications/notifications.routes.js'
 
@@ -29,6 +31,7 @@ router.use('/recepciones', recepcionesRoutes)
 router.use('/audit', auditRoutes)
 router.use('/dashboard', dashboardRoutes)
 router.use('/search', searchRoutes)
+router.use('/ventas', ventasRoutes)
 router.use('/notifications', notificationsRoutes)
 
 export default router
