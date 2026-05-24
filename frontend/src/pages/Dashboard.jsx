@@ -9,6 +9,7 @@ import Tarjetas from "../components/Tarjetas";
 import Tabla from "../components/Tabla";
 import Etiquetas from "../components/Etiquetas";
 import Toast from "../components/Toast";
+import useTitulo from "../hooks/useTitulo";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -104,7 +105,7 @@ function Tr({ children, idx }) {
 function Td({ children, mono, color, align = "center" }) {
   return (
     <td
-      className={`p-3 text-xs border-b border-lila/5 ${mono ? "font-mono" : "font-poppins"}`}
+      className={`p-3 text-xs border-b ${mono ? "font-mono" : "font-poppins"}`}
       style={{ textAlign: align, color: color || C.lilaSoft }}
     >
       {children}
@@ -193,6 +194,7 @@ function buildRecepValor(receps) {
 //  DASHBOARD
 // ═══════════════════════════════════════════════════════════════
 export default function Dashboard() {
+  useTitulo("Dashboard");
   const [summary,  setSummary]  = useState(null);
   const [activity, setActivity] = useState(null);
   const [loading,  setLoading]  = useState(true);

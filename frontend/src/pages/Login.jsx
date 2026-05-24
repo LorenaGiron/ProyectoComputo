@@ -6,6 +6,7 @@ import { z } from 'zod';
 import bgImage from '../assets/login.png';
 import Toast from '../components/Toast';
 import { useAuth } from '../hooks/useAuth';
+import useTitulo from '../hooks/useTitulo';
 
 const loginSchema = z.object({
   usuario: z.string().min(1, 'El usuario es obligatorio'),
@@ -13,6 +14,7 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
+  useTitulo("Iniciar Sesión");
   const navigate = useNavigate();
   const { login, usuario: usuarioDelContexto, token } = useAuth();
   const [serverError, setServerError] = useState('');

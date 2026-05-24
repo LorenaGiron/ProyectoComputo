@@ -155,14 +155,14 @@ export default function Tabla({
   const sortedRows = usandoNuevoSistema ? getSortedRows() : [];
 
   if (!encabezadosProcesados || encabezadosProcesados.length === 0) {
-    return <div className="p-4 text-lila text-center">Tabla sin encabezados</div>;
+    return <div className="p-4 text-oscuro dark:text-lila-soft text-center transition-colors duration-300">Tabla sin encabezados</div>;
   }
 
   return (
-    <div className="bg-bg-card rounded-xl border border-lila/10 shadow-lg overflow-x-auto">
+    <div className="bg-blanco border-gris/20 text-oscuro dark:text-lila-soft dark:bg-bg-card dark:border-lila/10 rounded-xl shadow-lg overflow-x-auto transition-colors duration-300">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-lila/10 bg-oscuro/50">
+          <tr className="text-oscuro dark:text-lila-soft border-b border-gris/20 dark:border-lila/10 bg-gris/5 dark:bg-oscuro/50 transition-colors duration-300">
             {encabezadosProcesados.map((header, idx) => {
               const isSortable = usandoNuevoSistema 
                 ? sortableFields.includes(header.key)
@@ -176,8 +176,8 @@ export default function Tabla({
                 <th 
                   key={idx}
                   onClick={() => handleSort(idx, header)}
-                  className={`p-4 text-center text-xs uppercase font-bold tracking-wider text-lila ${
-                    isSortable ? "cursor-pointer hover:text-lila-mid transition-colors" : ""
+                  className={`p-4 text-center text-xs uppercase font-bold tracking-wider text-oscuro dark:text-lila-soft ${
+                    isSortable ? "cursor-pointer hover:text-gray-800 dark:hover:text-lila-mid transition-colors" : ""
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -191,14 +191,14 @@ export default function Tabla({
             })}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="text-oscuro dark:text-lila-soft transition-colors duration-300">
           {usandoNuevoSistema ? (
             // Nuevo sistema: datos + renderRow
             sortedRows.length === 0 ? (
               <tr>
                 <td 
                   colSpan={encabezadosProcesados.length} 
-                  className="text-center py-10 text-sm opacity-50 text-lila"
+                  className="text-center py-10 text-sm text-oscuro dark:text-lila-soft"
                 >
                   No hay resultados
                 </td>

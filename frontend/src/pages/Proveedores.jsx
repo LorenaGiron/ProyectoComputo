@@ -14,6 +14,7 @@ import {
   updateSupplier,
   deleteSupplier,
 } from "../services/suppliers.service";
+import useTitulo from "../hooks/useTitulo";
 
 const LIMIT = 10;
 
@@ -41,6 +42,8 @@ const FORM_VACIO = {
 };
 
 export default function Proveedores() {
+  useTitulo("Proveedores");
+
   // ─── Datos ────────────────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState([]);
   const [stats, setStats] = useState({ total: 0, activos: 0, inactivos: 0 });
@@ -73,19 +76,27 @@ export default function Proveedores() {
 
   // ─── Cargar desde la API ──────────────────────────────────────────────
   const cargarProveedores = useCallback(async () => {
-    setCargando(true);
-    setError(null);
-    try {
-      let activoParam;
-      if (statusFilter === "Activo") activoParam = true;
-      else if (statusFilter === "Inactivo") activoParam = false;
+  setCargando(true);
+  setError(null);
 
-      const [paginada, todos] = await Promise.all([
-        fetchSuppliers({ q: search, activo: activoParam, page: paginaActiva, limit: LIMIT }),
-        fetchSuppliers({ limit: 100 }),
-      ]);
+  let activoParam;
+  if (statusFilter === "Activo") activoParam = true;
+  else if (statusFilter === "Inactivo") activoParam = false;
 
-      setUsuarios(paginada.items);
+  console.log("statusFilter:", statusFilter);
+  console.log("activoParam:", activoParam, "tipo:", typeof activoParam);
+
+  try {
+    const [paginada, todos] = await Promise.all([
+      fetchSuppliers({ q: search, activo: activoParam, page: paginaActiva, limit: LIMIT }),
+      fetchSuppliers({ limit: 100 }),
+    ]);
+
+    console.log("Total recibido:", paginada.total);
+    console.log("Estados recibidos:", paginada.items.map(p => p.estado));
+
+    setUsuarios(paginada.items);
+
       setTotalRegistros(paginada.total);
 
       const activos = todos.items.filter((u) => u.estado === "Activo").length;
@@ -213,8 +224,8 @@ const handleGuardarProveedor = async () => {
   };
 
   // ─── Estilos ──────────────────────────────────────────────────────────
-  const inputCls = "bg-oscuro border border-lila/20 rounded-lg p-3 outline-none text-white placeholder-white/30 focus:border-lila/50 transition-colors w-full";
-  const labelCls = "block text-white/50 text-xs mb-1 uppercase tracking-wider";
+  const inputCls = "bg-oscuro border border-lila/20 rounded-lg p-3 outline-none  placeholder-white/30 focus:0 transition-colors w-full";
+  const labelCls = "block /50 text-xs mb-1 uppercase tracking-wider";
 
   // ─── Render ───────────────────────────────────────────────────────────
   return (
@@ -234,17 +245,34 @@ const handleGuardarProveedor = async () => {
       )}
 
       {/* TARJETAS */}
-      <div className="flex flex-col sm:flex-row gap-6 w-full mb-8">
-        <Tarjetas label="Total de proveedores" value={stats.total} sub="Todos los proveedores" icon="bi bi-building" />
-        <Tarjetas
-          label="Proveedores activos" value={stats.activos}
-          sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
-          accent="#22C55E" icon="bi bi-check-circle"
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">
+        <Tarjetas 
+          label="Total de proveedores" 
+          value={stats.total} 
+          sub="Todos los proveedores" 
+          icon="bi bi-building" 
+          onClick={() => { setStatusFilter(""); setPaginaActiva(1); }}
+          isActive={statusFilter === ""}
         />
+        
         <Tarjetas
-          label="Proveedores inactivos" value={stats.inactivos}
+          label="Proveedores activos" 
+          value={stats.activos}
+          sub={stats.total ? `${Math.round((stats.activos / stats.total) * 100)}% del total` : "0%"}
+          accent="#22C55E" 
+          icon="bi bi-check-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Activo" ? "" : "Activo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Activo"}
+        />
+        
+        <Tarjetas
+          label="Proveedores inactivos" 
+          value={stats.inactivos}
           sub={stats.total ? `${Math.round((stats.inactivos / stats.total) * 100)}% del total` : "0%"}
-          accent="#EF4444" icon="bi bi-x-circle"
+          accent="#EF4444" 
+          icon="bi bi-x-circle"
+          onClick={() => { setStatusFilter(statusFilter === "Inactivo" ? "" : "Inactivo"); setPaginaActiva(1); }}
+          isActive={statusFilter === "Inactivo"}
         />
       </div>
 
@@ -273,7 +301,7 @@ const handleGuardarProveedor = async () => {
           </tr>
         ) : (
           usuarios.map((usuario) => (
-            <tr key={usuario.id} className="border-b border-lila/5 hover:bg-oscuro/40 transition-colors text-white">
+            <tr key={usuario.id} className="border-b  hover:bg-oscuro/40 transition-colors ">
               <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{usuario.nombre}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.rfc}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.giro}</td>
@@ -295,6 +323,7 @@ const handleGuardarProveedor = async () => {
       <Paginacion
         paginaActual={paginaActiva}
         totalRegistros={totalRegistros}
+        limit={LIMIT}
         rangoSiguiente={`${totalRegistros === 0 ? 0 : (paginaActiva - 1) * LIMIT + 1} – ${Math.min(paginaActiva * LIMIT, totalRegistros)}`}
         onCambiarPagina={handleCambiarPagina}
         exportTitulo="Proveedores"
@@ -320,7 +349,7 @@ const handleGuardarProveedor = async () => {
         onClose={handleCerrarFormModal}
         ancho="max-w-2xl"
       >
-        <div className="p-6 text-white">
+        <div className="p-6 ">
           <h2 className="text-2xl font-bold mb-6">
             {modoEdicion ? "Editar Proveedor" : "Nuevo proveedor"}
           </h2>
@@ -388,7 +417,7 @@ const handleGuardarProveedor = async () => {
       {/* ── MODAL VER DETALLES ──────────────────────────────────────────── */}
       <Modal isOpen={isDetalleModalOpen} onClose={() => setIsDetalleModalOpen(false)} ancho="max-w-sm">
         {proveedorDetalle && (
-          <div className="p-6 text-white">
+          <div className="p-6 ">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-lila/40 flex items-center justify-center text-sm font-bold text-lila shrink-0">
                 {getInitials(proveedorDetalle.nombre)}
@@ -398,27 +427,27 @@ const handleGuardarProveedor = async () => {
 
             <div className="flex gap-2 mb-5">
               <span className="px-3 py-1 rounded-full border border-lila/40 text-xs text-lila/80">{proveedorDetalle.rfc}</span>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${proveedorDetalle.estado === "Activo" ? "bg-green-600/80 text-white" : "bg-red-600/80 text-white"}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${proveedorDetalle.estado === "Activo" ? "bg-green-600/80 " : "bg-red-600/80 "}`}>
                 {proveedorDetalle.estado}
               </span>
             </div>
 
             <div className="grid grid-cols-3 divide-x divide-lila/10 border border-lila/10 rounded-lg mb-5 text-center">
               <div className="p-3">
-                <p className="text-xs text-white/40 uppercase tracking-wide mb-1">RFC</p>
-                <p className="text-xs font-bold text-white/90 break-all">{proveedorDetalle.rfc}</p>
+                <p className="text-xs /40 uppercase tracking-wide mb-1">RFC</p>
+                <p className="text-xs font-bold /90 break-all">{proveedorDetalle.rfc}</p>
               </div>
               <div className="p-3">
-                <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Estado</p>
-                <p className="text-xs font-bold text-white/90">{proveedorDetalle.estado}</p>
+                <p className="text-xs /40 uppercase tracking-wide mb-1">Estado</p>
+                <p className="text-xs font-bold /90">{proveedorDetalle.estado}</p>
               </div>
               <div className="p-3">
-                <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Creado</p>
-                <p className="text-xs font-bold text-white/90">{proveedorDetalle.creado || "—"}</p>
+                <p className="text-xs /40 uppercase tracking-wide mb-1">Creado</p>
+                <p className="text-xs font-bold /90">{proveedorDetalle.creado || "—"}</p>
               </div>
             </div>
 
-            <p className="text-sm font-semibold text-white/70 mb-3">Contacto</p>
+            <p className="text-sm font-semibold /70 mb-3">Contacto</p>
             <div className="space-y-2 mb-5">
               <DetalleRow label="Email" value={proveedorDetalle.email} />
               <DetalleRow label="Teléfono" value={proveedorDetalle.telefono} />
@@ -428,13 +457,13 @@ const handleGuardarProveedor = async () => {
 
             {proveedorDetalle.notas && (
               <div className="mb-4">
-                <p className="text-sm font-semibold text-white/70 mb-1">Notas</p>
+                <p className="text-sm font-semibold /70 mb-1">Notas</p>
                 <p className="text-sm text-lila/80">{proveedorDetalle.notas}</p>
               </div>
             )}
 
             <div className="mb-4">
-              <p className="text-sm font-semibold text-white/70 mb-1">Giro</p>
+              <p className="text-sm font-semibold /70 mb-1">Giro</p>
               <p className="text-sm text-lila/80">{proveedorDetalle.giro || "—"}</p>
             </div>
 
@@ -478,7 +507,7 @@ function DetalleRow({ label, value }) {
   return (
     <div className="flex justify-between items-center gap-2">
       <span className="text-sm text-lila/60 shrink-0">{label}</span>
-      <span className="text-sm text-white/80 text-right truncate">{value || "—"}</span>
+      <span className="text-sm /80 text-right truncate">{value || "—"}</span>
     </div>
   );
 }

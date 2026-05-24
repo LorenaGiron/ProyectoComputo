@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { api } from "../services/api";
 import { X, Calendar, User, Package } from "lucide-react";
 
+import useTitulo from "../hooks/useTitulo";
+
 import Tarjetas      from "../components/Tarjetas";
 import ToolBar       from "../components/ToolBar";
 import Tabla         from "../components/Tabla";
@@ -166,7 +168,7 @@ function ModalForm({ row, esNuevo, onClose, onGuardar }) {
                 style={{ backgroundColor: "#56538E", color: "#E7D6FF" }}>
                 {esNuevo ? "NUEVO" : row.folio}
               </span>
-              <h2 className="text-lg font-extrabold text-white">
+              <h2 className="text-lg font-extrabold ">
                 {esNuevo ? "Nueva Recepción" : "Editar Recepción"}
               </h2>
             </div>
@@ -371,7 +373,7 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
             </div>
           </div>
 
-          <h2 className="text-xl font-extrabold text-white mb-2">{row.supplierNombre}</h2>
+          <h2 className="text-xl font-extrabold  mb-2">{row.supplierNombre}</h2>
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-sm" style={{ color: "#C9B8E8" }}>
               <Calendar size={13} style={{ color: "#A68DC8" }} />{row.fecha}
@@ -389,8 +391,8 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
           style={{ border: "1px solid #A68DC8", backgroundColor: "#2C2A48" }}>
           <div className="grid grid-cols-3">
             {[
-              { label: "Items distintos",  value: row.items.length,      color: "text-white" },
-              { label: "Unidades totales", value: unidadesTotales,        color: "text-white" },
+              { label: "Items distintos",  value: row.items.length,      color: "" },
+              { label: "Unidades totales", value: unidadesTotales,        color: "" },
               { label: "Total",            value: formatMoney(row.total), color: "text-[#8DB051]" },
             ].map((stat, i) => (
               <div key={i} className="px-4 py-3 text-center"
@@ -417,7 +419,7 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
                     : <Package size={20} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{item.sku}</p>
+                  <p className="text-sm font-bold ">{item.sku}</p>
                   <p className="text-xs" style={{ color: "#C9B8E8" }}>{item.productNombre}</p>
                 </div>
                 {[
@@ -459,8 +461,10 @@ function ModalDetalle({ row, onClose, onConfirmar, onEditar, onEliminar }) {
 
 /* ─── Página principal ─── */
 export default function Recepciones() {
+  useTitulo("Recepciones");
+
   const [rows, setRows]                       = useState([]);
-  const [stats, setStats]                     = useState({ total: 0, confirmadas: 0, draft: 0 });
+  const [stats, setStats]                     = useState({ total: 0, confirmadas: 0, draft: 0, estaSemana: 0});
   const [filtro, setFiltro]                   = useState("");
   const [busqueda, setBusqueda]               = useState("");
   const [paginaActiva, setPaginaActiva]       = useState(1);
@@ -472,6 +476,7 @@ export default function Recepciones() {
   const [loading, setLoading]                 = useState(true);
   const [refresh, setRefresh]                 = useState(0);
   const [modalExito, setModalExito]           = useState("");
+  const [filtroTiempo, setFiltroTiempo]       = useState("semana"); 
 
   const refetch = useCallback(() => setRefresh((r) => r + 1), []);
 
@@ -488,12 +493,16 @@ export default function Recepciones() {
 
   // Stats
   useEffect(() => {
+    const hace7Dias = new Date();
+    hace7Dias.setDate(hace7Dias.getDate() - 7);
+    const fechaInicio = hace7Dias.toISOString();
     Promise.all([
       api.get("/recepciones?limit=1"),
       api.get("/recepciones?status=CONFIRMED&limit=1"),
       api.get("/recepciones?status=DRAFT&limit=1"),
-    ]).then(([all, confirmed, draft]) => {
-      setStats({ total: all.total, confirmadas: confirmed.total, draft: draft.total });
+      api.get(`/recepciones?limit=1&fechaDesde=${fechaInicio}`)
+    ]).then(([all, confirmed, draft, semana]) => {
+      setStats({ total: all.total, confirmadas: confirmed.total, draft: draft.total, estaSemana: semana.total });
     }).catch(console.error);
   }, [refresh]);
 
@@ -544,19 +553,62 @@ export default function Recepciones() {
           Recepciones
         </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
-            <Tarjetas label="Recepciones" value={stats.total}       sub="este mes"    accent="#7C6AF7" icon="bi bi-box-seam"      />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "CONFIRMED" ? "" : "CONFIRMED"); setPaginaActiva(1); }}>
-            <Tarjetas label="Confirmadas" value={stats.confirmadas} sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} accent="#8DB051" icon="bi bi-check-circle" />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(filtro === "DRAFT" ? "" : "DRAFT"); setPaginaActiva(1); }}>
-            <Tarjetas label="Draft"       value={stats.draft}       sub="en borrador" accent="#c9c225" icon="bi bi-pencil-square" />
-          </div>
-          <div className="cursor-pointer" onClick={() => { setFiltro(""); setPaginaActiva(1); }}>
-            <Tarjetas label="Total"       value={stats.total}       sub="recepciones" accent="#A68DC8" icon="bi bi-layers"        />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8">
+          <Tarjetas 
+            label="Historial"       
+            value={stats.total}       
+            sub="todas las recepciones" 
+            accent="#A68DC8" 
+            icon="bi bi-layers"        
+            onClick={() => { 
+              setFiltro(""); 
+              setFiltroTiempo("todos"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "" && filtroTiempo === "todos"}
+          />
+
+          <Tarjetas 
+            label="Recepciones" 
+            value={stats.estaSemana} 
+            sub="últimos 7 días"    
+            accent="#7C6AF7" 
+            icon="bi bi-calendar-event"      
+            onClick={() => { 
+              setFiltro(""); 
+              setFiltroTiempo(filtroTiempo === "semana" ? "todos" : "semana"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtroTiempo === "semana"}
+          />
+          
+          <Tarjetas 
+            label="Confirmadas" 
+            value={stats.confirmadas} 
+            sub={`${stats.total ? Math.round(stats.confirmadas / stats.total * 100) : 0}% del total`} 
+            accent="#8DB051" 
+            icon="bi bi-check-circle" 
+            onClick={() => { 
+              setFiltroTiempo("todos");
+              setFiltro(filtro === "CONFIRMED" ? "" : "CONFIRMED"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "CONFIRMED"}
+          />
+          
+          <Tarjetas 
+            label="Draft"       
+            value={stats.draft}       
+            sub="en borrador" 
+            accent="#c9c225" 
+            icon="bi bi-pencil-square" 
+            onClick={() => { 
+              setFiltroTiempo("todos"); 
+              setFiltro(filtro === "DRAFT" ? "" : "DRAFT"); 
+              setPaginaActiva(1); 
+            }}
+            isActive={filtro === "DRAFT"}
+          />
         </div>
 
         <ToolBar
@@ -572,16 +624,16 @@ export default function Recepciones() {
 
         <Tabla encabezados={ENCABEZADOS}>
           {loading ? (
-            <tr><td colSpan={8} className="text-center py-10 text-sm text-lila-soft opacity-50">Cargando...</td></tr>
+            <tr><td colSpan={8} className="text-center py-10 text-sm  opacity-50">Cargando...</td></tr>
           ) : rows.length === 0 ? (
-            <tr><td colSpan={8} className="text-center py-10 text-sm text-lila-soft opacity-50">Sin resultados</td></tr>
+            <tr><td colSpan={8} className="text-center py-10 text-sm  opacity-50">Sin resultados</td></tr>
           ) : rows.map((row) => (
-            <tr key={row.id} className="border-t border-lila/10 hover:bg-lila/5 transition-colors">
-              <td className="p-4 text-center text-sm font-bold text-blanco">{row.folio}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.supplierNombre}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.fecha}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.createdBy || "—"}</td>
-              <td className="p-4 text-center text-sm text-lila-soft">{row.items.length}</td>
+            <tr key={row.id} className="border-t hover:bg-lila/5 transition-colors">
+              <td className="p-4 text-center text-sm font-bold ">{row.folio}</td>
+              <td className="p-4 text-center text-sm ">{row.supplierNombre}</td>
+              <td className="p-4 text-center text-sm ">{row.fecha}</td>
+              <td className="p-4 text-center text-sm ">{row.createdBy || "—"}</td>
+              <td className="p-4 text-center text-sm ">{row.items.length}</td>
               <td className="p-4 text-center text-sm font-bold text-verde">{formatMoney(row.total)}</td>
               <td className="p-4 text-center">
                 <Etiquetas contenido={row.status === "CONFIRMED" ? "Confirmado" : "Draft"} />
