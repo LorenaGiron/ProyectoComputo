@@ -12,6 +12,7 @@ import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
 import Tienda from "./pages/Tienda";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./pages/Register";
 
 import "./App.css";
 
@@ -37,6 +38,9 @@ function App() {
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+
 
         {/* Dashboard */}
         <Route
