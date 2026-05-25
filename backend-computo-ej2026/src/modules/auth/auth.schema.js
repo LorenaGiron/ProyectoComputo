@@ -34,3 +34,21 @@ export const registerSchema = z.object({
     .string({ required_error: 'La contraseña es obligatoria' })
     .min(6, 'La contraseña debe tener al menos 6 caracteres'),
 })
+
+export const passwordResetSchema = z.object({
+  usuario: z
+    .string({ required_error: 'El usuario es obligatorio' })
+    .min(3, 'El usuario debe tener al menos 3 caracteres')
+})
+
+export const validateResetPasswordSchema = z.object({
+  usuario: z
+    .string({ required_error: 'El usuario es obligatorio' })
+    .min(3, 'El usuario debe tener al menos 3 caracteres'),
+  code: z
+    .string({ required_error: 'El código es obligatorio' })
+    .length(6, 'El código debe tener 6 dígitos'),
+  newPassword: z
+    .string({ required_error: 'La nueva contraseña es obligatoria' })
+    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+})

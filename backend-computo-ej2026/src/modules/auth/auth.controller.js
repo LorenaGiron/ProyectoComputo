@@ -21,6 +21,16 @@ export class AuthController {
       user
     })
   }
+
+  async requestPasswordReset(req, res) {
+    const result = await authService.requestPasswordReset(req.body)
+    return res.status(200).json(result)
+  }
+
+  async validateAndResetPassword(req, res) {
+    const result = await authService.validateAndResetPassword(req.body)
+    return res.status(200).json(result)
+  }
 }
 
 export const authController = new AuthController()

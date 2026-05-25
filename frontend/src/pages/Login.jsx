@@ -5,6 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import bgImage from '../assets/login.png';
 import Toast from '../components/Toast';
+import ModalResetPassword from '../components/ModalResetPassword';
+import ModalValidateCode from '../components/ModalValidateCode';
+import ModalUserNotFound from '../components/ModalUserNotFound';
 import { useAuth } from '../hooks/useAuth';
 import useTitulo from '../hooks/useTitulo';
 
@@ -17,13 +20,21 @@ export default function Login() {
   useTitulo("Iniciar Sesión");
   const navigate = useNavigate();
   const { login, usuario: usuarioDelContexto, token } = useAuth();
-  const [serverError, setServerError] = useState('');
+  const [showPass,    setShowPass]    = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors,      setErrors]      = useState({});
+  const [loading,     setLoading]     = useState(false);
+  const [toast,       setToast]       = useState({ message: "", type: "error" });
   const [usuarioLogeado, setUsuarioLogeado] = useState(null);
+  const [resetPasswordState, setResetPasswordState] = useState({
+    step: null, // null | 'CLIENTE' | 'ADMIN_REQUIRED'
+    usuario: null
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errores, isSubmitting }
   } = useForm({
     resolver: zodResolver(loginSchema)
   });
@@ -40,13 +51,6 @@ export default function Login() {
     }
   }, [token, usuarioDelContexto, navigate]);
 
-  useEffect(() => {
-    if (serverError) {
-      const timer = setTimeout(() => setServerError(''), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [serverError]);
-
   // Cuando el usuario se actualice en el contexto después del login, navega
   useEffect(() => {
     if (usuarioLogeado && usuarioDelContexto) {
@@ -60,7 +64,6 @@ export default function Login() {
   }, [usuarioDelContexto, usuarioLogeado, navigate]);
 
   const onSubmit = async (data) => {
-    setServerError('');
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
@@ -85,22 +88,70 @@ export default function Login() {
       navigate('/dashboard');
 
     } catch (error) {
-      setServerError(error.message);
+      setToast({ message: error.message, type: 'error' });
     }
   };
 
   const openModal = (e) => {
     e.preventDefault();
-    document.getElementById('forgot_password_modal').showModal();
+    setResetPasswordState({ step: null, usuario: null });
+    document.getElementById('reset_password_usuario_modal').showModal();
+  };
+
+  const handleResetPasswordFlow = (usuario, step) => {
+    if (step === 'ADMIN_REQUIRED') {
+      // Usuario no es cliente, mostrar modal de admin
+      document.getElementById('reset_password_usuario_modal').close();
+      document.getElementById('forgot_password_modal').showModal();
+      setResetPasswordState({ step: 'ADMIN_REQUIRED', usuario: null });
+    } else if (step === 'CLIENTE' && usuario) {
+      // Usuario es cliente, mostrar modal de código
+      setResetPasswordState({ step: 'CLIENTE', usuario });
+      document.getElementById('reset_password_usuario_modal').close();
+      document.getElementById('validate_code_modal').showModal();
+    } else if (!usuario) {
+      // Usuario no encontrado
+      document.getElementById('reset_password_usuario_modal').close();
+      document.getElementById('user_not_found_modal').showModal();
+      setResetPasswordState({ step: 'NOT_FOUND', usuario: null });
+    }
+  };
+
+  const closeResetPasswordModals = () => {
+    document.getElementById('reset_password_usuario_modal')?.close();
+    document.getElementById('validate_code_modal')?.close();
+    document.getElementById('forgot_password_modal')?.close();
+    document.getElementById('user_not_found_modal')?.close();
+    setResetPasswordState({ step: null, usuario: null });
+  };
+
+  const handleResetSuccess = () => {
+    closeResetPasswordModals();
+    setServerError('');
+    setToast({ message: 'Tu contraseña ha sido actualizada. Inicia sesión con tu nueva contraseña.', type: 'success' });
   };
 
   return (
     <div className="flex min-h-screen relative overflow-hidden">
       
       <Toast 
-        message={serverError} 
-        type="error" 
-        onClose={() => setServerError('')} 
+        message={toast.message} 
+        type={toast.type} 
+        onClose={() => setToast({ message: "", type: "error" })} 
+      />
+
+      {/* Componentes de Modales */}
+      <ModalResetPassword 
+        onClose={closeResetPasswordModals}
+        onUserSubmitted={handleResetPasswordFlow}
+      />
+      <ModalValidateCode 
+        usuario={resetPasswordState.usuario}
+        onClose={closeResetPasswordModals}
+        onSuccess={handleResetSuccess}
+      />
+      <ModalUserNotFound 
+        onClose={closeResetPasswordModals}
       />
 
       {/* Mitad Izquierda: Imagen */}
@@ -193,11 +244,14 @@ export default function Login() {
 
       </div>
 
-      {/* --- Modal de Recuperación de Contraseña --- */}
+      {/* --- Modal de Recuperación de Contraseña para Admin --- */}
       <dialog id="forgot_password_modal" className="modal">
         <div className="modal-box bg-oscuro/60 backdrop-blur-md border border-lila/30 text-lila p-8 sm:p-10 max-w-lg rounded-none shadow-2xl">
           <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-6 top-6 text-xl">
+            <button 
+              type="button"
+              onClick={closeResetPasswordModals}
+              className="btn btn-sm btn-circle btn-ghost absolute right-6 top-6 text-xl">
               <i className="bi bi-x-lg"></i>
             </button>
           </form>
@@ -226,15 +280,13 @@ export default function Login() {
             <p>contacte al responsable de su área o departamento.</p>
           </div>
 
-          
-
           <div className="mt-12 font-cinzel tracking-widest text-xl opacity-90">
             A U R A
           </div>
         </div>
         
         <form method="dialog" className="modal-backdrop">
-          <button className="cursor-default">cerrar</button>
+          <button onClick={closeResetPasswordModals}>cerrar</button>
         </form>
       </dialog>
 
