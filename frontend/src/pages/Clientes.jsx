@@ -10,6 +10,7 @@ import Input from "../components/Input";
 import Boton from "../components/Boton";
 import { api } from "../services/api";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 const LIMIT = 10;
@@ -174,7 +175,6 @@ export default function Clientes() {
     }
   };
 
-  // Creamos una lista filtrada dinámicamente
   const clientesFiltrados = rows.filter((cliente) => {
     // 1. Validamos la tarjeta / select
     const pasaFiltroEstado = statusFilter === "" || cliente.estado === statusFilter;
@@ -392,9 +392,10 @@ export default function Clientes() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Clientes
-      </h1>
+      <Encabezado 
+        titulo="Clientes" 
+        onActualizar={() => setRefresh((prev) => prev + 1)} 
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">
         <Tarjetas

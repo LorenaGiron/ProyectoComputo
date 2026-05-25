@@ -6,6 +6,7 @@ import Modal from "../components/Modal";
 import ModalAuditoria from "../components/ModalAuditoria";
 import { useAuth } from "../hooks/useAuth";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const LIMIT = 7;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -173,7 +174,6 @@ export default function Auditoria() {
     <div className="p-4 md:p-6 flex flex-col gap-5">
 
       <h1 className="text-xl md:text-2xl font-bold text-blanco m-0">Auditoría</h1>
-
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
           { id: "all",    label: "Total registros",  value: kpis.total,      sub: "Todos los eventos",                                                                  accent: "#a78bfa", icon: "bi bi-file-earmark-text" },

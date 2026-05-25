@@ -19,8 +19,8 @@ export default function BarraCategorias({ productosDB }) {
 
   const accesoriosPorc = totalProd > 0 ? Math.max(0, 100 - (superioresPorc + inferioresPorc + calzadoPorc)) : 0;
 
-  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-oscuro text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
-
+  const tooltipBaseClasses = "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-lila text-oscuro-card dark:bg-oscuro dark:text-blanco text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xl z-50 pointer-events-none";
+  
   const segmentos = [
     { width: superioresPorc, color: "bg-azul", label: `Superiores: ${superioresCant} (${superioresPorc}%)` },
     { width: inferioresPorc, color: "bg-rosa", label: `Inferiores: ${inferioresCant} (${inferioresPorc}%)` },
@@ -29,8 +29,8 @@ export default function BarraCategorias({ productosDB }) {
   ];
 
   return (
-    <div className="bg-bg-card rounded-xl p-6 border border-lila/10 shadow-lg relative w-full xl:w-5/12 text-white flex flex-col justify-center">
-      <p className="m-0 text-sm text-lila-soft uppercase tracking-wide">Productos por Categoría</p>
+    <div className="bg-blanco rounded-xl p-6 border border-morado/10 shadow-lg relative w-full xl:w-5/12 text-oscuro flex flex-col justify-center transition-colors duration-300 dark:bg-bg-card dark:text-white dark:border-lila/10">
+      <p className="m-0 text-sm text-morado dark:text-lila-soft uppercase tracking-wide">Productos por Categoría</p>
       
       {/* Barra de colores */}
       <div className="flex h-7 mt-5 w-full overflow-visible font-medium text-white rounded-md">
@@ -50,7 +50,7 @@ export default function BarraCategorias({ productosDB }) {
       </div>
 
       {/* Porcentajes inferiores */}
-      <div className="flex justify-between text-xs text-text-muted mt-3 font-medium">
+      <div className="flex justify-between text-xs text-gris mt-3 font-medium transition-colors duration-300 dark:text-text-muted">
         {segmentos.map((segment, idx) => (
           segment.width > 0 && (
             <span key={idx} style={{ width: `${segment.width}%` }} className="text-center truncate px-1">

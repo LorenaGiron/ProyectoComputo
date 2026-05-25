@@ -7,7 +7,8 @@ export default function Layout({ children }) {
 
   return (
     <div className="flex h-screen bg-oscuro font-poppins overflow-hidden w-full">
-
+    <div className="flex h-screen font-poppins overflow-hidden w-full transition-colors duration-300 bg-lila/30 dark:bg-oscuro">
+      <Sidebar />
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-20 lg:hidden"

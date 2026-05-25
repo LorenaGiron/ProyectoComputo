@@ -15,6 +15,7 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import FormUsuarios from "../components/FormUsuarios";
 import AvatarUser from "../components/AvatarUser";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 /* ─── Página principal ─── */
 const LIMIT = 10;
@@ -28,6 +29,7 @@ export default function Usuarios() {
   
   // Estados para la Base de Datos
   const [usuariosDB, setUsuariosDB] = useState([]);
+  const [rolesDB, setRolesDB] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
@@ -86,13 +88,32 @@ export default function Usuarios() {
     }
   };
 
+  // Traer roles de Firestore
+  const fetchRoles = async () => {
+    try {
+      const result = await api.get('/roles');
+      const datosReales = result.items || result.data?.items || result.data || (Array.isArray(result) ? result : []);
+      setRolesDB(datosReales);
+    } catch (err) {
+      console.error("Error al cargar roles:", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsuarios();
+    fetchRoles();
   }, []);
 
   useEffect(() => {
     setPaginaActiva(1);
   }, [filtro, busqueda]);
+
+  // Refrescar roles cuando se abre el modal de crear usuario
+  useEffect(() => {
+    if (isModalFormAbierto) {
+      fetchRoles();
+    }
+  }, [isModalFormAbierto]);
 
   const datosFiltrados = usuariosDB
     .filter((row) => {
@@ -286,9 +307,10 @@ export default function Usuarios() {
         onClose={() => setToastMessage("")}
       />
 
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Gestión de Usuarios
-      </h1>
+      <Encabezado 
+        titulo="Gestión de Usuarios" 
+        onActualizar={fetchUsuarios} 
+      />
 
       {/* Tarjetas de estadísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">
@@ -389,6 +411,7 @@ export default function Usuarios() {
           onCancelar={() => setIsModalFormAbierto(false)}
           usuarioLogeado={usuarioLogeado}
           esNuevo={!usuarioAEditar}
+          rolesDisponibles={rolesDB}
         />
       </Modal>
 

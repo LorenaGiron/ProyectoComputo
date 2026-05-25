@@ -25,7 +25,6 @@ export default function Tarjetas({ label, value, sub, accent = "#7C6AF7", icon, 
           )
         )}
       </div>
-
       <p className={`my-1 md:my-2 text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight
         ${isActive ? "text-blanco dark:text-blanco" : "text-oscuro dark:text-blanco"}`}>
         {value}
