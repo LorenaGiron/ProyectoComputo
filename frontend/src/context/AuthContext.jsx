@@ -1,63 +1,89 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(
-    () => localStorage.getItem("token") ?? null
-  );
-  const [usuario, setUsuario] = useState(
-    () => JSON.parse(localStorage.getItem("usuario") ?? "null")
-  );
+
+  const [token, setToken] = useState(null);
+  const [usuario, setUsuario] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+
+    const verificarSesion = async () => {
+
+      const tokenGuardado = localStorage.getItem("token");
+
+      if (!tokenGuardado) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${tokenGuardado}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Token inválido");
+        }
+
+        const data = await res.json();
+
+        setToken(tokenGuardado);
+        setUsuario(data.user);
+
+      } catch (error) {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+
+        setToken(null);
+        setUsuario(null);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+    verificarSesion();
+
+  }, []);
 
   const login = (tokenRecibido, datosUsuario) => {
-    localStorage.setItem("token",   tokenRecibido);
+
+    localStorage.setItem("token", tokenRecibido);
     localStorage.setItem("usuario", JSON.stringify(datosUsuario));
+
     setToken(tokenRecibido);
     setUsuario(datosUsuario);
   };
 
   const logout = () => {
+
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
+
     setToken(null);
     setUsuario(null);
   };
-
-  const register = async (payload) => {
-    const res = await fetch(`${API_BASE}/auth/register`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      const err = new Error(data.message ?? "Error al registrarse");
-      err.field = data.field ?? null;   
-      throw err;
-    }
-
-    login(data.token, data.user);
-    return data.user;
-  };
-
-  const getAuthHeader = () =>
-    token ? { Authorization: `Bearer ${token}` } : {};
 
   return (
     <AuthContext.Provider
       value={{
         token,
-        usuario,                   
+        usuario,
         login,
         logout,
-        register,                   
-        getAuthHeader,              
-        isAuthenticated: !!token,   
+        loading,
+        isAuthenticated: !!token,
       }}
     >
       {children}
@@ -66,9 +92,7 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
-  return ctx;
+  return useContext(AuthContext);
 }
 
 export { AuthContext };
