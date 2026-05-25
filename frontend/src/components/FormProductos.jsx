@@ -32,7 +32,7 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
   useEffect(() => {
     if (data) {
       setFormData({ ...data, inventario: data.inventario || [], imagen: data.imagen || null });
-      setImagenPreview(data.imagen || null); // Si ya trae imagen de la DB, la mostramos
+      setImagenPreview(data.imagen || null);
     } else {
       setFormData({ sku: "", nombre: "", departamento: "", categoria: "", marca: "", modelo: "", descripcion: "", pVenta: "", pCompra: "", estado: "Activo", inventario: [], imagen: null });
       setImagenPreview(null); 
@@ -49,11 +49,9 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
       .catch(console.error);
   }, []);
 
-  // Datos del proveedor
   const handleProveedorChange = (e) => {
     const nombreSeleccionado = e.target.value;
     const prov = proveedores.find(p => p.nombre === nombreSeleccionado);
-    
     setFormData(prev => ({
       ...prev,
       supplierNombre: nombreSeleccionado,
@@ -66,13 +64,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Imagen
   const handleImagenChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({ ...prev, imagen: file }));
       setImagenPreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleEliminarImagen = () => {
+    setFormData(prev => ({ ...prev, imagen: null }));
+    setImagenPreview(null);
   };
 
   const obtenerTallasPorCategoria = (categoria) => {
@@ -126,39 +128,87 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
   };
 
   return (
-    <div className="p-4 md:p-6 text-blanco font-poppins h-full">
+    // 🌟 Fondo transparente como en ModalProductos
+    <div className={`
+      px-4 pb-4 md:px-6 md:pb-6 pt-0 font-poppins h-full transition-colors duration-300
+      bg-transparent text-oscuro
+      dark:bg-transparent dark:text-blanco
+    `}>
           
-      <div className="mb-6 border-b border-lila/20 pb-4 pr-14">
-        <h2 className="text-2xl font-bold text-blanco">
+      <div className="mb-6 border-b border-morado/20 dark:border-lila/20 pb-4 pr-14 transition-colors">
+        <h2 className={`
+          text-2xl font-bold transition-colors
+          text-morado
+          dark:text-blanco
+        `}>
           {data ? "Editar Producto" : "Nuevo Producto"}
         </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-        {/* Imagen del Producto */}
-        <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
-          <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
+        {/* ── IMAGEN DEL PRODUCTO ────────────────────────────────────────── */}
+        <div className={`
+          p-5 rounded-xl border transition-colors shadow-sm
+          bg-blanco border-morado/20
+          dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+        `}>
+          <h3 className={`
+            text-sm font-bold flex items-center gap-2 mb-4 transition-colors
+            text-morado
+            dark:text-lila
+          `}>
             <i className="bi bi-image"></i> Fotografía del Producto
           </h3>
           <div className="flex flex-col sm:flex-row gap-6 items-center">
             
             {/* Contenedor de la vista previa */}
-            <div className="w-32 h-32 shrink-0 bg-white rounded-xl border border-lila/20 flex items-center justify-center overflow-hidden shadow-inner">
+            <div className={`
+              relative w-32 h-32 shrink-0 rounded-xl border flex items-center justify-center overflow-hidden shadow-inner transition-colors
+              bg-lila-pastel border-morado/20
+              dark:bg-white dark:border-lila/20
+            `}>
               {imagenPreview ? (
-                <img src={imagenPreview} alt="Preview" className="w-full h-full object-contain" />
+                <>
+                  <img src={imagenPreview} alt="Preview" className="w-full h-full object-contain bg-white" />
+                  {/* ✨ Botón para eliminar la imagen seleccionada */}
+                  <button
+                    type="button"
+                    onClick={handleEliminarImagen}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-rojo text-blanco flex items-center justify-center shadow-md hover:bg-rojo/80 transition-colors"
+                    title="Eliminar imagen"
+                  >
+                    <i className="bi bi-x text-sm"></i>
+                  </button>
+                </>
               ) : (
-                <i className="bi bi-camera text-4xl text-lila-soft/50"></i>
+                <i className={`
+                  bi bi-camera text-4xl transition-colors
+                  text-morado/30
+                  dark:text-lila-soft/50
+                `}></i>
               )}
             </div>
 
             {/* Input para arrastrar o seleccionar archivo */}
             <div className="flex-1 w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-lila/30 rounded-xl cursor-pointer bg-lila/5 hover:bg-lila/10 transition-colors">
+              <label className={`
+                flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors
+                border-morado/30 bg-morado/5 hover:bg-morado/10
+                dark:border-lila/30 dark:bg-lila/5 dark:hover:bg-lila/10
+              `}>
                 <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                  <i className="bi bi-cloud-arrow-up text-2xl text-lila mb-2"></i>
-                  <p className="text-sm text-blanco font-medium">Haz clic para subir una imagen</p>
-                  <p className="text-xs text-lila-soft mt-1">PNG, JPG o WEBP (Max. 5MB)</p>
+                  <i className={`
+                    bi bi-cloud-arrow-up text-2xl mb-2 transition-colors
+                    text-morado
+                    dark:text-lila
+                  `}></i>
+                  <p className="text-sm font-medium">Haz clic para subir una imagen</p>
+                  <p className={`
+                    text-xs mt-1 transition-colors
+                    text-gris
+                    dark:text-lila-soft
+                  `}>PNG, JPG o WEBP (Max. 5MB)</p>
                 </div>
                 <input 
                   type="file" 
@@ -172,9 +222,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
           </div>
         </div>
 
-        {/* Información General */}
-        <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
-          <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
+        {/* ── INFORMACIÓN GENERAL ────────────────────────────────────────── */}
+        <div className={`
+          p-5 rounded-xl border transition-colors shadow-sm
+          bg-blanco border-morado/20
+          dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+        `}>
+          <h3 className={`
+            text-sm font-bold flex items-center gap-2 mb-4 transition-colors
+            text-morado
+            dark:text-lila
+          `}>
             <i className="bi bi-info-circle"></i> Información General
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,9 +287,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
           </div>
         </div>
 
-        {/* Descripción */}
-        <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
-          <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
+        {/* ── DESCRIPCIÓN ────────────────────────────────────────────────── */}
+        <div className={`
+          p-5 rounded-xl border transition-colors shadow-sm
+          bg-blanco border-morado/20
+          dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+        `}>
+          <h3 className={`
+            text-sm font-bold flex items-center gap-2 mb-4 transition-colors
+            text-morado
+            dark:text-lila
+          `}>
             <i className="bi bi-card-text"></i> Descripción
           </h3>
           <Input 
@@ -240,9 +306,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
           />
         </div>
 
-        {/* Precios */}
-        <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
-          <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
+        {/* ── PRECIOS ────────────────────────────────────────────────────── */}
+        <div className={`
+          p-5 rounded-xl border transition-colors shadow-sm
+          bg-blanco border-morado/20
+          dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+        `}>
+          <h3 className={`
+            text-sm font-bold flex items-center gap-2 mb-4 transition-colors
+            text-morado
+            dark:text-lila
+          `}>
             <i className="bi bi-currency-dollar"></i> Precios
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,9 +325,17 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
           </div>
         </div>
 
-        {/* Inventario */}
-        <div className="bg-oscuro/20 p-5 rounded-xl border border-lila/5">
-          <h3 className="text-sm font-bold text-lila mb-4 flex items-center gap-2">
+        {/* ── INVENTARIO ─────────────────────────────────────────────────── */}
+        <div className={`
+          p-5 rounded-xl border transition-colors shadow-sm
+          bg-blanco border-morado/20
+          dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+        `}>
+          <h3 className={`
+            text-sm font-bold flex items-center gap-2 mb-4 transition-colors
+            text-morado
+            dark:text-lila
+          `}>
             <i className="bi bi-box-seam"></i> Inventario y Alertas
           </h3>
 
@@ -276,7 +358,11 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
             />
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 items-end mb-6 bg-lila/5 p-4 rounded-lg border border-lila/10">
+          <div className={`
+            flex flex-col sm:flex-row gap-3 items-end mb-6 p-4 rounded-lg border transition-colors
+            bg-lila-pastel border-morado/20
+            dark:bg-lila/5 dark:border-lila/10
+          `}>
             <div className="flex-1 w-full">
               <Input 
                 label="Seleccionar Talla" 
@@ -298,7 +384,8 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
               />
             </div>
             <div className="w-full sm:w-auto">
-              <Boton variante="claro" onClick={handleAgregarTalla} tipo="button" className="w-full h-10 flex justify-center">
+              {/* Actualicé el botón a variante oscuro en modo claro para destacar */}
+              <Boton variante="oscuro" onClick={handleAgregarTalla} tipo="button" className="w-full h-10 flex justify-center">
                 <i className="bi bi-plus-lg"></i> Agregar
               </Boton>
             </div>
@@ -308,20 +395,39 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
           {formData.inventario.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {formData.inventario.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-oscuro/40 border border-lila/20 rounded-lg p-2 pr-3 group">
+                <div 
+                  key={idx} 
+                  className={`
+                    flex items-center justify-between rounded-lg p-2 pr-3 group border transition-colors shadow-sm
+                    bg-blanco border-morado/20
+                    dark:bg-oscuro/40 dark:border-lila/20 dark:shadow-none
+                  `}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-center justify-center w-10 h-10 bg-lila/10 rounded-md border border-lila/20">
-                      <span className="text-xs font-bold text-blanco uppercase">{item.talla}</span>
+                    <div className={`
+                      flex flex-col items-center justify-center w-10 h-10 rounded-md border transition-colors
+                      bg-lila-pastel border-morado/20
+                      dark:bg-lila/10 dark:border-lila/20
+                    `}>
+                      <span className="text-xs font-bold uppercase text-morado dark:text-blanco">{item.talla}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[9px] text-lila-soft uppercase tracking-wider">Stock</span>
-                      <span className="text-sm font-bold text-blanco">{item.stock}</span>
+                      <span className={`
+                        text-[9px] uppercase tracking-wider transition-colors
+                        text-gris
+                        dark:text-lila-soft
+                      `}>Stock</span>
+                      <span className="text-sm font-bold text-oscuro dark:text-blanco">{item.stock}</span>
                     </div>
                   </div>
                   <button 
                     type="button" 
                     onClick={() => handleEliminarTalla(item.talla)}
-                    className="text-lila-soft hover:text-rojo transition-colors opacity-70 group-hover:opacity-100"
+                    className={`
+                      transition-colors opacity-70 group-hover:opacity-100
+                      text-gris hover:text-rojo
+                      dark:text-lila-soft dark:hover:text-rojo
+                    `}
                     title="Eliminar talla"
                   >
                     <i className="bi bi-x-circle-fill text-lg"></i>
@@ -330,15 +436,19 @@ export default function FormProductos({ data, onGuardar, onCancelar }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-lila-mid italic text-center py-6 bg-oscuro/40 rounded-lg border border-lila/5">
+            <p className={`
+              text-sm italic text-center py-6 rounded-lg border transition-colors
+              text-gris bg-lila-pastel border-morado/20
+              dark:text-lila-mid dark:bg-oscuro/40 dark:border-lila/5
+            `}>
               Aún no has agregado tallas a este producto.
             </p>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-lila/20">
-          <Boton variante="oscuro" onClick={onCancelar} tipo="button">
+        {/* ── FOOTER BOTONES ─────────────────────────────────────────────── */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-morado/20 dark:border-lila/20 transition-colors">
+          <Boton variante="secundario" onClick={onCancelar} tipo="button">
             <i className="bi bi-x-lg"></i> Cancelar
           </Boton>
           <Boton variante="claro" tipo="submit">
