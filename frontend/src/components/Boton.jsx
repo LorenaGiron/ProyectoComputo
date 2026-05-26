@@ -16,7 +16,7 @@ export default function Boton({
     oscuro: "bg-oscuro text-blanco border border-oscuro hover:bg-lila hover:text-oscuro dark:bg-oscuro-card dark:text-lila dark:border-lila dark:hover:bg-lila dark:hover:text-oscuro-card",
     
     // Para acciones secundarias (Cerrar, Ver detalles)
-    secundario: "bg-bg text-oscuro border border-gris/20 hover:bg-gris/20 dark:bg-lila/10 dark:text-blanco dark:border-lila/20 dark:hover:bg-lila/30",
+    secundario: "bg-lila text-morado border border-morado hover:bg-morado hover:text-blanco dark:bg-lila/10 dark:text-blanco dark:border-lila/20 dark:hover:bg-lila/30",
     
     // Sin fondo, solo texto 
     fantasma: "text-gris hover:text-oscuro hover:bg-gris/10 bg-transparent dark:text-lila-soft dark:hover:text-blanco dark:hover:bg-lila/10"
