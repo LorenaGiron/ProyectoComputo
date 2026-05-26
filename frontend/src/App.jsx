@@ -11,7 +11,9 @@ import Auditoria from "./pages/Auditoria";
 import Proveedores from "./pages/Proveedores";
 import Dashboard from "./pages/Dashboard";
 import Tienda from "./pages/Tienda";
+import Roles from "./pages/Roles";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./pages/Register";
 
 import "./App.css";
 
@@ -37,6 +39,9 @@ function App() {
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
+
+        <Route path="/register" element={<Register />} />
+
 
         {/* Dashboard */}
         <Route
@@ -117,6 +122,18 @@ function App() {
             <ProtectedRoute requiredPage="auditoria">
               <Layout>
                 <Auditoria />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Roles */}
+        <Route
+          path="/roles"
+          element={
+            <ProtectedRoute requiredPage="roles">
+              <Layout>
+                <Roles />
               </Layout>
             </ProtectedRoute>
           }

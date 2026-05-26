@@ -75,7 +75,6 @@ export default function Auditoria() {
   const [modoKPI,       setModoKPI]       = useState("all");
   const [paginaActual,  setPaginaActual]  = useState(1);
 
-  // ── Modal detalle ────────────────────────────────────────────────────────────
   const [logSeleccionado,    setLogSeleccionado]    = useState(null);
   const [isDetalleModalOpen, setIsDetalleModalOpen] = useState(false);
 
@@ -92,7 +91,6 @@ export default function Auditoria() {
       },
     });
 
-  // ── KPIs ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!token) return;
     const fetchKpis = async () => {
@@ -105,12 +103,11 @@ export default function Auditoria() {
         const actualizar = todos.filter((l) => l.action === "UPDATE" || l.action === "TOGGLE_ACTIVE").length;
         const eliminar   = todos.filter((l) => l.action === "DELETE").length;
         setKpis({ total: data.total ?? todos.length, crear, actualizar, eliminar });
-      } catch { /* no bloquear tabla */ }
+      } catch { }
     };
     fetchKpis();
   }, [token]);
 
-  // ── Tabla ─────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!token) return;
     const fetchLogs = async () => {
@@ -162,21 +159,22 @@ export default function Auditoria() {
     setFiltroAccion(modo === "all" ? "" : modo);
   };
 
-  const selectCls =
-    "bg-bg-card text-lila-soft border border-lila/20 rounded-lg px-3 py-2 text-sm cursor-pointer outline-none hover:border-lila transition-colors shadow-sm";
+  const selectCls = "bg-bg-card text-lila-soft border border-lila/20 rounded-lg px-3 py-2 text-sm cursor-pointer outline-none hover:border-lila transition-colors shadow-sm w-full sm:w-auto";
 
-  const encabezados = ["Acción", "Recurso", "Resource ID", "Usuario", "Detalles", "Fecha"];
+  const encabezados = [
+    "Acción",
+    "Recurso",
+    "Resource ID",
+    "Usuario",
+    "Detalles",
+    "Fecha",
+  ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 transition-colors duration-300">
+    <div className="p-4 md:p-6 flex flex-col gap-5">
 
-      <Encabezado 
-        titulo="Auditoría" 
-        onActualizar={fetchAuth} 
-      />
-
-      {/* ── KPI Cards ────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <h1 className="text-xl md:text-2xl font-bold text-blanco m-0">Auditoría</h1>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
           { id: "all",    label: "Total registros",  value: kpis.total,      sub: "Todos los eventos",                                                                  accent: "#a78bfa", icon: "bi bi-file-earmark-text" },
           { id: "CREATE", label: "Creaciones",        value: kpis.crear,      sub: kpis.total ? `${Math.round((kpis.crear      / kpis.total) * 100)}% del total` : "—", accent: "#84B140", icon: "bi bi-plus-circle"       },
@@ -198,14 +196,13 @@ export default function Auditoria() {
         ))}
       </div>
 
-      {/* ── Toolbar ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
         <input
           type="text"
           placeholder="Buscar usuario, recurso, ID..."
           value={busqueda}
           onChange={(e) => handleBusqueda(e.target.value)}
-          className={`${selectCls} w-full sm:w-64`}
+          className={`${selectCls} sm:w-64`}
         />
         <select value={filtroAccion}  onChange={(e) => handleAccion(e.target.value)}  className={selectCls}>
           <option value="">Todas las acciones</option>
@@ -222,13 +219,12 @@ export default function Auditoria() {
           <option value="products">products</option>
           <option value="recepciones">recepciones</option>
         </select>
-        <div className="flex items-center gap-1.5 text-xs text-text-muted ml-auto shrink-0">
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-text-muted ml-auto shrink-0">
           <i className="bi bi-file-lock text-sm" />
           Solo lectura
         </div>
       </div>
 
-      {/* ── Tabla ────────────────────────────────────────────────────── */}
       <Tabla encabezados={encabezados}>
         {cargando ? (
           <tr>
@@ -238,7 +234,7 @@ export default function Auditoria() {
           </tr>
         ) : error ? (
           <tr>
-            <td colSpan={6} className="p-8 text-center text-sm" style={{ color: "#f87171" }}>
+            <td colSpan={6} className="p-8 text-center text-sm text-rojo">
               <i className="bi bi-exclamation-circle mr-2" />{error}
             </td>
           </tr>
@@ -257,24 +253,30 @@ export default function Auditoria() {
                 onClick={() => handleVerDetalle(l)}
                 className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors  cursor-pointer"
               >
-                <td className="p-4 text-center"><ActionBadge action={l.action} /></td>
-                <td className="p-4 text-center"><ResourceBadge resource={l.resource} /></td>
-                <td className="p-4 text-center font-mono text-xs ">{l.resourceId || "—"}</td>
-                <td className="p-4 text-center text-sm font-medium ">{l.usuario || "—"}</td>
-                <td
-                  className="p-4 text-center text-xs /80"
-                  style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                >
+                <td className="p-3 md:p-4 text-center">
+                  <ActionBadge action={l.action} />
+                </td>
+                <td className="p-3 md:p-4 text-center">
+                  <ResourceBadge resource={l.resource} />
+                </td>
+                <td className="p-3 md:p-4 text-center font-mono text-xs text-lila-soft hidden md:table-cell">
+                  {l.resourceId || "—"}
+                </td>
+                <td className="p-3 md:p-4 text-center text-sm font-medium text-blanco">
+                  {l.usuario || "—"}
+                </td>
+                <td className="p-3 md:p-4 text-center text-xs text-lila-soft/80 hidden lg:table-cell max-w-[140px] truncate overflow-hidden whitespace-nowrap">
                   {detailKeys || "—"}
                 </td>
-                <td className="p-4 text-center text-xs /60">{fmtDateShort(l.createdAt)}</td>
+                <td className="p-3 md:p-4 text-center text-xs text-lila-soft/60">
+                  {fmtDateShort(l.createdAt)}
+                </td>
               </tr>
             );
           })
         )}
       </Tabla>
 
-      {/* ── Paginación ───────────────────────────────────────────────── */}
       <Paginacion
         paginaActual={paginaActual}
         totalRegistros={total}
@@ -298,7 +300,6 @@ export default function Auditoria() {
         }))}
       />
 
-      {/* ── Modal detalle ─────────────────────────────────────────────── */}
       <Modal
         isOpen={isDetalleModalOpen}
         onClose={() => setIsDetalleModalOpen(false)}

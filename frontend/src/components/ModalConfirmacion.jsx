@@ -3,15 +3,18 @@ import Boton from "./Boton";
 
 /**
  * Props:
- *  - tipo:            'exito' | 'confirmar' | 'eliminar'
- *  - titulo:          string
- *  - mensaje:         string (opcional)
- *  - textoConfirmar:  string
- *  - textoCancelar:   string (default 'Cancelar')
- *  - onConfirmar:     () => void
- *  - onCancelar:      () => void
+ * - isOpen: boolean
+ * - tipo: 'exito' | 'confirmar' | 'eliminar'
+ * - titulo: string
+ * - mensaje: string (opcional)
+ * - textoConfirmar: string
+ * - textoCancelar: string (default 'Cancelar')
+ * - onConfirmar: () => void
+ * - onCancelar: () => void
+ * - cargando: boolean
  */
 export default function ModalConfirmacion({
+  isOpen = false,
   tipo = "confirmar",
   titulo,
   mensaje,
@@ -19,20 +22,28 @@ export default function ModalConfirmacion({
   textoCancelar = "Cancelar",
   onConfirmar,
   onCancelar,
+  cargando = false,
 }) {
   useEffect(() => {
-    const h = (e) => { if (e.key === "Escape") onCancelar(); };
+    if (!isOpen) return;
+
+    const h = (e) => {
+      if (e.key === "Escape") onCancelar?.();
+    };
+
     document.addEventListener("keydown", h);
     return () => document.removeEventListener("keydown", h);
-  }, [onCancelar]);
+  }, [isOpen, onCancelar]);
+
+  if (!isOpen) return null;
 
   const config = {
     exito: {
-      iconClass:   "bi bi-check-lg",
+      iconClass: "bi bi-check-lg",
       borderColor: "border-verde/40",
-      iconBorder:  "border-verde",
-      iconColor:   "text-verde",
-      titleColor:  "text-verde",
+      iconBorder: "border-verde",
+      iconColor: "text-verde",
+      titleColor: "text-verde",
     },
     confirmar: {
       iconClass:   "bi bi-exclamation",
@@ -48,7 +59,13 @@ export default function ModalConfirmacion({
       iconColor:   "text-rojo",
       titleColor:  "text-rojo",
     },
-  }[tipo];
+  }[tipo] || {
+    iconClass: "bi bi-exclamation",
+    borderColor: "border-lila/30",
+    iconBorder: "border-lila",
+    iconColor: "text-lila",
+    titleColor: "text-lila",
+  };
 
   const esExito = tipo === "exito";
 
@@ -69,7 +86,6 @@ export default function ModalConfirmacion({
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Botón cerrar */}
         <button
           onClick={onCancelar}
           className={`
@@ -77,27 +93,27 @@ export default function ModalConfirmacion({
             text-morado/60 hover:text-morado
             dark:text-lila/60 dark:hover:text-lila
           `}
+          aria-label="Cerrar modal"
+          disabled={cargando}
         >
-          <i className="bi bi-x-lg" />
+          <i className="bi bi-x-lg text-lg"></i>
         </button>
 
-        {/* Ícono */}
-        <div className="mb-8">
-          <div className={`w-14 h-14 rounded-full border ${config.iconBorder} flex items-center justify-center`}>
-            <i className={`${config.iconClass} text-2xl ${config.iconColor}`} />
-          </div>
+        <div
+          className={`w-14 h-14 rounded-full border flex items-center justify-center mb-4 ${config.iconBorder} ${config.iconColor}`}
+        >
+          <i className={`${config.iconClass} text-2xl`}></i>
         </div>
 
         {/* Título */}
-        <h3 className={`
+        <h2 className={`
           font-baskervville text-2xl tracking-widest border-b pb-4 mb-6 leading-snug uppercase transition-colors
           border-morado/30 ${config.titleColor}
           dark:border-lila/30 dark:${config.titleColor}
         `}>
           {titulo}
-        </h3>
+        </h2>
 
-        {/* Mensaje */}
         {mensaje && (
           <p className={`
             font-baskervville text-sm leading-relaxed mb-6 transition-colors
@@ -108,7 +124,6 @@ export default function ModalConfirmacion({
           </p>
         )}
 
-        {/* Botones */}
         {!esExito && (
           <div className="flex gap-3 mt-8">
             <Boton
