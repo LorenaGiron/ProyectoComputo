@@ -10,10 +10,10 @@ export default function Boton({
 
   const estilos = {
     // Guardar, Aceptar, Nuevo, Exportar
-    claro: "bg-oscuro text-blanco border border-oscuro hover:bg-lila hover:text-oscuro dark:bg-lila dark:text-oscuro-card dark:border-lila dark:hover:bg-oscuro-card dark:hover:text-lila",
+    claro: "bg-blanco text-oscuro border border-oscuro/20 hover:bg-oscuro hover:text-blanco dark:bg-lila dark:text-oscuro-card dark:border-lila dark:hover:bg-oscuro-card dark:hover:text-lila",
     
     // Eliminar, Cancelar
-    oscuro: "bg-blanco text-oscuro border border-oscuro/20 hover:bg-oscuro hover:text-blanco dark:bg-oscuro-card dark:text-lila dark:border-lila dark:hover:bg-lila dark:hover:text-oscuro-card",
+    oscuro: "bg-oscuro text-blanco border border-oscuro hover:bg-lila hover:text-oscuro dark:bg-oscuro-card dark:text-lila dark:border-lila dark:hover:bg-lila dark:hover:text-oscuro-card",
     
     // Para acciones secundarias (Cerrar, Ver detalles)
     secundario: "bg-bg text-oscuro border border-gris/20 hover:bg-gris/20 dark:bg-lila/10 dark:text-blanco dark:border-lila/20 dark:hover:bg-lila/30",

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import Boton from "./Boton";
 
 /**
  * Props:
@@ -35,17 +36,17 @@ export default function ModalConfirmacion({
     },
     confirmar: {
       iconClass:   "bi bi-exclamation",
-      borderColor: "border-lila/30",
-      iconBorder:  "border-lila",
-      iconColor:   "text-lila",
-      titleColor:  "text-lila",
+      borderColor: "border-morado/30 dark:border-lila/30",
+      iconBorder:  "border-morado dark:border-lila",
+      iconColor:   "text-morado dark:text-lila",
+      titleColor:  "text-morado dark:text-lila",
     },
     eliminar: {
       iconClass:   "bi bi-trash",
-      borderColor: "border-error-text/40",
-      iconBorder:  "border-error-text",
-      iconColor:   "text-error-text",
-      titleColor:  "text-error-text",
+      borderColor: "border-rojo/40",
+      iconBorder:  "border-rojo",
+      iconColor:   "text-rojo",
+      titleColor:  "text-rojo",
     },
   }[tipo];
 
@@ -53,18 +54,29 @@ export default function ModalConfirmacion({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+      className={`
+        fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300
+        bg-oscuro/40
+        dark:bg-black/60
+      `}
       onClick={onCancelar}
     >
       <div
-        className={`relative w-full max-w-sm bg-oscuro/60 backdrop-blur-md border ${config.borderColor} shadow-2xl p-8 sm:p-10`}
+        className={`
+          relative w-full max-w-sm border shadow-2xl p-8 sm:p-10 transition-colors duration-300
+          bg-blanco/90 ${config.borderColor}
+          dark:bg-oscuro/80 dark:${config.borderColor}
+        `}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botón cerrar */}
         <button
           onClick={onCancelar}
-          className="absolute right-6 top-6 text-lila opacity-60 hover:opacity-100 transition-opacity text-xl"
+          className={`
+            absolute right-6 top-6 transition-colors text-xl cursor-pointer
+            text-morado/60 hover:text-morado
+            dark:text-lila/60 dark:hover:text-lila
+          `}
         >
           <i className="bi bi-x-lg" />
         </button>
@@ -77,13 +89,21 @@ export default function ModalConfirmacion({
         </div>
 
         {/* Título */}
-        <h3 className={`font-baskervville text-2xl tracking-widest border-b border-lila/30 pb-4 mb-6 leading-snug uppercase ${config.titleColor}`}>
+        <h3 className={`
+          font-baskervville text-2xl tracking-widest border-b pb-4 mb-6 leading-snug uppercase transition-colors
+          border-morado/30 ${config.titleColor}
+          dark:border-lila/30 dark:${config.titleColor}
+        `}>
           {titulo}
         </h3>
 
         {/* Mensaje */}
         {mensaje && (
-          <p className="font-baskervville text-sm text-lila opacity-80 leading-relaxed mb-6">
+          <p className={`
+            font-baskervville text-sm leading-relaxed mb-6 transition-colors
+            text-morado/80
+            dark:text-lila/80
+          `}>
             {mensaje}
           </p>
         )}
@@ -91,27 +111,42 @@ export default function ModalConfirmacion({
         {/* Botones */}
         {!esExito && (
           <div className="flex gap-3 mt-8">
-            <button
+            <Boton
+              variante="secundario"
               onClick={onCancelar}
-              className="flex-1 h-11 bg-transparent border border-lila/40 text-lila font-baskervville text-sm tracking-widest uppercase hover:bg-lila/10 transition-colors"
+              className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs"
             >
               {textoCancelar}
-            </button>
-            <button
-              onClick={onConfirmar}
-              className={`flex-1 h-11 bg-transparent font-baskervville text-sm tracking-widest uppercase transition-colors
-                ${tipo === "eliminar"
-                  ? "border border-error-text/60 text-error-text hover:bg-error-text/10"
-                  : "border border-lila text-lila hover:bg-lila hover:text-oscuro"
-                }`}
-            >
-              {textoConfirmar}
-            </button>
+            </Boton>
+            
+            {tipo === "eliminar" ? (
+              <button
+                onClick={onConfirmar}
+                className={`
+                  flex-1 h-11 bg-transparent font-baskervville text-xs tracking-widest uppercase transition-colors rounded-lg cursor-pointer
+                  border border-rojo/60 text-rojo hover:bg-rojo hover:text-blanco
+                `}
+              >
+                {textoConfirmar}
+              </button>
+            ) : (
+              <Boton
+                variante="claro"
+                onClick={onConfirmar}
+                className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs"
+              >
+                {textoConfirmar}
+              </Boton>
+            )}
           </div>
         )}
 
         {/* Firma AURA */}
-        <div className="mt-10 font-cinzel tracking-widest text-xl opacity-90 text-lila">
+        <div className={`
+          mt-10 font-cinzel tracking-widest text-xl transition-colors
+          text-morado/90
+          dark:text-lila/90
+        `}>
           A U R A
         </div>
       </div>
