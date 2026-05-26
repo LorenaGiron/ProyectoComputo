@@ -298,7 +298,7 @@ export default function Productos() {
             const estadoTexto = row.activo !== false ? "Activo" : "Inactivo";
             
             return (
-              <tr key={i} className="border-b  hover:bg-oscuro/40 transition-colors ">
+              <tr key={i} className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors ">
                 <td className="p-4 text-center text-sm font-mono">{row.sku}</td>
                 <td className="p-4 text-center text-sm font-medium ">{row.nombre}</td>
                 <td className="p-4 text-center text-xs font-bold  uppercase tracking-wider">

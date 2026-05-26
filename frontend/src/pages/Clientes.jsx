@@ -249,7 +249,7 @@ export default function Clientes() {
             clientesFiltrados.map((usuario) => (
               <tr
                 key={usuario.id}
-                className="border-b transition-colors border-morado/5 dark:border-lila/5 hover:bg-morado/5 dark:hover:bg-oscuro/40"
+                className="border-b transition-colors border-morado/5 dark:border-lila/5 hover:bg-lila/30 dark:hover:bg-oscuro/40"
               >
                 <td className="p-4 text-center text-sm whitespace-nowrap font-medium text-oscuro dark:text-blanco">{usuario.nombre}</td>
                 <td className="p-4 text-center text-sm whitespace-nowrap text-oscuro dark:text-blanco">{usuario.rfc}</td>

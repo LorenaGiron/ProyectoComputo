@@ -232,10 +232,9 @@ export default function Ventas() {
               </td>
             </tr>
           ) : rows.map((v) => (
-            // 🌟 Corregido: Se quitó el text-white forzado
             <tr key={v.id} className={`
               border-b transition-colors
-              border-morado/5 hover:bg-morado/5
+              border-morado/5 hover:bg-lila/30
               dark:border-lila/5 dark:hover:bg-oscuro/40
             `}>
               <td className={`p-4 text-center text-xs font-mono whitespace-nowrap transition-colors text-morado/70 dark:text-lila-soft`}>

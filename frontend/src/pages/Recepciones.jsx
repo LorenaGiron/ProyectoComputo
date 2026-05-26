@@ -204,7 +204,7 @@ export default function Recepciones() {
           ) : rows.length === 0 ? (
             <tr><td colSpan={8} className="text-center py-10 text-sm opacity-50">Sin resultados</td></tr>
           ) : rows.map((row) => (
-            <tr key={row.id} className="border-t hover:bg-lila/5 transition-colors">
+            <tr key={row.id} className="border-t hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors">
               <td className="p-4 text-center text-sm font-bold ">{row.folio}</td>
               <td className="p-4 text-center text-sm ">{row.supplierNombre}</td>
               <td className="p-4 text-center text-sm ">{formatDate(row.fecha)}</td>
