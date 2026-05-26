@@ -14,6 +14,7 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import ModalRoles from "../components/ModalRoles";
 import ModalPermisos from "../components/ModalPermisos";
 import useTitulo from "../hooks/useTitulo";
+import Encabezado from "../components/Encabezado";
 
 const LIMIT = 10;
 
@@ -252,7 +253,7 @@ export default function Roles() {
   };
 
   const renderRow = (row, i) => (
-    <tr key={i} className="border-b hover:bg-oscuro/40 transition-colors">
+    <tr key={i} className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors">
       <td className="p-4 text-left text-sm font-medium">{row.nombre || "-"}</td>
       <td className="p-4 text-left text-sm">{row.descripcion || "-"}</td>
       <td className="p-4 text-center">
@@ -333,9 +334,9 @@ export default function Roles() {
         onClose={() => setToastMessage("")}
       />
 
-      <h1 className="text-2xl font-bold mb-6 text-blanco uppercase tracking-wide text-center sm:text-left">
-        Gestión de Roles
-      </h1>
+      <Encabezado 
+        titulo="Gestión de Roles" 
+      />
 
       {/* Tarjetas de estadísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full mb-8">
@@ -381,7 +382,7 @@ export default function Roles() {
           onClick={() => setIsModalNuevoPermisoAbierto(true)}
           className="bg-verde text-oscuro border-none rounded-lg px-6 py-2.5 font-bold text-sm cursor-pointer hover:bg-verde/80 hover:scale-102 transition-all active:scale-95 w-full lg:w-auto"
         >
-          <i className="bi bi-plus mr-2"></i>+ Permiso
+          + Permiso
         </button>
       </div>
 

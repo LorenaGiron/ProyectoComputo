@@ -303,7 +303,7 @@ const handleGuardarProveedor = async () => {
           </tr>
         ) : (
           usuarios.map((usuario) => (
-            <tr key={usuario.id} className="border-b  hover:bg-oscuro/40 transition-colors ">
+            <tr key={usuario.id} className="border-b  hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors ">
               <td className="p-4 text-center text-sm whitespace-nowrap font-medium">{usuario.nombre}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.rfc}</td>
               <td className="p-4 text-center text-sm whitespace-nowrap">{usuario.giro}</td>

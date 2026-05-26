@@ -251,7 +251,7 @@ export default function Auditoria() {
               <tr
                 key={l.id}
                 onClick={() => handleVerDetalle(l)}
-                className="border-b border-lila/5 hover:bg-lila/5 transition-colors cursor-pointer"
+                className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors  cursor-pointer"
               >
                 <td className="p-3 md:p-4 text-center">
                   <ActionBadge action={l.action} />

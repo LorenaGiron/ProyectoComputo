@@ -249,7 +249,7 @@ export default function Usuarios() {
   };
 
   const renderRow = (row, i) => (
-    <tr key={i} className="border-b hover:bg-oscuro/40 transition-colors ">
+    <tr key={i} className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors ">
       <td className="p-4 text-center">
         <AvatarUser nombre={row.nombre} apellido={row.apellido} userId={row.id} />
       </td>

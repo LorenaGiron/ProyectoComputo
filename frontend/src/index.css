@@ -4,6 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-lila-pastel: #F8F3FF;
   --color-lila: #E7D6FF;
   --color-lila-mid: #A68DC8;
   --color-lila-soft: #C9B8E8;
@@ -40,6 +41,7 @@
   --color-oscuro-card: #3A3660;
   --color-lila-mid: #A68DC8;
   --color-lila-soft: #C9B8E8;
+  --color-lila-pastel: #F8F3FF;
   --color-bg: #F8F5F2;
   --color-blanco: #FFFFFF;
   --color-text-muted: #5A5870;
