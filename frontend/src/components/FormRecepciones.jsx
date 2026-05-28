@@ -68,16 +68,26 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
         if (i !== idx) return item;
         const costoUnitario = prod ? prod.precioCompra : 0;
         const cantidad = item.cantidad || 1;
-        return { 
-          ...item, 
-          productId: prod ? prod.id : "", 
-          sku: prod?.sku || "", 
-          productNombre: nombreSeleccionado, 
-          imagen: prod?.imagen || "", 
-          costoUnitario, 
-          subtotal: cantidad * costoUnitario 
+        return {
+          ...item,
+          productId: prod ? prod.id : "",
+          sku: prod?.sku || "",
+          productNombre: nombreSeleccionado,
+          imagen: prod?.imagen || "",
+          talla: "",
+          costoUnitario,
+          subtotal: cantidad * costoUnitario
         };
       });
+      return { ...prev, items };
+    });
+  };
+
+  const handleTallaChange = (idx, talla) => {
+    setForm((prev) => {
+      const items = prev.items.map((item, i) =>
+        i !== idx ? item : { ...item, talla }
+      );
       return { ...prev, items };
     });
   };
@@ -99,7 +109,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   const agregarItem = () => {
     setForm((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
+      items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", talla: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
     }));
   };
 
@@ -119,6 +129,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
       fecha: form.fecha, folio: form.folio, comentarios: form.comentarios || "",
       items: form.items.map((item) => ({
         productId: item.productId, sku: item.sku, productNombre: item.productNombre,
+        talla: item.talla || undefined,
         cantidad: item.cantidad, costoUnitario: item.costoUnitario, subtotal: item.subtotal,
       })),
       status: form.status,
@@ -306,8 +317,8 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
                   </div>
                   
                   <div className="mb-3">
-                    <Input 
-                      label="Producto" 
+                    <Input
+                      label="Producto"
                       name="productNombre"
                       tipo="select"
                       opciones={products.map(p => p.nombre)}
@@ -315,7 +326,35 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
                       onChange={(e) => handleProductChange(i, e)}
                     />
                   </div>
-                  
+
+                  {/* Selector de talla */}
+                  {(() => {
+                    const prod = products.find(p => p.id === item.productId);
+                    const tallas = prod?.inventario?.map(t => t.talla) ?? [];
+                    if (tallas.length === 0) return null;
+                    return (
+                      <div className="mb-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-soft mb-1">Talla</p>
+                        <div className="flex flex-wrap gap-2">
+                          {tallas.map((t) => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => handleTallaChange(i, t)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all
+                                ${item.talla === t
+                                  ? "bg-morado text-blanco border-morado dark:bg-lila dark:border-lila dark:text-oscuro"
+                                  : "border-morado/20 text-morado dark:border-lila/20 dark:text-lila hover:border-morado dark:hover:border-lila"
+                                }`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div className="grid grid-cols-3 gap-3">
                     <Input 
                       label="Cantidad" 

@@ -10,6 +10,7 @@ const booleanLike = z.union([
 
 const recepcionItemSchema = z.object({
   productId: z.string({ required_error: 'El productId es obligatorio' }).min(1, 'El productId es obligatorio'),
+  talla: z.string().optional(),
   cantidad: z.coerce.number().positive('La cantidad debe ser mayor a 0'),
   costoUnitario: z.coerce.number().min(0, 'El costo unitario no puede ser negativo')
 })
