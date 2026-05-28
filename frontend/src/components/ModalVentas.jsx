@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Etiquetas from "./Etiquetas";
 import Boton from "./Boton";
-import Input from "./Input"; 
+import Input from "./Input";
+import { generarTicket } from "../utils/generarTicket";
 
 const formatFecha = (iso) => {
   if (!iso) return "—";
@@ -223,7 +224,17 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
           border-morado/10 bg-blanco/50
           dark:border-lila/10 dark:bg-transparent
         `}>
-          <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => generarTicket(venta)}
+              className={`
+                rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border
+                text-morado border-morado/30 bg-morado/10 hover:bg-morado hover:text-blanco
+                dark:text-lila dark:border-lila/30 dark:bg-lila/10 dark:hover:bg-lila dark:hover:text-oscuro
+              `}
+            >
+              <i className="bi bi-download mr-1" />Descargar ticket
+            </button>
             {puedeActualizar && venta.estado !== "cancelado" && (
               <button
                 onClick={() => onCancelar(venta)}
