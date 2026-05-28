@@ -11,7 +11,6 @@ import ToolBar from "../components/ToolBar";
 import AccionesTabla from "../components/AccionesTabla";
 import Paginacion from "../components/Paginacion";
 import Tabla from "../components/Tabla";
-import Modal from "../components/Modal"; 
 import ModalProductos from "../components/ModalProductos";
 import FormProducto from "../components/FormProductos";
 import ModalConfirmacion from "../components/ModalConfirmacion";
@@ -21,6 +20,7 @@ export default function Productos() {
   useTitulo("Productos");
   
   const [filtro, setFiltro] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState("");
   const [busqueda, setBusqueda] = useState("");
   
   // Estados para la Base de Datos
@@ -53,6 +53,23 @@ export default function Productos() {
     { value: "Inactivo", label: "Inactivos" }
   ];
 
+  const opcionesFiltroCategoria = [
+  { value: "", label: "Todas" },
+  { value: "Playeras", label: "Playeras" },
+  { value: "Blusas", label: "Blusas" },
+  { value: "Camisas", label: "Camisas" },
+  { value: "Suéteres", label: "Suéteres" },
+  { value: "Sudaderas", label: "Sudaderas" },
+  { value: "Chamarras", label: "Chamarras" },
+  { value: "Abrigos", label: "Abrigos" },
+  { value: "Vestidos", label: "Vestidos" },
+  { value: "Faldas", label: "Faldas" },
+  { value: "Shorts", label: "Shorts" },
+  { value: "Pantalones", label: "Pantalones" },
+  { value: "Calzado", label: "Calzado" },
+  { value: "Accesorios", label: "Accesorios" },
+];
+
   const encabezadosProductos = [
     "Sku", "Nombre", "Departamento", "Categoría", "Precio", "Stock", "Estado", "Acciones"
   ];
@@ -77,12 +94,15 @@ export default function Productos() {
 
   useEffect(() => {
     setPaginaActiva(1);
-  }, [filtro, busqueda]);
+  }, [filtro, filtroCategoria, busqueda]);
 
   const datosFiltrados = productosDB
     .filter((row) => {
       const estadoString = row.activo !== false ? "Activo" : "Inactivo";
       return filtro === "" || estadoString === filtro;
+    })
+    .filter((row) => {
+      return filtroCategoria === "" || row.categoria === filtroCategoria;
     })
     .filter((row) => (
       busqueda === "" || 
@@ -283,9 +303,20 @@ export default function Productos() {
       </div>
 
       <ToolBar 
-        filtro={filtro} setFiltro={setFiltro} opcionesFiltro={opcionesFiltroProductos}
-        busqueda={busqueda} setBusqueda={setBusqueda}
-        placeholderBuscar="Buscar por SKU, nombre..." textoBoton="+ Producto"
+        filtro={filtro} 
+        setFiltro={setFiltro} 
+        opcionesFiltro={opcionesFiltroProductos}
+        placeholderFiltro="Estado"
+
+        filtro2={filtroCategoria}
+        setFiltro2={setFiltroCategoria}
+        opcionesFiltro2={opcionesFiltroCategoria}
+        placeholderFiltro2="Categoría"
+
+        busqueda={busqueda} 
+        setBusqueda={setBusqueda}
+        placeholderBuscar="Buscar por SKU, nombre..." 
+        textoBoton="+ Producto"
         accionBoton={handleNuevoProducto}
       />
 
@@ -354,43 +385,45 @@ export default function Productos() {
         }))}
       />
 
-      {/* MODALES */}
-      <Modal isOpen={isModalVerAbierto} onClose={() => setIsModalVerAbierto(false)} ancho="max-w-4xl">
-        {productoSeleccionado && (
-          <ModalProductos 
-            data={productoSeleccionado} 
-            onEdit={() => handleEditarProducto(productoSeleccionado)}
-            onDelete={() => handleEliminarProducto(productoSeleccionado.id)}
-          />
-        )}
-      </Modal>
+    {/* Modales */}
+      <ModalProductos 
+        isOpen={isModalVerAbierto} 
+        onClose={() => setIsModalVerAbierto(false)}
+        data={productoSeleccionado} 
+        onEdit={() => handleEditarProducto(productoSeleccionado)}
+        onDelete={() => handleEliminarProducto(productoSeleccionado.id)}
+      />
 
-      <Modal isOpen={isModalFormAbierto} onClose={() => !guardando && setIsModalFormAbierto(false)} ancho="max-w-3xl">
-        <div className="relative">
+      {isModalFormAbierto && (
+        <>
           {guardando && (
-            <div className="absolute inset-0 bg-oscuro/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-2xl">
+            <div className="fixed inset-0 bg-oscuro/50 backdrop-blur-sm z-110 flex flex-col items-center justify-center">
               <i className="bi bi-arrow-repeat animate-spin text-4xl text-lila mb-2"></i>
               <p className="text-blanco font-bold">Guardando producto...</p>
             </div>
           )}
+          
           <FormProducto 
+            isOpen={true} // Siempre en true porque lo controla el condicional de arriba
             data={productoAEditar} 
             onGuardar={handleGuardarProducto}
             onCancelar={() => setIsModalFormAbierto(false)}
           />
-        </div>
-      </Modal>
-
-      {modalConf.isOpen && (
-        <ModalConfirmacion
-          tipo={modalConf.tipo}
-          titulo={modalConf.titulo}
-          mensaje={modalConf.mensaje}
-          textoConfirmar={modalConf.textoConfirmar}
-          onConfirmar={modalConf.onConfirmar}
-          onCancelar={() => setModalConf({ ...modalConf, isOpen: false })}
-        />
+        </>
       )}
+
+      <ModalConfirmacion
+        isOpen={modalConf.isOpen}
+        tipo={modalConf.tipo}
+        titulo={modalConf.titulo}
+        mensaje={modalConf.mensaje}
+        textoConfirmar={modalConf.textoConfirmar || "Aceptar"}
+        onConfirmar={() => {
+          if (modalConf.onConfirmar) modalConf.onConfirmar();
+          else setModalConf({ ...modalConf, isOpen: false }); 
+        }}
+        onCancelar={() => setModalConf({ ...modalConf, isOpen: false })}
+      />
 
     </div>
   );
