@@ -61,7 +61,8 @@ function ImagenVistaRapida({ producto }) {
 }
 
 export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) {
-  const tallasDisponibles = producto.inventario.filter((i) => i.stock > 0);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0);
   const [tallaSeleccionada, setTallaSeleccionada] = useState(
     tallasDisponibles[0]?.talla || ""
   );
@@ -69,7 +70,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
 
   const agotado = producto.stock === 0;
 
-  const stockTallaActual = tallasDisponibles.find((i) => i.talla === tallaSeleccionada)?.stock ?? 0;
+  const stockTallaActual = todasLasTallas.find((i) => i.talla === tallaSeleccionada)?.stock ?? 0;
 
   const handleSeleccionarTalla = (talla) => {
     setTallaSeleccionada(talla);
@@ -121,25 +122,38 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
           </p>
 
           {/* Selector de talla */}
-          {!agotado && tallasDisponibles.length > 0 && (
+          {todasLasTallas.length > 0 && (
             <div className="mt-5">
               <p className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold mb-2">
                 Talla
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {tallasDisponibles.map((item) => (
-                  <button
-                    key={item.talla}
-                    onClick={() => handleSeleccionarTalla(item.talla)}
-                    className={`min-w-[44px] h-10 px-3 rounded-lg text-sm font-bold border-2 transition-all ${
-                      tallaSeleccionada === item.talla
-                        ? "bg-lila text-oscuro border-lila"
-                        : "bg-transparent text-blanco border-lila/20 hover:border-lila"
-                    }`}
-                  >
-                    {item.talla}
-                  </button>
-                ))}
+                {todasLasTallas.map((item) => {
+                  const sinStock = item.stock === 0;
+                  const seleccionada = tallaSeleccionada === item.talla;
+                  return (
+                    <button
+                      key={item.talla}
+                      onClick={() => !sinStock && handleSeleccionarTalla(item.talla)}
+                      disabled={sinStock}
+                      title={sinStock ? "Sin stock" : undefined}
+                      className={`relative min-w-[44px] h-10 px-3 rounded-lg text-sm font-bold border-2 transition-all
+                        ${sinStock
+                          ? "border-lila/10 text-lila/25 cursor-not-allowed bg-transparent"
+                          : seleccionada
+                            ? "bg-lila text-oscuro border-lila"
+                            : "bg-transparent text-blanco border-lila/20 hover:border-lila"
+                        }`}
+                    >
+                      {item.talla}
+                      {sinStock && (
+                        <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="w-full h-px bg-lila/25 absolute rotate-45" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

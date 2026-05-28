@@ -54,9 +54,8 @@ function ImagenProducto({ producto, className = "" }) {
 
 // Vista en lista
 function TarjetaLista({ producto, onVistaRapida }) {
-  const tallasDisponibles = producto.inventario
-    .filter((i) => i.stock > 0)
-    .map((i) => i.talla);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
   const agotado = producto.stock === 0;
 
   return (
@@ -81,9 +80,17 @@ function TarjetaLista({ producto, onVistaRapida }) {
         <p className="text-xl font-extrabold text-lila tabular-nums">
           ${Number(producto.precioVenta).toLocaleString("es-MX")}
         </p>
-        {tallasDisponibles.length > 0 && (
-          <p className="text-xs text-lila-soft">
-            Tallas: {tallasDisponibles.join(" · ")}
+        {todasLasTallas.length > 0 && (
+          <p className="text-xs text-lila-soft flex flex-wrap gap-x-1.5">
+            Tallas:{" "}
+            {todasLasTallas.map((item) => (
+              <span
+                key={item.talla}
+                className={item.stock === 0 ? "line-through opacity-30" : ""}
+              >
+                {item.talla}
+              </span>
+            ))}
           </p>
         )}
         <div className="mt-auto pt-3">
@@ -102,9 +109,8 @@ function TarjetaLista({ producto, onVistaRapida }) {
 
 // Vista en grid
 function TarjetaGrid({ producto, onVistaRapida }) {
-  const tallasDisponibles = producto.inventario
-    .filter((i) => i.stock > 0)
-    .map((i) => i.talla);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
   const agotado = producto.stock === 0;
 
   return (
@@ -146,9 +152,16 @@ function TarjetaGrid({ producto, onVistaRapida }) {
         <p className="text-base font-extrabold text-lila tabular-nums mt-1">
           ${Number(producto.precioVenta).toLocaleString("es-MX")}
         </p>
-        {tallasDisponibles.length > 0 && (
-          <p className="text-[10px] text-lila-soft mt-1 truncate">
-            {tallasDisponibles.join(" · ")}
+        {todasLasTallas.length > 0 && (
+          <p className="text-[10px] text-lila-soft mt-1 flex flex-wrap gap-x-1.5">
+            {todasLasTallas.map((item) => (
+              <span
+                key={item.talla}
+                className={item.stock === 0 ? "line-through opacity-30" : ""}
+              >
+                {item.talla}
+              </span>
+            ))}
           </p>
         )}
       </div>

@@ -11,28 +11,54 @@ const datosIniciales = {
   numTarjeta: "", nombreTarjeta: "", expiracion: "", cvv: "",
 };
 
-export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado }) {
+export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, usuario }) {
+  const nombreCompleto = usuario ? `${usuario.nombre ?? ""} ${usuario.apellido ?? ""}`.trim() : "";
+
   const [paso, setPaso]       = useState(1);
-  const [datos, setDatos]     = useState(datosIniciales);
+  const [datos, setDatos]     = useState({
+    ...datosIniciales,
+    nombre: nombreCompleto,
+    email:  usuario?.email ?? "",
+  });
   const [numeroPedido]        = useState(generarNumeroPedido);
   const [enviando, setEnviando]   = useState(false);
   const [errorPago, setErrorPago] = useState("");
   const [erroresEnvio, setErroresEnvio] = useState({});
+  const [erroresPago, setErroresPago]   = useState({});
 
   const setDato = (key, value) => setDatos((d) => ({ ...d, [key]: value }));
 
   const validarPaso1 = () => {
     const errs = {};
-    if (!datos.nombre.trim())  errs.nombre = "El nombre es obligatorio";
-    if (!datos.email.trim())   errs.email  = "El email es obligatorio";
-    if (!datos.calle.trim())   errs.calle  = "La dirección es obligatoria";
-    if (!datos.cp.trim())      errs.cp     = "El código postal es obligatorio";
-    if (!datos.ciudad.trim())  errs.ciudad = "La ciudad es obligatoria";
+    if (!datos.nombre.trim())              errs.nombre = "El nombre es obligatorio";
+    if (!datos.email.trim())               errs.email  = "El email es obligatorio";
+    if (!datos.calle.trim())               errs.calle  = "La dirección es obligatoria";
+    if (!/^\d{5}$/.test(datos.cp.trim()))  errs.cp     = "El código postal debe ser de 5 dígitos";
+    if (!datos.ciudad.trim())              errs.ciudad = "La ciudad es obligatoria";
     setErroresEnvio(errs);
     return Object.keys(errs).length === 0;
   };
 
+  const validarPaso2 = () => {
+    if (datos.metodoPago !== "tarjeta") return true;
+    const errs = {};
+    const num = datos.numTarjeta.replace(/\s/g, "");
+    if (!num || !/^\d{16}$/.test(num))          errs.numTarjeta    = "Número de tarjeta inválido (16 dígitos)";
+    if (!datos.nombreTarjeta.trim())             errs.nombreTarjeta = "El nombre es obligatorio";
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(datos.expiracion)) {
+      errs.expiracion = "Formato inválido (MM/AA)";
+    } else {
+      const [mes, anio] = datos.expiracion.split("/");
+      const exp = new Date(2000 + Number(anio), Number(mes) - 1, 1);
+      if (exp < new Date()) errs.expiracion = "La tarjeta está vencida";
+    }
+    if (!/^\d{3,4}$/.test(datos.cvv))           errs.cvv           = "CVV inválido";
+    setErroresPago(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const confirmarPago = async () => {
+    if (!validarPaso2()) return;
     setErrorPago("");
     setEnviando(true);
     try {
@@ -125,22 +151,17 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado })
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Nombre completo</span>
                   <input
                     value={datos.nombre}
-                    onChange={(e) => { setDato("nombre", e.target.value); setErroresEnvio((p) => ({ ...p, nombre: "" })); }}
-                    placeholder="María González"
-                    className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.nombre ? "border-rojo" : "border-lila/20"}`}
+                    readOnly
+                    className="mt-1.5 w-full bg-lila/5 text-lila-soft border border-lila/10 rounded-xl px-4 py-3 text-sm cursor-not-allowed"
                   />
-                  {erroresEnvio.nombre && <p className="mt-1 text-xs text-rojo">{erroresEnvio.nombre}</p>}
                 </label>
                 <label className="block">
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Email</span>
                   <input
-                    type="email"
                     value={datos.email}
-                    onChange={(e) => { setDato("email", e.target.value); setErroresEnvio((p) => ({ ...p, email: "" })); }}
-                    placeholder="tu@email.com"
-                    className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresEnvio.email ? "border-rojo" : "border-lila/20"}`}
+                    readOnly
+                    className="mt-1.5 w-full bg-lila/5 text-lila-soft border border-lila/10 rounded-xl px-4 py-3 text-sm cursor-not-allowed"
                   />
-                  {erroresEnvio.email && <p className="mt-1 text-xs text-rojo">{erroresEnvio.email}</p>}
                 </label>
                 <label className="block">
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Dirección de envío</span>
@@ -210,38 +231,45 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado })
                       <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Número de tarjeta</span>
                       <input
                         value={datos.numTarjeta}
-                        onChange={(e) => setDato("numTarjeta", e.target.value)}
+                        onChange={(e) => { setDato("numTarjeta", e.target.value); setErroresPago((p) => ({ ...p, numTarjeta: "" })); }}
                         placeholder="4242 4242 4242 4242"
-                        className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                        maxLength={19}
+                        className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresPago.numTarjeta ? "border-rojo" : "border-lila/20"}`}
                       />
+                      {erroresPago.numTarjeta && <p className="mt-1 text-xs text-rojo">{erroresPago.numTarjeta}</p>}
                     </label>
                     <label className="block">
                       <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Nombre en la tarjeta</span>
                       <input
                         value={datos.nombreTarjeta}
-                        onChange={(e) => setDato("nombreTarjeta", e.target.value)}
+                        onChange={(e) => { setDato("nombreTarjeta", e.target.value); setErroresPago((p) => ({ ...p, nombreTarjeta: "" })); }}
                         placeholder="MARIA GONZALEZ"
-                        className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                        className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresPago.nombreTarjeta ? "border-rojo" : "border-lila/20"}`}
                       />
+                      {erroresPago.nombreTarjeta && <p className="mt-1 text-xs text-rojo">{erroresPago.nombreTarjeta}</p>}
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
                         <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Vencimiento</span>
                         <input
                           value={datos.expiracion}
-                          onChange={(e) => setDato("expiracion", e.target.value)}
+                          onChange={(e) => { setDato("expiracion", e.target.value); setErroresPago((p) => ({ ...p, expiracion: "" })); }}
                           placeholder="MM/AA"
-                          className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                          maxLength={5}
+                          className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresPago.expiracion ? "border-rojo" : "border-lila/20"}`}
                         />
+                        {erroresPago.expiracion && <p className="mt-1 text-xs text-rojo">{erroresPago.expiracion}</p>}
                       </label>
                       <label className="block">
                         <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">CVV</span>
                         <input
                           value={datos.cvv}
-                          onChange={(e) => setDato("cvv", e.target.value)}
+                          onChange={(e) => { setDato("cvv", e.target.value); setErroresPago((p) => ({ ...p, cvv: "" })); }}
                           placeholder="123"
-                          className="mt-1.5 w-full bg-bg-card text-lila border border-lila/20 rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30"
+                          maxLength={4}
+                          className={`mt-1.5 w-full bg-bg-card text-lila border rounded-xl px-4 py-3 text-sm outline-none focus:border-lila hover:border-lila/40 transition placeholder-lila/30 ${erroresPago.cvv ? "border-rojo" : "border-lila/20"}`}
                         />
+                        {erroresPago.cvv && <p className="mt-1 text-xs text-rojo">{erroresPago.cvv}</p>}
                       </label>
                     </div>
                   </>

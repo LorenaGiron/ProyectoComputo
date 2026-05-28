@@ -12,6 +12,7 @@ import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
 import VistaRapida from "../components/tienda/VistaRapida";
 import SeccionCarrito from "../components/tienda/SeccionCarrito";
 import ModalCheckout from "../components/tienda/ModalCheckout";
+import ToastTienda from "../components/tienda/ToastTienda";
 import { api } from "../services/api";
 import { productosSimulados } from "../components/tienda/datosSimulados";
 import useTitulo from "../hooks/useTitulo";
@@ -43,6 +44,7 @@ export default function Tienda() {
   );
   const [carritoAbierto, setCarritoAbierto]     = useState(false);
   const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
+  const [toast, setToast]                       = useState(null);
 
   useEffect(() => {
     localStorage.setItem(claveCarrito, JSON.stringify(carrito));
@@ -57,15 +59,28 @@ export default function Tienda() {
 
   const agregarAlCarrito = (producto, { talla, cantidad = 1 }) => {
     const stockTalla = producto.inventario?.find((i) => i.talla === talla)?.stock ?? 0;
+    const existe = carrito.find((i) => i.producto.id === producto.id && i.talla === talla);
+    const cantidadEnCarrito = existe ? existe.cantidad : 0;
+
+    if (stockTalla === 0) {
+      setToast({
+        tipo: "error",
+        titulo: "Talla agotada",
+        mensaje: `La talla ${talla} de "${producto.nombre}" ya no tiene stock disponible.`,
+      });
+      return;
+    }
+
+    if (cantidadEnCarrito + cantidad > stockTalla) {
+      setToast({
+        tipo: "error",
+        titulo: "Sin unidades disponibles",
+        mensaje: `Solo hay ${stockTalla} unidad${stockTalla === 1 ? "" : "es"} disponible${stockTalla === 1 ? "" : "s"} de talla ${talla}.`,
+      });
+      return;
+    }
 
     setCarrito((prev) => {
-      const existe = prev.find((i) => i.producto.id === producto.id && i.talla === talla);
-      const cantidadEnCarrito = existe ? existe.cantidad : 0;
-
-      if (cantidadEnCarrito + cantidad > stockTalla) {
-        return prev;
-      }
-
       if (existe) {
         return prev.map((i) =>
           i.producto.id === producto.id && i.talla === talla
@@ -75,7 +90,13 @@ export default function Tienda() {
       }
       return [...prev, { producto, talla, cantidad }];
     });
-    setCarritoAbierto(true);
+
+    setToast({
+      tipo: "exito",
+      titulo: "Agregado al carrito",
+      mensaje: `${producto.nombre} · Talla ${talla} × ${cantidad}`,
+      accion: { label: "Ver carrito", onClick: () => setCarritoAbierto(true) },
+    });
   };
 
   const cambiarCantidad = (productoId, talla, nuevaCantidad) => {
@@ -290,10 +311,13 @@ export default function Tienda() {
         />
       )}
 
+      <ToastTienda toast={toast} onCerrar={() => setToast(null)} />
+
       {checkoutAbierto && (
         <ModalCheckout
           onCerrar={() => setCheckoutAbierto(false)}
           carrito={carrito}
+          usuario={usuario}
           onPedidoConfirmado={() => { setCarrito([]); localStorage.removeItem(claveCarrito); }}
         />
       )}
