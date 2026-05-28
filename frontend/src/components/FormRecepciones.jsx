@@ -15,12 +15,13 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   const [guardando, setGuardando]                     = useState(false);
   const [error, setError]                             = useState("");
   const [confirmarDescartar, setConfirmarDescartar]   = useState(false);
+  const [folioSiguiente, setFolioSiguiente]           = useState("");
 
   const [form, setForm] = useState({
     supplierId:     row.supplierId     || "",
     supplierNombre: row.supplierNombre || "",
     folio:          row.folio          || "",
-    fecha:          row.fecha          || new Date().toLocaleDateString("es-MX"),
+    fecha:          (row.fecha ? row.fecha.split("T")[0] : new Date().toISOString().split("T")[0]),
     comentarios:    row.comentarios    || "",
     status:         row.status         || "DRAFT",
     items:          row.items.map((i) => ({ ...i })),
@@ -35,7 +36,10 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   useEffect(() => {
     api.get("/suppliers?limit=100").then((res) => setSuppliers(res.items)).catch(console.error);
     api.get("/products?limit=100&activo=true").then((res) => setProducts(res.items)).catch(console.error);
-  }, []);
+    if (esNuevo) {
+      api.get("/recepciones/next-folio").then((res) => setFolioSiguiente(res.folio)).catch(console.error);
+    }
+  }, [esNuevo]);
 
   // Manejador general para inputs simples
   const handleChange = (e) => {
@@ -108,7 +112,6 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   const handleGuardar = async () => {
     setError("");
     if (!form.supplierId) return setError("Selecciona un proveedor.");
-    if (!form.folio)      return setError("El folio es requerido.");
     if (form.items.some((i) => !i.productId)) return setError("Todos los items deben tener un producto seleccionado.");
 
     const body = {
@@ -191,19 +194,25 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
               onChange={handleSupplierChange} 
             />
             
-            <Input 
-              label="Folio" 
-              name="folio" 
-              value={form.folio} 
-              deshabilitado={!esNuevo}
-              onChange={handleChange} 
-            />
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-soft mb-1">
+                Folio
+              </label>
+              <div className={`
+                w-full rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors
+                bg-lila/5 border-morado/10 text-morado/60
+                dark:bg-lila/5 dark:border-lila/10 dark:text-lila/50
+              `}>
+                {esNuevo ? (folioSiguiente || "Cargando...") : form.folio}
+              </div>
+            </div>
             
-            <Input 
-              label="Fecha" 
-              name="fecha" 
-              value={form.fecha} 
-              onChange={handleChange} 
+            <Input
+              label="Fecha"
+              name="fecha"
+              tipo="date"
+              value={form.fecha}
+              onChange={handleChange}
             />
             
             <Input 
@@ -374,6 +383,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
       {/* Modal confirmación descartar */}
       {confirmarDescartar && (
         <ModalConfirmacion
+          isOpen={true}
           tipo="confirmar"
           titulo="¿Seguro que quieres descartar los cambios?"
           mensaje="Los cambios no guardados se perderán."

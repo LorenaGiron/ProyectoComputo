@@ -14,6 +14,19 @@ function round2(value) {
 }
 
 export class RecepcionesService {
+  async getNextFolio() {
+    const all = await recepcionesRepository.findAll()
+    const numeros = all
+      .map((r) => {
+        const match = String(r.folio || '').match(/^RCP-(\d+)$/)
+        return match ? parseInt(match[1], 10) : 0
+      })
+      .filter((n) => n > 0)
+
+    const siguiente = numeros.length > 0 ? Math.max(...numeros) + 1 : 1
+    return `RCP-${String(siguiente).padStart(3, '0')}`
+  }
+
   async list(query) {
     const {
       q = '',
@@ -85,7 +98,9 @@ export class RecepcionesService {
   }
 
   async create(payload, currentUser = null) {
-    const existingByFolio = await recepcionesRepository.findByFolio(payload.folio)
+    const folio = payload.folio?.trim() || await this.getNextFolio()
+
+    const existingByFolio = await recepcionesRepository.findByFolio(folio)
 
     if (existingByFolio) {
       const error = new Error('El folio de la recepción ya existe')
@@ -134,7 +149,7 @@ export class RecepcionesService {
       supplierId: supplier.id,
       supplierNombre: supplier.nombre || '',
       fecha: payload.fecha,
-      folio: payload.folio.trim(),
+      folio,
       comentarios: normalizeOptionalText(payload.comentarios) || '',
       status: 'DRAFT',
       items,

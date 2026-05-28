@@ -310,6 +310,7 @@ export default function Ventas() {
 
         {ventaCancelando && (
           <ModalConfirmacion
+            isOpen={true}
             tipo="eliminar"
             titulo="¿Cancelar esta venta?"
             mensaje={`La venta de ${ventaCancelando.cliente?.nombre} por ${formatMoney(ventaCancelando.total)} será marcada como cancelada.`}
@@ -321,6 +322,7 @@ export default function Ventas() {
 
         {modalExito && (
           <ModalConfirmacion
+            isOpen={true}
             tipo="exito"
             titulo={modalExito}
             onCancelar={() => setModalExito("")}

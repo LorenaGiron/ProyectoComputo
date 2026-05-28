@@ -22,6 +22,13 @@ router.get(
 )
 
 router.get(
+  '/next-folio',
+  authenticate,
+  requirePermissions(['recepciones:create']),
+  asyncHandler(recepcionesController.nextFolio.bind(recepcionesController))
+)
+
+router.get(
   '/:id',
   authenticate,
   requirePermissions(['recepciones:read']),
