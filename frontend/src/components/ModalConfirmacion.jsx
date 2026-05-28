@@ -72,7 +72,7 @@ export default function ModalConfirmacion({
   return (
     <div
       className={`
-        fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300
+        fixed inset-0 z-120 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300
         bg-oscuro/40
         dark:bg-black/60
       `}
@@ -116,7 +116,7 @@ export default function ModalConfirmacion({
 
         {mensaje && (
           <p className={`
-            font-baskervville text-sm leading-relaxed mb-6 transition-colors
+            font-poppins text-md leading-relaxed mb-6 transition-colors
             text-morado/80
             dark:text-lila/80
           `}>
@@ -129,7 +129,7 @@ export default function ModalConfirmacion({
             <Boton
               variante="secundario"
               onClick={onCancelar}
-              className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs"
+              className="flex-1 font-poppins h-11 uppercase tracking-widest text-xs transition-colors"
             >
               {textoCancelar}
             </Boton>
@@ -138,7 +138,7 @@ export default function ModalConfirmacion({
               <button
                 onClick={onConfirmar}
                 className={`
-                  flex-1 h-11 bg-transparent font-baskervville text-xs tracking-widest uppercase transition-colors rounded-lg cursor-pointer
+                  flex-1 h-11 bg-transparent font-poppins text-xs tracking-widest uppercase transition-colors rounded-lg cursor-pointer
                   border border-rojo/60 text-rojo hover:bg-rojo hover:text-blanco
                 `}
               >
@@ -148,7 +148,7 @@ export default function ModalConfirmacion({
               <Boton
                 variante="claro"
                 onClick={onConfirmar}
-                className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs"
+                className="flex-1 font-poppins h-11 uppercase tracking-widest text-xs"
               >
                 {textoConfirmar}
               </Boton>
