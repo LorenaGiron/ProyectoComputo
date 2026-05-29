@@ -10,6 +10,7 @@ const booleanLike = z.union([
 
 const recepcionItemSchema = z.object({
   productId: z.string({ required_error: 'El productId es obligatorio' }).min(1, 'El productId es obligatorio'),
+  talla: z.string().optional(),
   cantidad: z.coerce.number().positive('La cantidad debe ser mayor a 0'),
   costoUnitario: z.coerce.number().min(0, 'El costo unitario no puede ser negativo')
 })
@@ -29,7 +30,7 @@ export const recepcionIdParamSchema = z.object({
 export const createRecepcionSchema = z.object({
   supplierId: z.string({ required_error: 'El supplierId es obligatorio' }).min(1, 'El supplierId es obligatorio'),
   fecha: z.string({ required_error: 'La fecha es obligatoria' }).min(1, 'La fecha es obligatoria'),
-  folio: z.string({ required_error: 'El folio es obligatorio' }).min(2, 'El folio debe tener al menos 2 caracteres'),
+  folio: z.union([z.string().min(2, 'El folio debe tener al menos 2 caracteres'), z.literal(''), z.undefined()]).optional(),
   comentarios: z.string().optional().nullable(),
   items: z.array(recepcionItemSchema).min(1, 'Debes agregar al menos una partida')
 })

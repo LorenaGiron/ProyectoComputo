@@ -12,7 +12,8 @@ export default function GraficaVentas({ data }) {
   const ticks = [0, 0.33, 0.66, 1].map((t) => Math.round(max * t));
 
   return (
-    <div className="w-full h-40 relative">
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[600px] h-40 relative">
       <svg className="w-full h-full" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <defs>
           {/* Gradiente Modo Claro */}
@@ -74,6 +75,7 @@ export default function GraficaVentas({ data }) {
           <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="4" fill="#E7D6FF" />
         </g>
       </svg>
+      </div>
     </div>
   );
 }

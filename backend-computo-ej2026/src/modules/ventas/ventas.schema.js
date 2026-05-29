@@ -6,6 +6,7 @@ const METODOS_PAGO = ['tarjeta', 'oxxo', 'spei']
 const itemVentaSchema = z.object({
   productoId:     z.string().min(1, 'El id del producto es obligatorio'),
   nombre:         z.string().min(1, 'El nombre del producto es obligatorio'),
+  imagen:         z.string().optional().default(''),
   talla:          z.string().min(1, 'La talla es obligatoria'),
   cantidad:       z.coerce.number().int().min(1, 'La cantidad debe ser al menos 1'),
   precioUnitario: z.coerce.number().min(0, 'El precio no puede ser negativo'),

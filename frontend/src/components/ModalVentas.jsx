@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Etiquetas from "./Etiquetas";
 import Boton from "./Boton";
-import Input from "./Input"; 
+import Input from "./Input";
+import { generarTicket } from "../utils/generarTicket";
 
 const formatFecha = (iso) => {
   if (!iso) return "—";
@@ -124,11 +125,14 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
                   dark:bg-bg-card dark:border-lila/10 dark:shadow-none
                 `}>
                   <div className={`
-                    w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors
-                    bg-lila-pastel text-morado
-                    dark:bg-lila/10 dark:text-lila
+                    w-9 h-9 rounded-lg shrink-0 overflow-hidden border transition-colors
+                    bg-lila-pastel border-morado/20
+                    dark:bg-lila/10 dark:border-lila/20
                   `}>
-                    <i className="bi bi-box" />
+                    {item.imagen
+                      ? <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-morado dark:text-lila"><i className="bi bi-box" /></div>
+                    }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate transition-colors text-oscuro dark:text-blanco`}>
@@ -223,7 +227,17 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
           border-morado/10 bg-blanco/50
           dark:border-lila/10 dark:bg-transparent
         `}>
-          <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => generarTicket(venta)}
+              className={`
+                rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border
+                text-morado border-morado/30 bg-morado/10 hover:bg-morado hover:text-blanco
+                dark:text-lila dark:border-lila/30 dark:bg-lila/10 dark:hover:bg-lila dark:hover:text-oscuro
+              `}
+            >
+              <i className="bi bi-download mr-1" />Descargar ticket
+            </button>
             {puedeActualizar && venta.estado !== "cancelado" && (
               <button
                 onClick={() => onCancelar(venta)}

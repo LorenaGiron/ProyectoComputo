@@ -11,38 +11,22 @@ function formatMoney(n) {
 }
 
 export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
-  const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState("");
-  const [confirmarDescartar, setConfirmarDescartar] = useState(false);
+  const [suppliers, setSuppliers]                     = useState([]);
+  const [products, setProducts]                       = useState([]);
+  const [guardando, setGuardando]                     = useState(false);
+  const [error, setError]                             = useState("");
+  const [confirmarDescartar, setConfirmarDescartar]   = useState(false);
+  const [folioSiguiente, setFolioSiguiente]           = useState("");
 
-  const estadoInicial = {
-    supplierId: row?.supplierId || "",
-    supplierNombre: row?.supplierNombre || "",
-    folio: row?.folio || "",
-    fecha: row?.fecha || new Date().toLocaleDateString("es-MX"),
-    comentarios: row?.comentarios || "",
-    status: row?.status || "DRAFT",
-    items: row?.items ? row.items.map((i) => ({ ...i })) : [],
-  };
-
-  const [form, setForm] = useState(estadoInicial);
-  
-  const [estadoOriginal] = useState(JSON.stringify(estadoInicial));
-
-  const productosDelProveedor = form.supplierId 
-    ? products.filter(p => p.supplierId === form.supplierId)
-    : [];
-
-  const handleIntentarCerrar = () => {
-    const estadoActual = JSON.stringify(form);
-    if (estadoActual !== estadoOriginal) {
-      setConfirmarDescartar(true);
-    } else {
-      onClose();
-    }
-  };
+  const [form, setForm] = useState({
+    supplierId:     row.supplierId     || "",
+    supplierNombre: row.supplierNombre || "",
+    folio:          row.folio          || "",
+    fecha:          (row.fecha ? row.fecha.split("T")[0] : new Date().toISOString().split("T")[0]),
+    comentarios:    row.comentarios    || "",
+    status:         row.status         || "DRAFT",
+    items:          row.items.map((i) => ({ ...i })),
+  });
 
   useEffect(() => {
     const handleKeyDown = (e) => { 
@@ -55,9 +39,12 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   }, [confirmarDescartar, form, estadoOriginal, onClose]); 
 
   useEffect(() => {
-    api.get("/suppliers?limit=100").then((res) => setSuppliers(res.items || res)).catch(console.error);
-    api.get("/products?limit=100&activo=true").then((res) => setProducts(res.items || res)).catch(console.error);
-  }, []);
+    api.get("/suppliers?limit=100").then((res) => setSuppliers(res.items)).catch(console.error);
+    api.get("/products?limit=100&activo=true").then((res) => setProducts(res.items)).catch(console.error);
+    if (esNuevo) {
+      api.get("/recepciones/next-folio").then((res) => setFolioSiguiente(res.folio)).catch(console.error);
+    }
+  }, [esNuevo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,20 +71,31 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
         if (i !== idx) return item;
         const costoUnitario = prod ? prod.precioCompra : 0;
         const cantidad = item.cantidad || 1;
-        return { 
-          ...item, 
-          productId: prod ? prod.id : "", 
-          sku: prod?.sku || "", 
-          productNombre: nombreSeleccionado, 
-          imagen: prod?.imagen || "", 
-          costoUnitario, 
-          subtotal: cantidad * costoUnitario 
+        return {
+          ...item,
+          productId: prod ? prod.id : "",
+          sku: prod?.sku || "",
+          productNombre: nombreSeleccionado,
+          imagen: prod?.imagen || "",
+          talla: "",
+          costoUnitario,
+          subtotal: cantidad * costoUnitario
         };
       });
       return { ...prev, items };
     });
   };
 
+  const handleTallaChange = (idx, talla) => {
+    setForm((prev) => {
+      const items = prev.items.map((item, i) =>
+        i !== idx ? item : { ...item, talla }
+      );
+      return { ...prev, items };
+    });
+  };
+
+  // Manejador para Cantidad y Costo de los items
   const handleItemChange = (idx, e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -119,7 +117,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
     setError("");
     setForm((prev) => ({
       ...prev,
-      items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
+      items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", talla: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
     }));
   };
 
@@ -131,16 +129,30 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
 
   const handleGuardar = async () => {
     setError("");
-    if (!form.supplierId) return setError("Selecciona un proveedor.");
-    if (!form.folio) return setError("El folio es requerido.");
-    if (form.items.length === 0) return setError("Debes agregar al menos un item a la recepción.");
-    if (form.items.some((i) => !i.productId)) return setError("Todos los items deben tener un producto seleccionado.");
+    if (!form.supplierId)  return setError("Selecciona un proveedor.");
+    if (!form.fecha)       return setError("La fecha es obligatoria.");
+
+    if (form.items.some((i) => !i.productId))
+      return setError("Todos los items deben tener un producto seleccionado.");
+
+    if (form.items.some((i) => !i.cantidad || i.cantidad <= 0))
+      return setError("La cantidad de cada item debe ser mayor a 0.");
+
+    if (form.items.some((i) => i.costoUnitario < 0))
+      return setError("El costo unitario no puede ser negativo.");
+
+    const itemSinTalla = form.items.find((i) => {
+      const prod = products.find((p) => p.id === i.productId);
+      return prod?.inventario?.length > 0 && !i.talla;
+    });
+    if (itemSinTalla) return setError(`Selecciona una talla para "${itemSinTalla.productNombre}".`);
 
     const body = {
       supplierId: form.supplierId, supplierNombre: form.supplierNombre,
       fecha: form.fecha, folio: form.folio, comentarios: form.comentarios || "",
       items: form.items.map((item) => ({
         productId: item.productId, sku: item.sku, productNombre: item.productNombre,
+        talla: item.talla || undefined,
         cantidad: item.cantidad, costoUnitario: item.costoUnitario, subtotal: item.subtotal,
       })),
       status: form.status,
@@ -207,23 +219,34 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {/* Información General */}
+          <div className="px-6 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
             <Input 
               label="Proveedor" name="supplierNombre" tipo="select" 
               opciones={suppliers.map(s => s.nombre)} 
               value={form.supplierNombre} onChange={handleSupplierChange} 
             />
             
-            <Input 
-              label="Folio" name="folio" value={form.folio} 
-              deshabilitado={!esNuevo} onChange={handleChange} 
-            />
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-soft mb-1">
+                Folio
+              </label>
+              <div className={`
+                w-full rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors
+                bg-lila/5 border-morado/10 text-morado/60
+                dark:bg-lila/5 dark:border-lila/10 dark:text-lila/50
+              `}>
+                {esNuevo ? (folioSiguiente || "Cargando...") : form.folio}
+              </div>
+            </div>
             
-            <Input 
-              label="Fecha" 
-              name="fecha" 
-              value={form.fecha} 
-              deshabilitado={true}
+            <Input
+              label="Fecha"
+              name="fecha"
+              tipo="date"
+              value={form.fecha}
+              onChange={handleChange}
             />
             
             <Input 
@@ -308,16 +331,46 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
                     )}
                   </div>
                   
-                  <div className="mb-4">
-                    <Input 
-                      label="Producto" name="productNombre" tipo="select"
-                      opciones={productosDelProveedor.map(p => p.nombre)}
+                  <div className="mb-3">
+                    <Input
+                      label="Producto"
+                      name="productNombre"
+                      tipo="select"
+                      opciones={products.map(p => p.nombre)}
                       value={item.productNombre}
                       onChange={(e) => handleProductChange(i, e)}
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                  {/* Selector de talla */}
+                  {(() => {
+                    const prod = products.find(p => p.id === item.productId);
+                    const tallas = prod?.inventario?.map(t => t.talla) ?? [];
+                    if (tallas.length === 0) return null;
+                    return (
+                      <div className="mb-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-soft mb-1">Talla</p>
+                        <div className="flex flex-wrap gap-2">
+                          {tallas.map((t) => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => handleTallaChange(i, t)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all
+                                ${item.talla === t
+                                  ? "bg-morado text-blanco border-morado dark:bg-lila dark:border-lila dark:text-oscuro"
+                                  : "border-morado/20 text-morado dark:border-lila/20 dark:text-lila hover:border-morado dark:hover:border-lila"
+                                }`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Input 
                       label="Cantidad" name="cantidad" tipo="number" 
                       value={item.cantidad} onChange={(e) => handleItemChange(i, e)} 

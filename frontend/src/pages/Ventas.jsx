@@ -188,7 +188,7 @@ export default function Ventas() {
           bg-blanco border-morado/20
           dark:bg-bg-card dark:border-lila/10
         `}>
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
             <div>
               <p className={`text-sm transition-colors text-morado/80 dark:text-lila-soft`}>
                 Tendencia · últimos 30 días
@@ -310,6 +310,7 @@ export default function Ventas() {
 
         {ventaCancelando && (
           <ModalConfirmacion
+            isOpen={true}
             tipo="eliminar"
             titulo="¿Cancelar esta venta?"
             mensaje={`La venta de ${ventaCancelando.cliente?.nombre} por ${formatMoney(ventaCancelando.total)} será marcada como cancelada.`}
@@ -321,6 +322,7 @@ export default function Ventas() {
 
         {modalExito && (
           <ModalConfirmacion
+            isOpen={true}
             tipo="exito"
             titulo={modalExito}
             onCancelar={() => setModalExito("")}
