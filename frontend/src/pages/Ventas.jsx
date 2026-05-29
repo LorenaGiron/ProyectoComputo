@@ -188,7 +188,7 @@ export default function Ventas() {
           bg-blanco border-morado/20
           dark:bg-bg-card dark:border-lila/10
         `}>
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
             <div>
               <p className={`text-sm transition-colors text-morado/80 dark:text-lila-soft`}>
                 Tendencia · últimos 30 días

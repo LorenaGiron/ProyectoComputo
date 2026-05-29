@@ -68,6 +68,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
         items:      carrito.map((i) => ({
           productoId:     i.producto.id,
           nombre:         i.producto.nombre,
+          imagen:         i.producto.imagen || "",
           talla:          i.talla,
           cantidad:       i.cantidad,
           precioUnitario: i.producto.precioVenta,
@@ -99,10 +100,10 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
         className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-oscuro border border-lila/20 rounded-3xl shadow-2xl"
       >
         {/* Encabezado */}
-        <div className="px-7 pt-6 pb-3 border-b border-lila/10 flex items-center justify-between">
+        <div className="px-4 sm:px-7 pt-6 pb-3 border-b border-lila/10 flex items-center justify-between">
           <div>
             <p className="text-[11px] tracking-[3px] text-lila-mid uppercase font-bold">Checkout</p>
-            <h2 className="mt-0.5 text-2xl font-extrabold text-blanco">Confirma tu pedido</h2>
+            <h2 className="mt-0.5 text-xl sm:text-2xl font-extrabold text-blanco">Confirma tu pedido</h2>
           </div>
           <button
             onClick={onCerrar}
@@ -113,7 +114,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
         </div>
 
         {/* Stepper */}
-        <div className="px-7 py-5 flex items-center gap-3">
+        <div className="px-4 sm:px-7 py-5 flex items-center gap-3">
           {pasos.map((label, i) => {
             const n      = i + 1;
             const activo = n === paso;
@@ -139,7 +140,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
         </div>
 
         {/* Contenido */}
-        <div className="grid md:grid-cols-[1fr_300px] gap-6 px-7 pb-7">
+        <div className="grid md:grid-cols-[1fr_300px] gap-6 px-4 sm:px-7 pb-7">
 
           {/* Formulario */}
           <div>
@@ -203,7 +204,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
               <div className="flex flex-col gap-3">
                 <div>
                   <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Método de pago</span>
-                  <div className="grid grid-cols-3 gap-2 mt-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-1.5">
                     {[
                       { v: "tarjeta", l: "Tarjeta",      i: "bi-credit-card" },
                       { v: "oxxo",    l: "OXXO Pay",     i: "bi-shop"        },
@@ -248,7 +249,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
                       />
                       {erroresPago.nombreTarjeta && <p className="mt-1 text-xs text-rojo">{erroresPago.nombreTarjeta}</p>}
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <label className="block">
                         <span className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold">Vencimiento</span>
                         <input
@@ -367,7 +368,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
 
         {/* Navegación entre pasos */}
         {paso < 3 && (
-          <div className="px-7 py-4 border-t border-lila/10 flex flex-col gap-2">
+          <div className="px-4 sm:px-7 py-4 border-t border-lila/10 flex flex-col gap-2">
             {errorPago && (
               <p className="text-center text-xs text-rojo font-semibold">
                 <i className="bi bi-exclamation-circle me-1" />{errorPago}
@@ -397,7 +398,7 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
         )}
 
         {paso === 3 && (
-          <div className="px-7 py-4 border-t border-lila/10 text-center">
+          <div className="px-4 sm:px-7 py-4 border-t border-lila/10 text-center">
             <button
               onClick={() => { onPedidoConfirmado(); onCerrar(); }}
               className="bg-lila text-oscuro font-bold px-7 py-3 rounded-xl hover:bg-lila-soft transition"

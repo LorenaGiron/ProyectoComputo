@@ -125,11 +125,14 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
                   dark:bg-bg-card dark:border-lila/10 dark:shadow-none
                 `}>
                   <div className={`
-                    w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors
-                    bg-lila-pastel text-morado
-                    dark:bg-lila/10 dark:text-lila
+                    w-9 h-9 rounded-lg shrink-0 overflow-hidden border transition-colors
+                    bg-lila-pastel border-morado/20
+                    dark:bg-lila/10 dark:border-lila/20
                   `}>
-                    <i className="bi bi-box" />
+                    {item.imagen
+                      ? <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center text-morado dark:text-lila"><i className="bi bi-box" /></div>
+                    }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold truncate transition-colors text-oscuro dark:text-blanco`}>

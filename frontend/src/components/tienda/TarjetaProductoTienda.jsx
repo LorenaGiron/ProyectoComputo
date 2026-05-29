@@ -129,8 +129,8 @@ function TarjetaGrid({ producto, onVistaRapida }) {
           </div>
         )}
 
-        {/* Botón ver detalle al hover */}
-        <div className="absolute left-3 right-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+        {/* Botón ver detalle — siempre visible en móvil, hover en desktop */}
+        <div className="absolute left-3 right-3 bottom-3 md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all">
           <button
             onClick={() => onVistaRapida(producto)}
             className="w-full bg-oscuro/90 backdrop-blur text-blanco text-xs font-bold py-2 rounded-lg hover:bg-oscuro transition"

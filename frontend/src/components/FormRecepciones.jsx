@@ -121,8 +121,23 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
 
   const handleGuardar = async () => {
     setError("");
-    if (!form.supplierId) return setError("Selecciona un proveedor.");
-    if (form.items.some((i) => !i.productId)) return setError("Todos los items deben tener un producto seleccionado.");
+    if (!form.supplierId)  return setError("Selecciona un proveedor.");
+    if (!form.fecha)       return setError("La fecha es obligatoria.");
+
+    if (form.items.some((i) => !i.productId))
+      return setError("Todos los items deben tener un producto seleccionado.");
+
+    if (form.items.some((i) => !i.cantidad || i.cantidad <= 0))
+      return setError("La cantidad de cada item debe ser mayor a 0.");
+
+    if (form.items.some((i) => i.costoUnitario < 0))
+      return setError("El costo unitario no puede ser negativo.");
+
+    const itemSinTalla = form.items.find((i) => {
+      const prod = products.find((p) => p.id === i.productId);
+      return prod?.inventario?.length > 0 && !i.talla;
+    });
+    if (itemSinTalla) return setError(`Selecciona una talla para "${itemSinTalla.productNombre}".`);
 
     const body = {
       supplierId: form.supplierId, supplierNombre: form.supplierNombre,
@@ -194,7 +209,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
           </div>
 
           {/* Información General */}
-          <div className="px-6 pb-4 grid grid-cols-2 gap-4">
+          <div className="px-6 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             <Input 
               label="Proveedor" 
@@ -355,7 +370,7 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
                     );
                   })()}
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Input 
                       label="Cantidad" 
                       name="cantidad" 

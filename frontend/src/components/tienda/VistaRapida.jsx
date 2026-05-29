@@ -102,7 +102,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
         </button>
 
         {/* Imagen */}
-        <div className="relative min-h-[320px] md:min-h-[480px] rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none overflow-hidden">
+        <div className="relative min-h-[220px] sm:min-h-[320px] md:min-h-[480px] rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none overflow-hidden">
           <ImagenVistaRapida producto={producto} />
         </div>
 
@@ -117,7 +117,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
           <p className="mt-1 text-xs text-text-muted">SKU: {producto.sku}</p>
 
           {/* Precio */}
-          <p className="mt-4 text-3xl font-extrabold text-lila tabular-nums">
+          <p className="mt-4 text-2xl md:text-3xl font-extrabold text-lila tabular-nums">
             ${Number(producto.precioVenta).toLocaleString("es-MX")}
           </p>
 
@@ -196,7 +196,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
           </button>
 
           {/* Beneficios */}
-          <div className="mt-5 grid grid-cols-2 gap-2">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {beneficios.map((b) => (
               <div key={b.texto} className="flex items-center gap-2 text-xs text-lila-soft">
                 <i className={`bi ${b.icono} text-lila`} />
