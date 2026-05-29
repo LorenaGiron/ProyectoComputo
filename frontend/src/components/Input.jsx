@@ -10,7 +10,8 @@ export default function Input({
   opciones = [], 
   requerido = false,
   deshabilitado = false, 
-  className = ""
+  className = "",
+  abrirHaciaArriba = false 
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -81,9 +82,10 @@ export default function Input({
 
           {isDropdownOpen && !deshabilitado && (
             <ul className={`
-              absolute top-full left-0 mt-2 w-full max-h-48 overflow-y-auto rounded-lg shadow-xl z-50 py-1 scrollbar-hide border transition-colors
+              absolute left-0 w-full max-h-48 overflow-y-auto rounded-lg shadow-xl z-50 py-1 scrollbar-hide border transition-colors
               bg-blanco border-morado/20
               dark:bg-bg-card dark:border-lila/20
+              ${abrirHaciaArriba ? "bottom-full mb-2" : "top-full mt-2"} /* ✨ MAGIA: Controlamos la dirección aquí */
             `}>
               {opciones.map((opcion, i) => (
                 <li

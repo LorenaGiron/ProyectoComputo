@@ -1,46 +1,51 @@
-/**
- * Componente que genera un avatar con iniciales del usuario
- * y un color consistente basado en el ID
- */
-export default function AvatarUser({ nombre = "", apellido = "", userId = "" }) {
+export default function AvatarUser({ nombre = "", apellido = "", rol = "", size = "md" }) {
   // Generar iniciales
   const getInitials = () => {
     const n = (nombre || "").charAt(0).toUpperCase();
     const a = (apellido || "").charAt(0).toUpperCase();
-    return `${n}${a}`.slice(0, 2) || "?";
+    return `${n}${a}`.slice(0, 2) || "US";
   };
 
-  // Generar color consistente basado en userId
-  const getColorBg = () => {
-    if (!userId) return "bg-lila";
-    
-    // Array de colores disponibles
-    const colores = [
-      "bg-red-500",
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-yellow-500",
-      "bg-purple-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-      "bg-cyan-500",
-      "bg-lime-500",
-      "bg-orange-500",
-    ];
+  // Colores según el rol
+  const getColorClass = () => {
+    const rolNormalizado = (rol || "").toUpperCase();
 
-    // Usar el hash del userId para seleccionar un color consistente
-    let hash = 0;
-    for (let i = 0; i < userId.length; i++) {
-      hash = ((hash << 5) - hash) + userId.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
+    switch (rolNormalizado) {
+      case "ADMIN":
+      case "ROLE_ADMIN":
+        return "bg-morado/20 text-morado border-morado/40 dark:bg-morado/30 dark:text-lila-soft dark:border-morado/50";
+      
+      case "GERENTE":
+        return "bg-azul/30 text-azul border-azul/50 dark:bg-azul/20 dark:border-azul/30";
+      
+      case "BODEGUERO":
+        return "bg-amarillo/40 text-amarillo border-amarillo/60 dark:bg-amarillo/20 dark:text-amarillo dark:border-amarillo/30";
+      
+      case "VENDEDOR":
+        return "bg-naranja/30 text-naranja border-naranja/50 dark:bg-naranja/20 dark:text-naranja dark:border-naranja/30";
+      
+      case "CLIENTE":
+        return "bg-rosa/30 text-rosa border-rosa/50 dark:bg-rosa/20 dark:text-rosa dark:border-rosa/30";
+      
+      default:
+        return "bg-lila-soft/40 text-morado border-lila-soft/60 dark:bg-lila-soft/20 dark:text-lila-soft dark:border-lila-soft/30";
     }
-    
-    const colorIndex = Math.abs(hash) % colores.length;
-    return colores[colorIndex];
+  };
+
+  const sizeClasses = {
+    sm: "w-8 h-8 text-xs",
+    md: "w-10 h-10 text-sm",
+    xl: "w-24 h-24 text-3xl" 
   };
 
   return (
-    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${getColorBg()} text-white font-semibold text-sm`}>
+    <div 
+      className={`
+        flex items-center justify-center rounded-full font-bold transition-colors shrink-0 border
+        ${sizeClasses[size] || sizeClasses.md} 
+        ${getColorClass()}
+      `}
+    >
       {getInitials()}
     </div>
   );
