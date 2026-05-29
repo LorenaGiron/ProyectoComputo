@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { api } from "../services/api";
-import { X, Package } from "lucide-react";
+import { Package } from "lucide-react";
 import ModalConfirmacion from "./ModalConfirmacion";
+import Modal from "./Modal";
 import Input from "./Input";
 import Boton from "./Boton";
 
@@ -28,10 +29,14 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   });
 
   useEffect(() => {
-    const h = (e) => { if (e.key === "Escape") setConfirmarDescartar(true); };
-    document.addEventListener("keydown", h);
-    return () => document.removeEventListener("keydown", h);
-  }, []);
+    const handleKeyDown = (e) => { 
+      if (e.key === "Escape" && !confirmarDescartar) {
+        handleIntentarCerrar();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [confirmarDescartar, form, estadoOriginal, onClose]); 
 
   useEffect(() => {
     api.get("/suppliers?limit=100").then((res) => setSuppliers(res.items)).catch(console.error);
@@ -41,27 +46,25 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
     }
   }, [esNuevo]);
 
-  // Manejador general para inputs simples
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Manejador para el select de Proveedor
   const handleSupplierChange = (e) => {
     const nombreSeleccionado = e.target.value;
     const sup = suppliers.find((s) => s.nombre === nombreSeleccionado);
     setForm((p) => ({ 
       ...p, 
       supplierNombre: nombreSeleccionado,
-      supplierId: sup ? sup.id : "" 
+      supplierId: sup ? sup.id : "",
+      items: [] 
     }));
   };
 
-  // Manejador para el select de Productos en los items
   const handleProductChange = (idx, e) => {
     const nombreSeleccionado = e.target.value;
-    const prod = products.find((p) => p.nombre === nombreSeleccionado);
+    const prod = productosDelProveedor.find((p) => p.nombre === nombreSeleccionado);
     
     setForm((prev) => {
       const items = prev.items.map((item, i) => {
@@ -107,6 +110,11 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
   };
 
   const agregarItem = () => {
+    if (!form.supplierId) {
+      setError("Primero debes seleccionar un proveedor para agregar items.");
+      return;
+    }
+    setError("");
     setForm((prev) => ({
       ...prev,
       items: [...prev.items, { productId: "", sku: "", productNombre: "", imagen: "", talla: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],
@@ -153,9 +161,9 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
     setGuardando(true);
     try {
       if (esNuevo) await api.post("/recepciones", body);
-      else         await api.patch(`/recepciones/${row.id}`, body);
-      onGuardar();
-      onClose();
+      else await api.patch(`/recepciones/${row.id}`, body);
+      onGuardar(); 
+      onClose(); 
     } catch (e) {
       setError(e.message || "Ocurrió un error al guardar.");
     } finally {
@@ -163,61 +171,61 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
     }
   };
 
+  const footerAcciones = (
+    <div className="flex justify-end gap-3 w-full">
+      <Boton 
+        variante="secundario" 
+        onClick={handleIntentarCerrar} 
+        disabled={guardando} 
+        tipo="button"
+      >
+        Cancelar
+      </Boton>
+      
+      <Boton 
+        variante="claro" 
+        onClick={handleGuardar} 
+        disabled={guardando} 
+        tipo="button"
+      >
+        <i className="bi bi-save"></i> {guardando ? "Guardando..." : esNuevo ? "Crear recepción" : "Guardar cambios"}
+      </Boton>
+    </div>
+  );
+
   return (
     <>
-      <div 
-        className={`
-          fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300
-          bg-oscuro/40
-          dark:bg-black/60
-        `}
-        onClick={() => setConfirmarDescartar(true)}
-      >
-        <div 
-          className={`
-            relative w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto border transition-colors duration-300
-            bg-lila-pastel border-morado/20 text-oscuro
-            dark:bg-bg-card dark:border-lila/20 dark:text-blanco
-          `}
-          onClick={(e) => e.stopPropagation()}
-        >
-
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className={`
-                px-4 py-1.5 rounded-full text-xs font-bold transition-colors
-                bg-morado text-blanco
-                dark:bg-lila/20 dark:text-lila
-              `}>
-                {esNuevo ? "NUEVO" : row.folio}
-              </span>
-              <h2 className="text-lg font-extrabold">
-                {esNuevo ? "Nueva Recepción" : "Editar Recepción"}
-              </h2>
-            </div>
-            <button 
-              onClick={() => setConfirmarDescartar(true)}
-              className={`
-                w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer
-                text-morado/60 hover:text-morado hover:bg-morado/10
-                dark:text-lila-soft dark:hover:text-blanco dark:hover:bg-lila/10
-              `}
-            >
-              <X size={16} />
-            </button>
+      <Modal 
+        isOpen={true} 
+        onClose={handleIntentarCerrar}
+        titulo={
+          <div className="flex items-center gap-3">
+            <span className="px-4 py-1.5 rounded-full text-xs font-bold transition-colors bg-morado text-blanco dark:bg-lila/20 dark:text-lila">
+              {esNuevo ? "NUEVO" : form.folio}
+            </span>
+            <span className="text-xl font-extrabold m-0">
+              {esNuevo ? "Nueva Recepción" : "Editar Recepción"}
+            </span>
           </div>
+        } 
+        ancho="max-w-3xl"
+        footer={footerAcciones}
+      >
+        <div className="font-poppins pt-4">
+
+          {error && (
+            <div className="mb-6 px-4 py-3 rounded-xl text-sm font-semibold border bg-rojo/10 text-rojo border-rojo/20">
+              <i className="bi bi-exclamation-triangle-fill mr-2"></i>{error}
+            </div>
+          )}
 
           {/* Información General */}
           <div className="px-6 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             <Input 
-              label="Proveedor" 
-              name="supplierNombre" 
-              tipo="select" 
+              label="Proveedor" name="supplierNombre" tipo="select" 
               opciones={suppliers.map(s => s.nombre)} 
-              value={form.supplierNombre} 
-              onChange={handleSupplierChange} 
+              value={form.supplierNombre} onChange={handleSupplierChange} 
             />
             
             <div>
@@ -242,51 +250,43 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
             />
             
             <Input 
-              label="Estado" 
-              name="status" 
-              tipo="select" 
-              opciones={["DRAFT", "CONFIRMED"]} 
-              value={form.status} 
-              onChange={handleChange} 
+              label="Estado" name="status" tipo="select" 
+              opciones={["DRAFT", "CONFIRMADO"]} 
+              value={form.status} onChange={handleChange} 
             />
             
-            <div className="col-span-2">
+            <div className="md:col-span-2">
               <Input 
-                label="Comentarios" 
-                name="comentarios" 
-                tipo="textarea" 
-                value={form.comentarios} 
-                onChange={handleChange} 
+                label="Comentarios" name="comentarios" tipo="textarea" 
+                value={form.comentarios} onChange={handleChange} 
               />
             </div>
             
-            <div className="col-span-2">
+            <div className="md:col-span-2">
               <div className={`
-                w-full rounded-xl px-4 py-2 text-center border transition-colors shadow-sm
+                w-full rounded-xl px-4 py-3 text-center border transition-colors shadow-sm
                 bg-blanco border-morado/20
                 dark:bg-oscuro/40 dark:border-lila/20 dark:shadow-none
               `}>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-mid mb-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-mid mb-1">
                   Total calculado
                 </p>
-                <p className="text-lg font-extrabold text-verde">
+                <p className="text-2xl font-extrabold text-verde">
                   {formatMoney(totalCalculado)}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Items */}
-          <div className="px-6 pb-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-morado dark:text-lila-mid">
-                Items
+          <div>
+            <div className="flex items-center justify-between mb-4 border-b border-morado/10 dark:border-lila/10 pb-2">
+              <p className="text-sm font-bold uppercase tracking-wider text-morado dark:text-lila">
+                Items de Recepción
               </p>
               <button 
-                onClick={agregarItem}
-                type="button"
+                onClick={agregarItem} type="button"
                 className={`
-                  px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1
+                  px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1
                   bg-morado/10 text-morado hover:bg-morado/20
                   dark:bg-lila/20 dark:text-lila dark:hover:bg-lila/30
                 `}
@@ -305,28 +305,28 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
                     dark:bg-oscuro/40 dark:border-lila/20 dark:shadow-none
                   `}
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
                       <div className={`
-                        w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border transition-colors
+                        w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border transition-colors
                         bg-lila/10 border-morado/20 text-morado
                         dark:bg-lila/5 dark:border-lila/20 dark:text-lila-mid
                       `}>
                         {item.imagen
                           ? <img src={item.imagen} alt={item.productNombre} className="w-full h-full object-cover" />
-                          : <Package size={15} />}
+                          : <Package size={18} />}
                       </div>
-                      <span className="text-xs font-bold transition-colors text-morado dark:text-lila">
+                      <span className="text-sm font-bold transition-colors text-morado dark:text-lila">
                         Item {i + 1}
                       </span>
                     </div>
                     {form.items.length > 1 && (
                       <button 
                         onClick={() => eliminarItem(i)}
-                        className="text-xs transition-opacity hover:opacity-70 cursor-pointer text-rojo"
+                        className="text-sm transition-opacity opacity-70 hover:opacity-100 cursor-pointer text-rojo"
                         title="Eliminar Item"
                       >
-                        <i className="bi bi-trash text-base" />
+                        <i className="bi bi-trash" /> Eliminar
                       </button>
                     )}
                   </div>
@@ -372,79 +372,47 @@ export default function FormRecepciones({ row, esNuevo, onClose, onGuardar }) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Input 
-                      label="Cantidad" 
-                      name="cantidad" 
-                      tipo="number" 
-                      value={item.cantidad} 
-                      onChange={(e) => handleItemChange(i, e)} 
+                      label="Cantidad" name="cantidad" tipo="number" 
+                      value={item.cantidad} onChange={(e) => handleItemChange(i, e)} 
                     />
                     <Input 
-                      label="Costo unit." 
-                      name="costoUnitario" 
-                      tipo="number" 
-                      value={item.costoUnitario} 
-                      onChange={(e) => handleItemChange(i, e)} 
+                      label="Costo unit." name="costoUnitario" tipo="number" 
+                      value={item.costoUnitario} onChange={(e) => handleItemChange(i, e)} 
                     />
                     <Input 
-                      label="Subtotal" 
-                      name="subtotal" 
-                      value={formatMoney(item.subtotal)} 
-                      deshabilitado={true} 
+                      label="Subtotal" name="subtotal" 
+                      value={formatMoney(item.subtotal)} deshabilitado={true} 
                     />
                   </div>
                 </div>
               ))}
+              
+              {form.items.length === 0 && (
+                <div className="text-center py-8 text-gris dark:text-lila-soft italic text-sm border-2 border-dashed border-morado/20 dark:border-lila/20 rounded-xl">
+                  {form.supplierId 
+                    ? 'No hay items en esta recepción. Haz clic en "Agregar item" para empezar.'
+                    : 'Selecciona un proveedor para poder agregar items.'}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Errores */}
-          {error && (
-            <div className={`
-              mx-6 mb-4 px-4 py-2 rounded-xl text-sm font-semibold border
-              bg-rojo/10 text-rojo border-rojo/20
-            `}>
-              {error}
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className={`
-            px-6 py-4 flex justify-end gap-3 border-t transition-colors
-            border-morado/20 bg-blanco/50
-            dark:border-lila/20 dark:bg-transparent
-          `}>
-            <Boton 
-              variante="secundario" 
-              onClick={() => setConfirmarDescartar(true)} 
-              disabled={guardando} 
-              tipo="button"
-            >
-              Cancelar
-            </Boton>
-            
-            <Boton 
-              variante="claro" 
-              onClick={handleGuardar} 
-              disabled={guardando} 
-              tipo="button"
-            >
-              <i className="bi bi-save"></i> {guardando ? "Guardando..." : esNuevo ? "Crear recepción" : "Guardar cambios"}
-            </Boton>
-          </div>
         </div>
-      </div>
+      </Modal>
 
-      {/* Modal confirmación descartar */}
       {confirmarDescartar && (
         <ModalConfirmacion
           isOpen={true}
           tipo="confirmar"
-          titulo="¿Seguro que quieres descartar los cambios?"
-          mensaje="Los cambios no guardados se perderán."
+          titulo="¿Descartar cambios?"
+          mensaje="Los cambios no guardados se perderán. ¿Deseas salir de todas formas?"
           textoConfirmar="Descartar"
           textoCancelar="Seguir editando"
-          onConfirmar={onClose}
-          onCancelar={() => setConfirmarDescartar(false)}
+          onConfirmar={() => {
+            setConfirmarDescartar(false);
+            onClose(); 
+          }}
+          onCancelar={() => setConfirmarDescartar(false)} 
         />
       )}
     </>

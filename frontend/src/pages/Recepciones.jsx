@@ -262,8 +262,10 @@ export default function Recepciones() {
 
       </div>
 
+      {/* Modales */}
       {rowSeleccionada && (
         <ModalRecepciones
+          isOpen={true} 
           row={rowSeleccionada}
           onClose={() => setRowSeleccionada(null)}
           onConfirmar={handleConfirmar}
@@ -274,6 +276,7 @@ export default function Recepciones() {
 
       {rowEditando && (
         <FormRecepciones
+          isOpen={true} 
           row={rowEditando}
           esNuevo={false}
           onClose={() => setRowEditando(null)}
@@ -283,6 +286,7 @@ export default function Recepciones() {
 
       {mostrarNueva && (
         <FormRecepciones
+          isOpen={true} 
           row={plantillaNueva}
           esNuevo={true}
           onClose={() => setMostrarNueva(false)}
