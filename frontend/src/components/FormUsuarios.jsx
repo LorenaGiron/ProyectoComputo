@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { canPerformAction } from "../utils/permissionMapper";
+import Modal from "./Modal";
 import Input from "./Input";
 import Boton from "./Boton";
+import ModalConfirmacion from "./ModalConfirmacion";
 
-export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogeado, esNuevo = false, rolesDisponibles: rolesDispProp = [] }) {
+export default function FormUsuarios({ data, onGuardar, onClose, usuarioLogeado, esNuevo = false, rolesDisponibles: rolesDispProp = [], isOpen = true }) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -15,74 +17,68 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
   });
 
   const [errores, setErrores] = useState({});
+  const [confirmarDescartar, setConfirmarDescartar] = useState(false);
+  const [estadoOriginal, setEstadoOriginal] = useState("");
 
-  // Determinar roles disponibles según permisos o prop recibida
   const getRolesDisponibles = () => {
-    // Si recibimos roles como prop desde el padre (Usuarios.jsx)
     if (rolesDispProp && rolesDispProp.length > 0) {
-      // Extraer identificadores de roles, excluyendo CLIENTE
       return rolesDispProp
         .filter(rol => {
-          // Filtrar según permisos del usuario actual
           const esAdmin = usuarioLogeado?.roleId === "role_admin" || usuarioLogeado?.roleId === "ADMIN";
-          
           const rolId = rol.id || rol.nombre;
           if (rolId === "CLIENTE") return false;
           if (!esAdmin && rolId === "GERENTE") return false;
           return true;
         })
-        .map(rol => ({
-          id: rol.id || rol.nombre,
-          nombre: rol.nombre || rol.id
-        }));
+        .map(rol => ({ id: rol.id || rol.nombre, nombre: rol.nombre || rol.id }));
     }
 
-    // Fallback: roles hardcodeados según permisos
     const rolesBase = ["BODEGUERO", "VENDEDOR"];
+    const esAdmin = canPerformAction(usuarioLogeado?.permissions, 'roles', 'create') || usuarioLogeado?.roleId === "role_admin";
+    const esGerente = canPerformAction(usuarioLogeado?.permissions, 'users', 'create') || usuarioLogeado?.roleId === "GERENTE";
     
-    const esAdmin = canPerformAction(usuarioLogeado?.permissions, 'roles', 'create')
-      || usuarioLogeado?.roleId === "role_admin";
-    
-    const esGerente = canPerformAction(usuarioLogeado?.permissions, 'users', 'create')
-      || usuarioLogeado?.roleId === "GERENTE";
-    
-    if (esAdmin) {
-      return [
-        { id: "GERENTE", nombre: "GERENTE" },
-        { id: "BODEGUERO", nombre: "BODEGUERO" },
-        { id: "VENDEDOR", nombre: "VENDEDOR" }
-      ];
-    }
-    if (esGerente) {
-      return rolesBase.map(r => ({ id: r, nombre: r }));
-    }
+    if (esAdmin) return [{ id: "GERENTE", nombre: "GERENTE" }, { id: "BODEGUERO", nombre: "BODEGUERO" }, { id: "VENDEDOR", nombre: "VENDEDOR" }];
+    if (esGerente) return rolesBase.map(r => ({ id: r, nombre: r }));
     return [];
   };
 
+  const rolesOpciones = getRolesDisponibles();
+
   useEffect(() => {
-    if (data) {
-      setFormData({
-        nombre: data.nombre || "",
-        apellido: data.apellido || "",
-        email: data.email || "",
-        usuario: data.usuario || "",
-        password: "",
-        roleId: data.roleId || data.role || "VENDEDOR",
-        activo: data.activo !== false
-      });
-    } else {
-      setFormData({
-        nombre: "",
-        apellido: "",
-        email: "",
-        usuario: "",
-        password: "",
-        roleId: "VENDEDOR",
-        activo: true
-      });
-    }
+    const inicial = {
+      nombre: data?.nombre || "",
+      apellido: data?.apellido || "",
+      email: data?.email || "",
+      usuario: data?.usuario || "",
+      password: "", // Siempre vacío al iniciar
+      roleId: data?.roleId || data?.role || "VENDEDOR",
+      activo: data ? data.activo !== false : true
+    };
+    
+    setFormData(inicial);
+    setEstadoOriginal(JSON.stringify(inicial));
     setErrores({});
   }, [data]);
+
+  const handleIntentarCerrar = () => {
+    const estadoActual = JSON.stringify(formData);
+    
+    if (estadoActual !== estadoOriginal) {
+      setConfirmarDescartar(true);
+    } else {
+      if (typeof onClose === 'function') onClose();
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => { 
+      if (e.key === "Escape" && isOpen && !confirmarDescartar) {
+        handleIntentarCerrar();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, confirmarDescartar, formData, estadoOriginal, onClose]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -90,11 +86,11 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
       ...prev,
       [name]: type === "checkbox" ? checked : value
     }));
+    if (errores[name]) setErrores(prev => ({ ...prev, [name]: null }));
   };
 
   const validar = () => {
     const nuevosErrores = {};
-
     if (!formData.nombre.trim()) nuevosErrores.nombre = "El nombre es requerido";
     if (!formData.apellido.trim()) nuevosErrores.apellido = "El apellido es requerido";
     if (!formData.email.trim()) nuevosErrores.email = "El email es requerido";
@@ -108,195 +104,173 @@ export default function FormUsuarios({ data, onGuardar, onCancelar, usuarioLogea
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleGuardarClick = (e) => {
     e.preventDefault();
     if (validar()) {
-      onGuardar(formData);
+      const datosAEnviar = { ...formData };
+      
+      if (!esNuevo && !datosAEnviar.password) {
+        delete datosAEnviar.password;
+      }
+      
+      onGuardar(datosAEnviar);
     }
   };
 
-  const rolesOpciones = getRolesDisponibles();
   const puedeEditar = usuarioLogeado?.roleId === "role_admin" || usuarioLogeado?.roleId === "GERENTE";
 
   if (!puedeEditar && !esNuevo) {
     return (
-      <div className="p-6 text-center text-lila-soft">
-        <p>No tienes permisos para editar usuarios</p>
-      </div>
+      <Modal isOpen={isOpen} onClose={onClose} ancho="max-w-md" titulo={<span className="text-xl font-bold text-morado dark:text-blanco block m-0">Acceso Denegado</span>}>
+        <div className="p-6 text-center text-gris dark:text-lila-soft">
+          <i className="bi bi-shield-lock text-4xl mb-3 block text-rojo"></i>
+          <p>No tienes permisos suficientes para editar perfiles de usuario.</p>
+          <Boton className="mt-6 w-full flex justify-center" onClick={onClose}>Entendido</Boton>
+        </div>
+      </Modal>
     );
   }
 
-  return (
-    <div className="p-4 md:p-6 text-blanco font-poppins">
-      <div className="mb-6 border-b border-lila/20 pb-4">
-        <h2 className="text-2xl font-bold text-blanco">
-          {esNuevo ? "Crear Usuario" : "Editar Usuario"}
-        </h2>
-      </div>
+  const tituloPersonalizado = (
+    <span className="text-xl font-bold uppercase tracking-widest transition-colors text-morado dark:text-blanco m-0 block">
+      {esNuevo ? "Crear Usuario" : "Editar Usuario"}
+    </span>
+  );
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Datos Personales */}
-        <div className="mb-6">
-          <p className="text-xs font-bold text-lila-soft mb-4 uppercase tracking-wider">
-            Datos Personales
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-lila mb-2">Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 bg-oscuro border rounded-lg text-blanco outline-none transition-all ${
-                  errores.nombre ? "border-error-text" : "border-lila/20 focus:border-lila"
-                }`}
-                placeholder="María"
-              />
-              {errores.nombre && <span className="text-error-text text-xs mt-1">{errores.nombre}</span>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-lila mb-2">Apellido</label>
-              <input
-                type="text"
-                name="apellido"
-                value={formData.apellido}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 bg-oscuro border rounded-lg text-blanco outline-none transition-all ${
-                  errores.apellido ? "border-error-text" : "border-lila/20 focus:border-lila"
-                }`}
-                placeholder="López"
-              />
-              {errores.apellido && <span className="text-error-text text-xs mt-1">{errores.apellido}</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* Contacto */}
-        <div className="mb-6">
-          <p className="text-xs font-bold text-lila-soft mb-4 uppercase tracking-wider">
-            Contacto
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-lila mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 bg-oscuro border rounded-lg text-blanco outline-none transition-all ${
-                  errores.email ? "border-error-text" : "border-lila/20 focus:border-lila"
-                }`}
-                placeholder="maria@email.com"
-              />
-              {errores.email && <span className="text-error-text text-xs mt-1">{errores.email}</span>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-lila mb-2">Usuario</label>
-              <input
-                type="text"
-                name="usuario"
-                value={formData.usuario}
-                onChange={handleChange}
-                disabled={!esNuevo}
-                className={`w-full px-3 py-2 bg-oscuro border rounded-lg text-blanco outline-none transition-all ${
-                  errores.usuario ? "border-error-text" : "border-lila/20 focus:border-lila"
-                } ${!esNuevo ? "opacity-50 cursor-not-allowed" : ""}`}
-                placeholder="m.lopez"
-              />
-              {errores.usuario && <span className="text-error-text text-xs mt-1">{errores.usuario}</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* Contraseña */}
-        <div className="mb-6">
-          <p className="text-xs font-bold text-lila-soft mb-4 uppercase tracking-wider">
-            {esNuevo ? "Contraseña" : "Cambiar Contraseña (opcional)"}
-          </p>
-
-          <div>
-            <label className="block text-sm font-semibold text-lila mb-2">
-              {esNuevo ? "Contraseña" : "Nueva Contraseña"}
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 bg-oscuro border rounded-lg text-blanco outline-none transition-all ${
-                errores.password ? "border-error-text" : "border-lila/20 focus:border-lila"
-              }`}
-              placeholder="••••••••"
-            />
-            {errores.password && <span className="text-error-text text-xs mt-1">{errores.password}</span>}
-          </div>
-        </div>
-
-        {/* Rol y Estado */}
-        <div className="mb-6">
-          <p className="text-xs font-bold text-lila-soft mb-4 uppercase tracking-wider">
-            Rol y Permisos
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-lila mb-2">Rol</label>
-              <select
-                name="roleId"
-                value={formData.roleId}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-oscuro border border-lila/20 rounded-lg text-blanco outline-none focus:border-lila transition-all"
-              >
-                {rolesOpciones.map(rol => {
-                  const rolId = typeof rol === 'object' ? rol.id : rol;
-                  const rolNombre = typeof rol === 'object' ? rol.nombre : rol;
-                  return (
-                    <option key={rolId} value={rolId}>{rolNombre}</option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="activo"
-                  checked={formData.activo}
-                  onChange={handleChange}
-                  className="w-4 h-4 rounded"
-                />
-                <span className="text-sm font-semibold text-lila">
-                  {formData.activo ? "Activo" : "Inactivo"}
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Botones */}
-        <div className="flex gap-3 justify-end pt-6 border-t border-lila/20">
-          <button
-            type="button"
-            onClick={onCancelar}
-            className="px-4 py-2 rounded-lg border border-lila/30 text-lila hover:bg-lila hover:text-oscuro transition-all font-semibold"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg bg-lila text-oscuro hover:bg-lila/80 transition-all font-semibold"
-          >
-            {esNuevo ? "Crear" : "Guardar"}
-          </button>
-        </div>
-      </form>
+  const footerAcciones = (
+    <div className="flex justify-end gap-3 w-full">
+      <Boton variante="secundario" onClick={handleIntentarCerrar} tipo="button">
+        <i className="bi bi-x-lg"></i> Cancelar
+      </Boton>
+      <Boton variante="claro" onClick={handleGuardarClick} tipo="button">
+        <i className="bi bi-save"></i> {esNuevo ? "Crear usuario" : "Guardar cambios"}
+      </Boton>
     </div>
+  );
+
+  return (
+    <>
+      <Modal 
+        isOpen={isOpen} 
+        onClose={handleIntentarCerrar} 
+        ancho="max-w-2xl"
+        titulo={tituloPersonalizado}
+        footer={footerAcciones}
+      >
+        <div className="font-poppins pt-2 pb-4">
+          
+          {Object.keys(errores).length > 0 && (
+            <div className="mb-6 px-4 py-3 rounded-xl text-sm font-semibold border bg-rojo/10 text-rojo border-rojo/20 flex items-center">
+              <i className="bi bi-exclamation-triangle-fill mr-2"></i>
+              Por favor, corrige los errores antes de continuar.
+            </div>
+          )}
+
+          <form className="flex flex-col gap-8">
+            
+            {/* Sección: Datos Personales */}
+            <div className={`
+              p-5 rounded-xl border transition-colors shadow-sm
+              bg-blanco border-morado/20
+              dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+            `}>
+              <h3 className="text-sm font-bold flex items-center gap-2 mb-4 text-morado dark:text-lila">
+                <i className="bi bi-person-vcard"></i> Datos Personales
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input label="Nombre(s)" name="nombre" value={formData.nombre} onChange={handleChange} requerido />
+                <Input label="Apellidos" name="apellido" value={formData.apellido} onChange={handleChange} requerido />
+                <div className="sm:col-span-2">
+                  <Input label="Correo Electrónico" tipo="email" name="email" value={formData.email} onChange={handleChange} placeholder="correo@empresa.com" requerido />
+                </div>
+              </div>
+            </div>
+
+            {/* Sección: Credenciales */}
+            <div className={`
+              p-5 rounded-xl border transition-colors shadow-sm
+              bg-blanco border-morado/20
+              dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+            `}>
+              <h3 className="text-sm font-bold flex items-center gap-2 mb-4 text-morado dark:text-lila">
+                <i className="bi bi-key"></i> Credenciales de Acceso
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input 
+                  label="Nombre de Usuario (Login)" 
+                  name="usuario" 
+                  value={formData.usuario} 
+                  onChange={handleChange} 
+                  deshabilitado={!esNuevo} 
+                  placeholder={!esNuevo ? "No se puede cambiar" : "m.lopez"} 
+                  requerido 
+                />
+                <Input 
+                  label={esNuevo ? "Contraseña" : "Nueva Contraseña"} 
+                  tipo="password" 
+                  name="password" 
+                  value={formData.password} 
+                  onChange={handleChange} 
+                  placeholder={esNuevo ? "••••••••" : "Opcional (Dejar en blanco para no cambiar)"} 
+                  requerido={esNuevo} 
+                />
+              </div>
+            </div>
+
+            {/* Sección: Permisos */}
+            <div className={`
+              p-5 rounded-xl border transition-colors shadow-sm
+              bg-blanco border-morado/20
+              dark:bg-oscuro/20 dark:border-lila/5 dark:shadow-none
+            `}>
+              <h3 className="text-sm font-bold flex items-center gap-2 mb-4 text-morado dark:text-lila">
+                <i className="bi bi-shield-lock"></i> Rol y Estado
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input 
+                  label="Rol en el Sistema" 
+                  name="roleId" 
+                  tipo="select"
+                  opciones={rolesOpciones.map(r => r.id)}
+                  value={formData.roleId} 
+                  onChange={handleChange} 
+                  abrirHaciaArriba={true}
+                />
+                <Input 
+                  label="Estado de la Cuenta" 
+                  name="activo" 
+                  tipo="select"
+                  opciones={["Activo", "Inactivo"]}
+                  value={formData.activo ? "Activo" : "Inactivo"} 
+                  onChange={(e) => handleChange({ target: { name: 'activo', type: 'checkbox', checked: e.target.value === "Activo" } })} 
+                  abrirHaciaArriba={true}
+                />
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </Modal>
+
+      {confirmarDescartar && (
+        <ModalConfirmacion
+          isOpen={true}
+          tipo="confirmar"
+          titulo="¿Descartar cambios?"
+          mensaje="Los cambios no guardados se perderán. ¿Deseas salir de todas formas?"
+          textoConfirmar="Descartar"
+          textoCancelar="Seguir editando"
+          onConfirmar={(e) => {
+            if (e) e.preventDefault();
+            setConfirmarDescartar(false);
+            if (typeof onClose === 'function') onClose();
+          }}
+          onCancelar={(e) => {
+            if (e) e.preventDefault();
+            setConfirmarDescartar(false);
+          }}
+        />
+      )}
+    </>
   );
 }
