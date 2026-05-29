@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export default function Toast({ message, type = 'error', onClose }) {
+export default function Toast({ message, type = 'exito', onClose }) {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
@@ -12,24 +12,48 @@ export default function Toast({ message, type = 'error', onClose }) {
 
   if (!message) return null;
 
-  return (
-    <div className="toast toast-top toast-center z-50 mt-4 transition-all duration-300">
-      <div 
-        className={`alert rounded-xl shadow-xl font-baskervville flex items-center gap-3 ${
-          type === 'error' 
-            ? 'bg-error-bg border border-error-text text-error-text' 
-            : 'bg-oscuro border border-lila text-lila'
-        }`}
-      >
-        {type === 'error' && (
-          <i className="bi bi-exclamation-circle text-2xl"></i>
-        )}
-        
-        {type === 'success' && (
-          <i className="bi bi-check-circle text-2xl"></i>
-        )}
+  const isError = type === 'error';
 
-        <span>{message}</span>
+  return (
+    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-200 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-none">
+      <div 
+        className={`
+          flex items-center gap-4 px-5 py-3.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border pointer-events-auto
+          font-poppins font-bold backdrop-blur-md min-w-[320px] max-w-md
+          ${isError 
+            ? 'bg-lila/40 border-morado text-rojo' 
+            : 'bg-oscuro-card border-morado/30 text-blanco' 
+          }
+        `}
+      >
+        {/* Círculo del Icono */}
+        <div className={`
+          flex items-center justify-center w-11 h-11 rounded-full shrink-0
+          ${isError 
+            ? 'bg-rojo text-blanco' 
+            : 'bg-morado/20 text-lila'
+          }
+        `}>
+          <i className={`text-xl bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-stars'}`}></i>
+        </div>
+        
+        {/* Texto informativo */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className={`text-xs uppercase tracking-[0.25em] font-bold ${isError ? 'text-blanco' : 'text-lila'}`}>
+            {isError ? 'Atención' : 'Aura System'}
+          </span>
+          <p className="text-[13px] font-medium leading-snug mt-0.5 text-blanco/90">
+            {message}
+          </p>
+        </div>
+
+        {/* Botón X para cerrar */}
+        <button 
+          onClick={onClose}
+          className="ml-2 p-1.5 rounded-xl transition-all hover:bg-white/10 text-white/40 hover:text-white"
+        >
+          <i className="bi bi-x-lg text-xs"></i>
+        </button>
       </div>
     </div>
   );
