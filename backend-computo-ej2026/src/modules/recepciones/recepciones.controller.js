@@ -1,6 +1,11 @@
 import { recepcionesService } from './recepciones.service.js'
 
 export class RecepcionesController {
+  async nextFolio(req, res) {
+    const folio = await recepcionesService.getNextFolio()
+    return res.status(200).json({ folio })
+  }
+
   async list(req, res) {
     const result = await recepcionesService.list(req.query)
 

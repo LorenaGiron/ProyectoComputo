@@ -14,6 +14,19 @@ function round2(value) {
 }
 
 export class RecepcionesService {
+  async getNextFolio() {
+    const all = await recepcionesRepository.findAll()
+    const numeros = all
+      .map((r) => {
+        const match = String(r.folio || '').match(/^RCP-(\d+)$/)
+        return match ? parseInt(match[1], 10) : 0
+      })
+      .filter((n) => n > 0)
+
+    const siguiente = numeros.length > 0 ? Math.max(...numeros) + 1 : 1
+    return `RCP-${String(siguiente).padStart(3, '0')}`
+  }
+
   async list(query) {
     const {
       q = '',
@@ -85,7 +98,9 @@ export class RecepcionesService {
   }
 
   async create(payload, currentUser = null) {
-    const existingByFolio = await recepcionesRepository.findByFolio(payload.folio)
+    const folio = payload.folio?.trim() || await this.getNextFolio()
+
+    const existingByFolio = await recepcionesRepository.findByFolio(folio)
 
     if (existingByFolio) {
       const error = new Error('El folio de la recepción ya existe')
@@ -122,6 +137,7 @@ export class RecepcionesService {
         sku: product.sku || '',
         productNombre: product.nombre || '',
         imagen: product.imagen || '',
+        talla: rawItem.talla || '',
         cantidad,
         costoUnitario,
         subtotal
@@ -134,7 +150,7 @@ export class RecepcionesService {
       supplierId: supplier.id,
       supplierNombre: supplier.nombre || '',
       fecha: payload.fecha,
-      folio: payload.folio.trim(),
+      folio,
       comentarios: normalizeOptionalText(payload.comentarios) || '',
       status: 'DRAFT',
       items,
@@ -237,6 +253,7 @@ export class RecepcionesService {
           sku: product.sku || '',
           productNombre: product.nombre || '',
           imagen: product.imagen || '',
+          talla: rawItem.talla || '',
           cantidad,
           costoUnitario,
           subtotal
@@ -303,9 +320,27 @@ export class RecepcionesService {
 
       const stockAnterior = Number(product.stock || 0)
       const cantidad = Number(item.cantidad || 0)
-      const stockNuevo = stockAnterior + cantidad
+
+      const inventario = Array.isArray(product.inventario) ? product.inventario : []
+      let updatedInventario = inventario
+
+      if (item.talla) {
+        const tallaExiste = inventario.some((e) => e.talla === item.talla)
+        if (tallaExiste) {
+          updatedInventario = inventario.map((e) =>
+            e.talla === item.talla ? { ...e, stock: Number(e.stock || 0) + cantidad } : e
+          )
+        } else {
+          updatedInventario = [...inventario, { talla: item.talla, stock: cantidad }]
+        }
+      }
+
+      const stockNuevo = item.talla
+        ? updatedInventario.reduce((sum, e) => sum + Number(e.stock || 0), 0)
+        : stockAnterior + cantidad
 
       await recepcionesRepository.updateProduct(product.id, {
+        inventario: updatedInventario,
         stock: stockNuevo,
         precioCompra: Number(item.costoUnitario || product.precioCompra || 0),
         updatedAt: new Date().toISOString()
@@ -406,6 +441,7 @@ export class RecepcionesService {
             sku: item.sku || '',
             productNombre: item.productNombre || '',
             imagen: item.imagen || '',
+            talla: item.talla || '',
             cantidad: Number(item.cantidad || 0),
             costoUnitario: Number(item.costoUnitario || 0),
             subtotal: Number(item.subtotal || 0)

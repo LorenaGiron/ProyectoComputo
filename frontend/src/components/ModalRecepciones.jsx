@@ -10,7 +10,15 @@ function formatMoney(n) {
 
 function formatDate(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-MX");
+  if (iso.includes("-")) {
+    const [year, month, day] = iso.split("T")[0].split("-");
+    return `${day}/${month}/${year}`;
+  }
+  if (iso.includes("/")) {
+    const [dia, mes, anio] = iso.split("/");
+    return `${dia.padStart(2, "0")}/${mes.padStart(2, "0")}/${anio}`;
+  }
+  return iso;
 }
 
 export default function ModalRecepciones({ 
@@ -173,6 +181,15 @@ export default function ModalRecepciones({
                   <p className="text-xs text-gris dark:text-lila-soft transition-colors truncate">
                     {item.productNombre}
                   </p>
+                  {item.talla && (
+                    <span className={`
+                      inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors
+                      bg-morado/10 text-morado border-morado/20
+                      dark:bg-lila/10 dark:text-lila dark:border-lila/20
+                    `}>
+                      Talla {item.talla}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex gap-4 sm:gap-6 w-full md:w-auto justify-between md:justify-end mt-2 md:mt-0">

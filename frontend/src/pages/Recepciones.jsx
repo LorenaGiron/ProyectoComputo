@@ -31,7 +31,15 @@ function formatMoney(n) {
 
 function formatDate(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-MX");
+  if (iso.includes("-")) {
+    const [year, month, day] = iso.split("T")[0].split("-");
+    return `${day}/${month}/${year}`;
+  }
+  if (iso.includes("/")) {
+    const [dia, mes, anio] = iso.split("/");
+    return `${dia.padStart(2, "0")}/${mes.padStart(2, "0")}/${anio}`;
+  }
+  return iso;
 }
 
 /* ─── Página principal ─── */
@@ -110,7 +118,7 @@ export default function Recepciones() {
 
   const plantillaNueva = {
     id: null, folio: "", supplierNombre: "", supplierId: "",
-    fecha: new Date().toLocaleDateString("es-MX"),
+    fecha: new Date().toISOString().split("T")[0],
     comentarios: "", status: "DRAFT", total: 0,
     createdAt: null, updatedAt: null,
     items: [{ productId: "", sku: "", productNombre: "", imagen: "", cantidad: 1, costoUnitario: 0, subtotal: 0 }],

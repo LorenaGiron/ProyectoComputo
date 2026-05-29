@@ -61,7 +61,8 @@ function ImagenVistaRapida({ producto }) {
 }
 
 export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) {
-  const tallasDisponibles = producto.inventario.filter((i) => i.stock > 0);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0);
   const [tallaSeleccionada, setTallaSeleccionada] = useState(
     tallasDisponibles[0]?.talla || ""
   );
@@ -69,7 +70,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
 
   const agotado = producto.stock === 0;
 
-  const stockTallaActual = tallasDisponibles.find((i) => i.talla === tallaSeleccionada)?.stock ?? 0;
+  const stockTallaActual = todasLasTallas.find((i) => i.talla === tallaSeleccionada)?.stock ?? 0;
 
   const handleSeleccionarTalla = (talla) => {
     setTallaSeleccionada(talla);
@@ -101,7 +102,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
         </button>
 
         {/* Imagen */}
-        <div className="relative min-h-[320px] md:min-h-[480px] rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none overflow-hidden">
+        <div className="relative min-h-[220px] sm:min-h-[320px] md:min-h-[480px] rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none overflow-hidden">
           <ImagenVistaRapida producto={producto} />
         </div>
 
@@ -116,30 +117,43 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
           <p className="mt-1 text-xs text-text-muted">SKU: {producto.sku}</p>
 
           {/* Precio */}
-          <p className="mt-4 text-3xl font-extrabold text-lila tabular-nums">
+          <p className="mt-4 text-2xl md:text-3xl font-extrabold text-lila tabular-nums">
             ${Number(producto.precioVenta).toLocaleString("es-MX")}
           </p>
 
           {/* Selector de talla */}
-          {!agotado && tallasDisponibles.length > 0 && (
+          {todasLasTallas.length > 0 && (
             <div className="mt-5">
               <p className="text-[11px] tracking-[2px] text-lila-soft uppercase font-bold mb-2">
                 Talla
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {tallasDisponibles.map((item) => (
-                  <button
-                    key={item.talla}
-                    onClick={() => handleSeleccionarTalla(item.talla)}
-                    className={`min-w-[44px] h-10 px-3 rounded-lg text-sm font-bold border-2 transition-all ${
-                      tallaSeleccionada === item.talla
-                        ? "bg-lila text-oscuro border-lila"
-                        : "bg-transparent text-blanco border-lila/20 hover:border-lila"
-                    }`}
-                  >
-                    {item.talla}
-                  </button>
-                ))}
+                {todasLasTallas.map((item) => {
+                  const sinStock = item.stock === 0;
+                  const seleccionada = tallaSeleccionada === item.talla;
+                  return (
+                    <button
+                      key={item.talla}
+                      onClick={() => !sinStock && handleSeleccionarTalla(item.talla)}
+                      disabled={sinStock}
+                      title={sinStock ? "Sin stock" : undefined}
+                      className={`relative min-w-[44px] h-10 px-3 rounded-lg text-sm font-bold border-2 transition-all
+                        ${sinStock
+                          ? "border-lila/10 text-lila/25 cursor-not-allowed bg-transparent"
+                          : seleccionada
+                            ? "bg-lila text-oscuro border-lila"
+                            : "bg-transparent text-blanco border-lila/20 hover:border-lila"
+                        }`}
+                    >
+                      {item.talla}
+                      {sinStock && (
+                        <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="w-full h-px bg-lila/25 absolute rotate-45" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -182,7 +196,7 @@ export default function VistaRapida({ producto, onCerrar, onAgregarAlCarrito }) 
           </button>
 
           {/* Beneficios */}
-          <div className="mt-5 grid grid-cols-2 gap-2">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {beneficios.map((b) => (
               <div key={b.texto} className="flex items-center gap-2 text-xs text-lila-soft">
                 <i className={`bi ${b.icono} text-lila`} />

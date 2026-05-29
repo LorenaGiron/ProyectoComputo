@@ -54,9 +54,8 @@ function ImagenProducto({ producto, className = "" }) {
 
 // Vista en lista
 function TarjetaLista({ producto, onVistaRapida }) {
-  const tallasDisponibles = producto.inventario
-    .filter((i) => i.stock > 0)
-    .map((i) => i.talla);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
   const agotado = producto.stock === 0;
 
   return (
@@ -81,9 +80,17 @@ function TarjetaLista({ producto, onVistaRapida }) {
         <p className="text-xl font-extrabold text-lila tabular-nums">
           ${Number(producto.precioVenta).toLocaleString("es-MX")}
         </p>
-        {tallasDisponibles.length > 0 && (
-          <p className="text-xs text-lila-soft">
-            Tallas: {tallasDisponibles.join(" · ")}
+        {todasLasTallas.length > 0 && (
+          <p className="text-xs text-lila-soft flex flex-wrap gap-x-1.5">
+            Tallas:{" "}
+            {todasLasTallas.map((item) => (
+              <span
+                key={item.talla}
+                className={item.stock === 0 ? "line-through opacity-30" : ""}
+              >
+                {item.talla}
+              </span>
+            ))}
           </p>
         )}
         <div className="mt-auto pt-3">
@@ -102,9 +109,8 @@ function TarjetaLista({ producto, onVistaRapida }) {
 
 // Vista en grid
 function TarjetaGrid({ producto, onVistaRapida }) {
-  const tallasDisponibles = producto.inventario
-    .filter((i) => i.stock > 0)
-    .map((i) => i.talla);
+  const todasLasTallas    = producto.inventario ?? [];
+  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
   const agotado = producto.stock === 0;
 
   return (
@@ -123,8 +129,8 @@ function TarjetaGrid({ producto, onVistaRapida }) {
           </div>
         )}
 
-        {/* Botón ver detalle al hover */}
-        <div className="absolute left-3 right-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+        {/* Botón ver detalle — siempre visible en móvil, hover en desktop */}
+        <div className="absolute left-3 right-3 bottom-3 md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all">
           <button
             onClick={() => onVistaRapida(producto)}
             className="w-full bg-oscuro/90 backdrop-blur text-blanco text-xs font-bold py-2 rounded-lg hover:bg-oscuro transition"
@@ -146,9 +152,16 @@ function TarjetaGrid({ producto, onVistaRapida }) {
         <p className="text-base font-extrabold text-lila tabular-nums mt-1">
           ${Number(producto.precioVenta).toLocaleString("es-MX")}
         </p>
-        {tallasDisponibles.length > 0 && (
-          <p className="text-[10px] text-lila-soft mt-1 truncate">
-            {tallasDisponibles.join(" · ")}
+        {todasLasTallas.length > 0 && (
+          <p className="text-[10px] text-lila-soft mt-1 flex flex-wrap gap-x-1.5">
+            {todasLasTallas.map((item) => (
+              <span
+                key={item.talla}
+                className={item.stock === 0 ? "line-through opacity-30" : ""}
+              >
+                {item.talla}
+              </span>
+            ))}
           </p>
         )}
       </div>

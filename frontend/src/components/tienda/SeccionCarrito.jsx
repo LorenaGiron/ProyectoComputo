@@ -167,7 +167,8 @@ export default function SeccionCarrito({
                       </span>
                       <button
                         onClick={() => onCambiarCantidad(item.producto.id, item.talla, item.cantidad + 1)}
-                        className="w-7 h-7 text-lila-soft hover:bg-lila/10 rounded-r-md transition"
+                        disabled={item.cantidad >= (item.producto.inventario?.find((i) => i.talla === item.talla)?.stock ?? 0)}
+                        className="w-7 h-7 text-lila-soft hover:bg-lila/10 rounded-r-md transition disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <i className="bi bi-plus" />
                       </button>
