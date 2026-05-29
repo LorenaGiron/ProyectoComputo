@@ -17,7 +17,6 @@ router.post(
 router.get(
   '/me',
   authenticate,
-  requirePermissions(['auth:me']),
   asyncHandler(authController.me.bind(authController))
 )
 router.post(
