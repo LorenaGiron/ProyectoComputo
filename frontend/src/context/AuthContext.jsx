@@ -29,8 +29,16 @@ export function AuthProvider({ children }) {
           },
         });
 
-        if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          // Token inválido, limpiar
           throw new Error("Token inválido");
+        }
+
+        if (!res.ok) {
+          // Error del servidor u otro error - NO borrar el token
+          console.warn(`Error verificando sesión: ${res.status}. Token mantenido en caché.`);
+          setLoading(false);
+          return;
         }
 
         const data = await res.json();
@@ -39,12 +47,15 @@ export function AuthProvider({ children }) {
         setUsuario(data.user);
 
       } catch (error) {
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
-
-        setToken(null);
-        setUsuario(null);
+        // Solo borrar token si es explícitamente inválido
+        if (error.message === "Token inválido") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("usuario");
+          setToken(null);
+          setUsuario(null);
+        } else {
+          console.warn("Error verificando sesión:", error.message);
+        }
 
       } finally {
 

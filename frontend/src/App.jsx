@@ -14,6 +14,15 @@ import Tienda from "./pages/Tienda";
 import Roles from "./pages/Roles";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
+import Envios          from "./pages/tienda/Envios";
+import Devoluciones    from "./pages/tienda/Devoluciones";
+import GuiaTallas      from "./pages/tienda/GuiaTallas";
+import Contacto        from "./pages/tienda/Contacto";
+import FAQ             from "./pages/tienda/FAQ";
+import SobreAura       from "./pages/tienda/SobreAura";
+import Sustentabilidad from "./pages/tienda/Sustentabilidad";
+import Terminos        from "./pages/tienda/Terminos";
+
 
 import "./App.css";
 
@@ -41,6 +50,16 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/register" element={<Register />} />
+
+        {/*Footer de Tienda*/}
+        <Route path="/tienda/envios"          element={<Envios />} />
+        <Route path="/tienda/devoluciones"    element={<Devoluciones />} />
+        <Route path="/tienda/guia-tallas"     element={<GuiaTallas />} />
+        <Route path="/tienda/contacto"        element={<Contacto />} />
+        <Route path="/tienda/faq"             element={<FAQ />} />
+        <Route path="/tienda/sobre-aura"      element={<SobreAura />} />
+        <Route path="/tienda/sustentabilidad" element={<Sustentabilidad />} />
+        <Route path="/tienda/terminos"        element={<Terminos />} />
 
 
         {/* Dashboard */}
