@@ -225,6 +225,8 @@ export default function Tienda() {
         categoriaActiva={categoriaActiva}
         onSeleccionarCategoria={seleccionarCategoria}
         onLogout={handleLogout}
+        usuario={usuario}
+        onIrAlDashboard={() => navigate("/dashboard")}
       />
 
       <HeroCarrusel />
