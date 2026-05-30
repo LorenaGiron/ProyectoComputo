@@ -15,7 +15,7 @@ export default function Toast({ message, type = 'error', onClose }) {
   return (
     <div className="toast toast-top toast-center z-50 mt-4 transition-all duration-300">
       <div 
-        className={`alert rounded-xl shadow-xl font-baskervville flex items-center gap-3 ${
+        className={`alert rounded-xl shadow-xl font-poppins flex items-center gap-3 ${
           type === 'error' 
             ? 'bg-error-bg border border-error-text text-error-text' 
             : 'bg-oscuro border border-lila text-lila'

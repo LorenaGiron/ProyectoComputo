@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const ESTADOS_PERMITIDOS = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado']
+const ESTADOS_PERMITIDOS = ['pendiente', 'pagado', 'cancelado']
 const METODOS_PAGO = ['tarjeta', 'oxxo', 'spei']
 
 const itemVentaSchema = z.object({
@@ -13,6 +13,8 @@ const itemVentaSchema = z.object({
 })
 
 export const createVentaSchema = z.object({
+  numeroPedido: z.string().optional(),
+  clienteId:    z.string().optional().default(''),
   cliente: z.object({
     nombre:  z.string().min(2, 'El nombre es obligatorio'),
     email:   z.string().email('El email no es válido'),
@@ -40,7 +42,9 @@ export const updateEstadoSchema = z.object({
 })
 
 export const listVentasQuerySchema = z.object({
-  estado: z.enum([...ESTADOS_PERMITIDOS, '']).optional().default(''),
-  page:   z.coerce.number().int().min(1).optional().default(1),
-  limit:  z.coerce.number().int().min(1).max(100).optional().default(10),
+  estado:    z.enum([...ESTADOS_PERMITIDOS, '']).optional().default(''),
+  email:     z.string().optional().default(''),
+  clienteId: z.string().optional().default(''),
+  page:      z.coerce.number().int().min(1).optional().default(1),
+  limit:     z.coerce.number().int().min(1).max(100).optional().default(10),
 })

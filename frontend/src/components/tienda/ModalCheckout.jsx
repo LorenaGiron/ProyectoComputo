@@ -63,6 +63,8 @@ export default function ModalCheckout({ onCerrar, carrito, onPedidoConfirmado, u
     setEnviando(true);
     try {
       await api.post("/ventas", {
+        numeroPedido,
+        clienteId:  usuario?.id ?? "",
         cliente:    { nombre: datos.nombre, email: datos.email, calle: datos.calle, cp: datos.cp, ciudad: datos.ciudad },
         metodoPago: datos.metodoPago,
         items:      carrito.map((i) => ({

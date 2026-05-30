@@ -4,7 +4,7 @@ import { logAuditEvent } from '../../utils/audit.js'
 
 export class VentasService {
   async list(query) {
-    const { estado = '', page = 1, limit = 10 } = query
+    const { estado = '', email = '', clienteId = '', page = 1, limit = 10 } = query
 
     const all = await ventasRepository.findAll()
 
@@ -12,6 +12,13 @@ export class VentasService {
 
     if (estado) {
       filtered = filtered.filter((v) => v.estado === estado)
+    }
+
+    if (clienteId || email) {
+      filtered = filtered.filter((v) =>
+        (clienteId && v.clienteId === clienteId) ||
+        (email && v.cliente?.email === email)
+      )
     }
 
     const total = filtered.length
@@ -35,6 +42,8 @@ export class VentasService {
 
   async create(payload, currentUser = null) {
     const data = {
+      numeroPedido: payload.numeroPedido || '',
+      clienteId:    payload.clienteId    || '',
       cliente:    payload.cliente,
       metodoPago: payload.metodoPago,
       items:      payload.items,
@@ -48,25 +57,6 @@ export class VentasService {
 
     const created = await ventasRepository.create(data)
     const sanitized = this.sanitize(created)
-
-    for (const item of payload.items) {
-      const producto = await inventoryRepository.findProductById(item.productoId)
-      if (!producto) continue
-
-      const inventario = Array.isArray(producto.inventario) ? producto.inventario : []
-      const updatedInventario = inventario.map((entry) =>
-        entry.talla === item.talla
-          ? { ...entry, stock: Math.max(0, entry.stock - item.cantidad) }
-          : entry
-      )
-      const nuevoStock = updatedInventario.reduce((sum, e) => sum + (e.stock || 0), 0)
-
-      await inventoryRepository.updateProductStock(item.productoId, {
-        inventario: updatedInventario,
-        stock: nuevoStock,
-        updatedAt: new Date().toISOString(),
-      })
-    }
 
     await logAuditEvent({
       action: 'CREATE',
@@ -99,6 +89,46 @@ export class VentasService {
 
     const sanitized = this.sanitize(updated)
 
+    // Descontar stock al pagar
+    if (estado === 'pagado' && venta.estado !== 'pagado') {
+      for (const item of venta.items ?? []) {
+        const producto = await inventoryRepository.findProductById(item.productoId)
+        if (!producto) continue
+        const inventario = Array.isArray(producto.inventario) ? producto.inventario : []
+        const updatedInventario = inventario.map((entry) =>
+          entry.talla === item.talla
+            ? { ...entry, stock: Math.max(0, entry.stock - item.cantidad) }
+            : entry
+        )
+        const nuevoStock = updatedInventario.reduce((sum, e) => sum + (e.stock || 0), 0)
+        await inventoryRepository.updateProductStock(item.productoId, {
+          inventario: updatedInventario,
+          stock: nuevoStock,
+          updatedAt: new Date().toISOString(),
+        })
+      }
+    }
+
+    // Restaurar stock si se cancela un pedido pagado
+    if (estado === 'cancelado' && venta.estado === 'pagado') {
+      for (const item of venta.items ?? []) {
+        const producto = await inventoryRepository.findProductById(item.productoId)
+        if (!producto) continue
+        const inventario = Array.isArray(producto.inventario) ? producto.inventario : []
+        const updatedInventario = inventario.map((entry) =>
+          entry.talla === item.talla
+            ? { ...entry, stock: (entry.stock || 0) + item.cantidad }
+            : entry
+        )
+        const nuevoStock = updatedInventario.reduce((sum, e) => sum + (e.stock || 0), 0)
+        await inventoryRepository.updateProductStock(item.productoId, {
+          inventario: updatedInventario,
+          stock: nuevoStock,
+          updatedAt: new Date().toISOString(),
+        })
+      }
+    }
+
     await logAuditEvent({
       action: 'UPDATE',
       resource: 'ventas',
@@ -116,8 +146,10 @@ export class VentasService {
 
   sanitize(venta) {
     return {
-      id:         venta.id,
-      cliente:    venta.cliente,
+      id:           venta.id,
+      numeroPedido: venta.numeroPedido || '',
+      clienteId:    venta.clienteId    || '',
+      cliente:      venta.cliente,
       metodoPago: venta.metodoPago || '',
       items:      Array.isArray(venta.items) ? venta.items : [],
       subtotal:   Number(venta.subtotal || 0),

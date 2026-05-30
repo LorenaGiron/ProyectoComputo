@@ -54,13 +54,13 @@ export default function ToastTienda({ toast, onCerrar }) {
         </div>
 
         {/* Título */}
-        <h3 className={`font-baskervville text-sm tracking-widest uppercase border-b pb-3 mb-3 leading-snug ${estilos.borderColor} ${estilos.titleColor}`}>
+        <h3 className={`font-poppins text-sm tracking-widest uppercase border-b pb-3 mb-3 leading-snug ${estilos.borderColor} ${estilos.titleColor}`}>
           {toast.titulo}
         </h3>
 
         {/* Mensaje */}
         {toast.mensaje && (
-          <p className="font-baskervville text-xs text-lila/70 leading-relaxed">
+          <p className="font-poppins text-xs text-lila/70 leading-relaxed">
             {toast.mensaje}
           </p>
         )}

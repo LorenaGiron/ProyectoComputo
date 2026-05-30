@@ -12,6 +12,7 @@ import TarjetaProductoTienda from "../components/tienda/TarjetaProductoTienda";
 import VistaRapida from "../components/tienda/VistaRapida";
 import SeccionCarrito from "../components/tienda/SeccionCarrito";
 import ModalCheckout from "../components/tienda/ModalCheckout";
+import HistorialPedidos from "../components/tienda/HistorialPedidos";
 import ToastTienda from "../components/tienda/ToastTienda";
 import { api } from "../services/api";
 import { productosSimulados } from "../components/tienda/datosSimulados";
@@ -42,9 +43,10 @@ export default function Tienda() {
   const [carrito, setCarrito]                   = useState(
     () => JSON.parse(localStorage.getItem(`carrito_${usuario?.id ?? "guest"}`) ?? "[]")
   );
-  const [carritoAbierto, setCarritoAbierto]     = useState(false);
-  const [checkoutAbierto, setCheckoutAbierto]   = useState(false);
-  const [filtrosAbiertos, setFiltrosAbiertos]   = useState(false);
+  const [carritoAbierto, setCarritoAbierto]       = useState(false);
+  const [checkoutAbierto, setCheckoutAbierto]     = useState(false);
+  const [filtrosAbiertos, setFiltrosAbiertos]     = useState(false);
+  const [historialAbierto, setHistorialAbierto]   = useState(false);
   const [toast, setToast]                       = useState(null);
 
   useEffect(() => {
@@ -225,6 +227,7 @@ export default function Tienda() {
         categoriaActiva={categoriaActiva}
         onSeleccionarCategoria={seleccionarCategoria}
         onLogout={handleLogout}
+        onAbrirHistorial={() => setHistorialAbierto(true)}
       />
 
       <HeroCarrusel />
@@ -322,6 +325,13 @@ export default function Tienda() {
       )}
 
       <ToastTienda toast={toast} onCerrar={() => setToast(null)} />
+
+      <HistorialPedidos
+        abierto={historialAbierto}
+        onCerrar={() => setHistorialAbierto(false)}
+        clienteId={usuario?.id ?? ""}
+        email={usuario?.email ?? ""}
+      />
 
       <DrawerFiltros
         filtros={filtros}

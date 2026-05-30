@@ -107,7 +107,7 @@ export default function ModalConfirmacion({
 
         {/* Título */}
         <h2 className={`
-          font-baskervville text-2xl tracking-widest border-b pb-4 mb-6 leading-snug uppercase transition-colors
+          font-poppins text-2xl tracking-widest border-b pb-4 mb-6 leading-snug uppercase transition-colors
           border-morado/30 ${config.titleColor}
           dark:border-lila/30 dark:${config.titleColor}
         `}>
@@ -116,7 +116,7 @@ export default function ModalConfirmacion({
 
         {mensaje && (
           <p className={`
-            font-baskervville text-md leading-relaxed mb-6 transition-colors
+            font-poppins text-md leading-relaxed mb-6 transition-colors
             text-morado/80
             dark:text-lila/80
           `}>
@@ -129,7 +129,7 @@ export default function ModalConfirmacion({
             <Boton
               variante="secundario"
               onClick={onCancelar}
-              className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs transition-colors"
+              className="flex-1 font-poppins h-11 uppercase tracking-widest text-xs transition-colors"
             >
               {textoCancelar}
             </Boton>
@@ -138,7 +138,7 @@ export default function ModalConfirmacion({
               <button
                 onClick={onConfirmar}
                 className={`
-                  flex-1 h-11 bg-transparent font-baskervville text-xs tracking-widest uppercase transition-colors rounded-lg cursor-pointer
+                  flex-1 h-11 bg-transparent font-poppins text-xs tracking-widest uppercase transition-colors rounded-lg cursor-pointer
                   border border-rojo/60 text-rojo hover:bg-rojo hover:text-blanco
                 `}
               >
@@ -148,7 +148,7 @@ export default function ModalConfirmacion({
               <Boton
                 variante="claro"
                 onClick={onConfirmar}
-                className="flex-1 font-baskervville h-11 uppercase tracking-widest text-xs"
+                className="flex-1 font-poppins h-11 uppercase tracking-widest text-xs"
               >
                 {textoConfirmar}
               </Boton>

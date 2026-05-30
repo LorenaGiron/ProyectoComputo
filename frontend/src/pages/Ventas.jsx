@@ -24,7 +24,7 @@ export function generarDatos30Dias(ventas) {
   });
 
   ventas
-    .filter((v) => v.estado === "pagado" || v.estado === "entregado")
+    .filter((v) => v.estado === "pagado")
     .forEach((v) => {
       const fecha = new Date(v.createdAt);
       fecha.setHours(0, 0, 0, 0);
@@ -36,12 +36,10 @@ export function generarDatos30Dias(ventas) {
 }
 
 const OPCIONES_ESTADO = [
-  { value: "",           label: "Todos" },
-  { value: "pendiente",  label: "Pendientes" },
-  { value: "pagado",     label: "Pagados" },
-  { value: "enviado",    label: "Enviados" },
-  { value: "entregado",  label: "Entregados" },
-  { value: "cancelado",  label: "Cancelados" },
+  { value: "",          label: "Todos" },
+  { value: "pendiente", label: "Pendientes" },
+  { value: "pagado",    label: "Pagados" },
+  { value: "cancelado", label: "Cancelados" },
 ];
 
 const formatFecha = (iso) => {
@@ -94,7 +92,7 @@ export default function Ventas() {
   const rows = ventasFiltradas.slice(inicio, inicio + LIMIT);
 
   const totalIngresos = ventas
-    .filter((v) => v.estado === "pagado" || v.estado === "entregado")
+    .filter((v) => v.estado === "pagado")
     .reduce((acc, v) => acc + v.total, 0);
 
   const cambiarPagina = (p) => {
@@ -176,7 +174,7 @@ export default function Ventas() {
           <Tarjetas
             label="Ingresos"
             value={formatMoney(totalIngresos)}
-            sub="Pagados + entregados"
+            sub="Solo pagados"
             accent="#7EC9ED"
             icon="bi bi-cash-coin"
           />
@@ -218,7 +216,7 @@ export default function Ventas() {
           placeholderBuscar="Buscar por ID, cliente o email..."
         />
 
-        <Tabla encabezados={["ID", "Fecha", "Cliente", "Método pago", "Artículos", "Total", "Estado", "Acciones"]}>
+        <Tabla encabezados={["N° Pedido", "Fecha", "Cliente", "Método pago", "Artículos", "Total", "Estado", "Acciones"]}>
           {cargando ? (
             <tr>
               <td colSpan={8} className={`text-center py-10 text-sm opacity-50 transition-colors text-morado dark:text-lila`}>
@@ -237,8 +235,8 @@ export default function Ventas() {
               border-morado/5 hover:bg-lila/30
               dark:border-lila/5 dark:hover:bg-oscuro/40
             `}>
-              <td className={`p-4 text-center text-xs font-mono whitespace-nowrap transition-colors text-morado/70 dark:text-lila-soft`}>
-                #{v.id.slice(0, 8).toUpperCase()}
+              <td className="p-4 text-center text-sm font-poppins font-bold whitespace-nowrap transition-colors text-morado/70 dark:text-lila-soft">
+                {v.numeroPedido || `#${v.id.slice(0, 8).toUpperCase()}`}
               </td>
               <td className="p-4 text-center text-sm whitespace-nowrap">
                 {formatFecha(v.createdAt)}
@@ -246,11 +244,15 @@ export default function Ventas() {
               <td className="p-4 text-center text-sm whitespace-nowrap">
                 <div className="leading-tight">
                   <div className="font-medium">{v.cliente?.nombre}</div>
-                  <div className={`text-xs transition-colors text-gris dark:text-text-muted`}>{v.cliente?.email}</div>
+                  <div className="text-xs transition-colors text-gris dark:text-text-muted">{v.cliente?.email}</div>
                 </div>
               </td>
-              <td className="p-4 text-center text-sm whitespace-nowrap capitalize">
-                {v.metodoPago}
+              <td className="p-4 text-center whitespace-nowrap">
+                {{
+                  tarjeta: <span className="px-2.5 py-1 rounded-full text-xs font-bold border bg-azul/10 text-azul border-azul/30">Tarjeta</span>,
+                  oxxo:    <span className="px-2.5 py-1 rounded-full text-xs font-bold border bg-amarillo/10 text-amarillo border-amarillo/30">OXXO</span>,
+                  spei:    <span className="px-2.5 py-1 rounded-full text-xs font-bold border bg-verde/10 text-verde border-verde/30">SPEI</span>,
+                }[v.metodoPago] ?? <span className="text-sm capitalize">{v.metodoPago}</span>}
               </td>
               <td className="p-4 text-center text-sm whitespace-nowrap">
                 {v.items?.reduce((a, i) => a + i.cantidad, 0)} uds.
