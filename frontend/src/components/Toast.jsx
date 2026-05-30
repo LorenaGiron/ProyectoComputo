@@ -15,11 +15,11 @@ export default function Toast({ message, type = 'exito', onClose }) {
   const isError = type === 'error';
 
   return (
-    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-200 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-none">
+    <div className="fixed inset-x-0 top-4 flex justify-center z-200 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-none">
       <div 
         className={`
-          flex items-center gap-4 px-5 py-3.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border pointer-events-auto
-          font-poppins font-bold backdrop-blur-md min-w-[320px] max-w-md
+          flex items-center gap-4 px-4 md:px-5 py-3.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border pointer-events-auto
+          font-poppins font-bold backdrop-blur-md w-11/12 md:w-auto md:min-w-[320px] md:max-w-md
           ${isError 
             ? 'bg-lila/40 border-morado text-rojo' 
             : 'bg-oscuro-card border-morado/30 text-blanco' 

@@ -332,10 +332,12 @@ export default function Header({ onMenuClick }) {
               if (!mostrarNotifs) {
                 const rect = campanaRef.current.getBoundingClientRect();
 
-                setPosNotifs({
-                  top: rect.bottom + 12,
-                  right: window.innerWidth - rect.right,
-                });
+                const isMobile = window.innerWidth < 640;
+                  setPosNotifs({
+                    top: rect.bottom + 12,
+                    right: isMobile ? 8 : window.innerWidth - rect.right,
+                    isMobile,
+                  });
               }
 
               setMostrarNotifs((v) => !v);
@@ -358,15 +360,16 @@ export default function Header({ onMenuClick }) {
 
           {mostrarNotifs &&
             createPortal(
-              <div
-                ref={notifsRef}
-                style={{
-                  position: "fixed",
-                  top: posNotifs.top,
-                  right: posNotifs.right,
-                }}
-                className="w-80 bg-blanco border border-gris/20 rounded-xl shadow-xl z-[9999] overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl"
-              >
+             <div
+                  ref={notifsRef}
+                  style={{
+                    position: "fixed",
+                    top: posNotifs.top,
+                    right: posNotifs.right,
+                    ...(posNotifs.isMobile && { left: 8 }),
+                  }}
+                  className="bg-blanco border border-gris/20 rounded-xl shadow-xl z-[9999] overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl sm:w-80"
+                >
                 <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
                   <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">
                     Notificaciones
