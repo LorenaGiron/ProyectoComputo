@@ -22,6 +22,7 @@ import FAQ             from "./pages/tienda/FAQ";
 import SobreAura       from "./pages/tienda/SobreAura";
 import Sustentabilidad from "./pages/tienda/Sustentabilidad";
 import Terminos        from "./pages/tienda/Terminos";
+import Inventario from "./pages/Inventario";
 
 
 import "./App.css";
@@ -165,6 +166,17 @@ function App() {
             <ProtectedRoute requiredPage="ventas">
               <Layout>
                 <Ventas />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventario"
+          element={
+            <ProtectedRoute requiredPage="inventario">
+              <Layout>
+                <Inventario/>
               </Layout>
             </ProtectedRoute>
           }

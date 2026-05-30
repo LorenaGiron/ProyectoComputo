@@ -27,6 +27,8 @@ const navItems = [
     items: [
       { label: "Roles",       ruta: "/roles",       icon: Shield,          permiso: "roles:read" },
       { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck,     permiso: "audit:read" },
+      { label: "Inventario",  ruta: "/inventario",  icon: Package,         permiso: "inventory:read" },
+
     ],
   },
 ];
