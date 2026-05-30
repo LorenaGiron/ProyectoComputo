@@ -43,8 +43,14 @@ export function AuthProvider({ children }) {
 
         const data = await res.json();
 
+        // Normalizar estructura del usuario para asegurar que tenga roleId
+        const usuario = {
+          ...data.user,
+          roleId: data.user?.roleId || data.user?.role || null
+        };
+
         setToken(tokenGuardado);
-        setUsuario(data.user);
+        setUsuario(usuario);
 
       } catch (error) {
         // Solo borrar token si es explícitamente inválido
@@ -70,11 +76,17 @@ export function AuthProvider({ children }) {
 
   const login = (tokenRecibido, datosUsuario) => {
 
+    // Normalizar estructura del usuario para asegurar que tenga roleId
+    const usuario = {
+      ...datosUsuario,
+      roleId: datosUsuario?.roleId || datosUsuario?.role || null
+    };
+
     localStorage.setItem("token", tokenRecibido);
-    localStorage.setItem("usuario", JSON.stringify(datosUsuario));
+    localStorage.setItem("usuario", JSON.stringify(usuario));
 
     setToken(tokenRecibido);
-    setUsuario(datosUsuario);
+    setUsuario(usuario);
   };
 
   const logout = () => {
