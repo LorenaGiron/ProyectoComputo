@@ -2,6 +2,9 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { hasPageAccess } from "../utils/permissionMapper";
 
+// Páginas disponibles para todos los roles
+const GLOBAL_PAGES = ["tienda", "perfil"];
+
 const ROLE_PERMISSIONS = {
   "role_admin": [
     "dashboard", "productos", "recepciones", "ventas",
@@ -21,9 +24,7 @@ const ROLE_PERMISSIONS = {
   "VENDEDOR": [
     "productos", "ventas", "clientes", "tienda"
   ],
-  "CLIENTE": [
-    "tienda"
-  ]
+  "CLIENTE": []
 };
 
 export function useProtectedRoute(requiredPage) {
@@ -31,6 +32,11 @@ export function useProtectedRoute(requiredPage) {
 
   if (!token || !usuario) {
     return { isAuthorized: false, reason: "no-session" };
+  }
+
+  // Páginas globales disponibles para todos los roles
+  if (GLOBAL_PAGES.includes(requiredPage)) {
+    return { isAuthorized: true, userRole: usuario?.roleId || usuario?.role };
   }
 
   const userRole = usuario?.roleId || usuario?.role;
