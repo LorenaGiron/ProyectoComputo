@@ -17,7 +17,7 @@ export default function Devoluciones() {
           style={{ fontFamily: "'Cinzel Decorative', serif" }}>
           Devoluciones
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
           Tu satisfacción es nuestra prioridad. Si algo no fue como esperabas, aquí te explicamos
           cómo funciona nuestro proceso.
         </p>
@@ -33,8 +33,8 @@ export default function Devoluciones() {
             <div className="w-10 h-10 rounded-full bg-lila/10 flex items-center justify-center mb-4">
               <span className="text-sm font-black text-lila">{p.num}</span>
             </div>
-            <h3 className="text-blanco font-semibold text-lg mb-3">{p.titulo}</h3>
-            <p className="text-base text-lila-soft leading-relaxed">{p.texto}</p>
+            <h3 className="text-blanco font-semibold text-base mb-3">{p.titulo}</h3>
+            <p className="text-sm text-lila-soft leading-relaxed">{p.texto}</p>
           </div>
         ))}
       </div>
@@ -53,7 +53,7 @@ export default function Devoluciones() {
               "El producto no coincide con la descripción",
               "Está dentro del plazo de 30 días",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-base text-lila-soft">
+              <li key={item} className="flex items-start gap-3 text-sm text-lila-soft">
                 <i className="bi bi-check2 text-verde mt-0.5 text-lg" />
                 {item}
               </li>
@@ -72,7 +72,7 @@ export default function Devoluciones() {
               "Pasaron más de 30 días desde la compra",
               "Es ropa interior o accesorios de uso personal",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-base text-lila-soft">
+              <li key={item} className="flex items-start gap-3 text-sm text-lila-soft">
                 <i className="bi bi-x-lg text-rojo mt-0.5 text-lg" />
                 {item}
               </li>

@@ -20,7 +20,7 @@ export default function SobreAura() {
           AURA
         </h1>
         <div className="w-24 h-px bg-gradient-to-r from-transparent via-lila/50 to-transparent my-6" />
-        <p className="text-lg md:text-xl text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
           Somos una boutique digital de moda urbana fundada en Ciudad de México con alma
           latinoamericana. Cada colección es un acto de identidad: piezas pensadas para
           quienes saben lo que quieren.
@@ -34,11 +34,11 @@ export default function SobreAura() {
           <h2 className="text-2xl text-blanco font-semibold mb-5" style={{ fontFamily: "'Baskervville', serif" }}>
             Nació de la necesidad de vestirse con intención
           </h2>
-          <p className="text-base text-lila-soft leading-relaxed mb-4">
+          <p className="text-sm text-lila-soft leading-relaxed mb-4">
             AURA comenzó en 2022 como un proyecto personal: encontrar ropa que fuera bonita,
             accesible y con carácter sin tener que sacrificar ninguna de las tres cosas.
           </p>
-          <p className="text-base text-lila-soft leading-relaxed">
+          <p className="text-sm text-lila-soft leading-relaxed">
             Hoy somos un equipo pequeño con grandes ideas, diseñando desde CDMX para toda
             Latinoamérica. Cada colección lleva semanas de trabajo, inspiración y amor por el detalle.
           </p>
@@ -70,8 +70,8 @@ export default function SobreAura() {
             <div className="w-12 h-12 rounded-xl bg-lila/10 flex items-center justify-center mb-4">
               <i className={`bi ${v.icon} text-2xl text-lila`} />
             </div>
-            <h3 className="text-blanco font-semibold text-lg mb-3">{v.titulo}</h3>
-            <p className="text-base text-lila-soft leading-relaxed">{v.texto}</p>
+            <h3 className="text-blanco font-semibold text-base mb-3">{v.titulo}</h3>
+            <p className="text-sm text-lila-soft leading-relaxed">{v.texto}</p>
           </div>
         ))}
       </div>

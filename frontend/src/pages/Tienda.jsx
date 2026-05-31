@@ -169,38 +169,7 @@ export default function Tienda() {
     setCategoriaActiva(id);
     scrollAlCatalogo();
   };
-  const handleAgregarTodoWishlist = (productosEnWishlist) => {
-    productosEnWishlist.forEach((producto) => {
-      if (producto.stock === 0) return;
-      const tallasDisponibles = (producto.inventario ?? []).filter((i) => i.stock > 0);
-      const tallaParaAgregar = tallasDisponibles.find(
-        (item) => !carrito.some(
-          (c) => c.producto.id === producto.id && c.talla === item.talla
-        )
-      );
-      if (tallaParaAgregar) {
-        // Actualiza el carrito sin disparar toast individual
-        setCarrito((prev) => {
-          const existe = prev.find(
-            (i) => i.producto.id === producto.id && i.talla === tallaParaAgregar.talla
-          );
-          if (existe) return prev;
-          return [...prev, { producto, talla: tallaParaAgregar.talla, cantidad: 1 }];
-        });
-      }
-    });
-
-    // Un solo toast para toda la operación
-    setToast({
-      tipo:    "exito",
-      titulo:  "Productos agregados al carrito",
-      mensaje: "Wishlist lista para comprar.",
-      accion: {
-        label:   "Ver carrito",
-        onClick: () => { setWishlistAbierto(false); setCarritoAbierto(true); },
-      },
-    });
-  };
+  
   const setFiltro     = (key, value) => setFiltros((f) => ({ ...f, [key]: value }));
   const limpiarFiltros = () => setFiltros(filtrosIniciales);
   const handleLogout  = () => { logout(); navigate("/login"); };
@@ -340,6 +309,7 @@ export default function Tienda() {
         onCambiarCantidad={cambiarCantidad}
         onEliminar={eliminarDelCarrito}
         onCheckout={() => { setCarritoAbierto(false); setCheckoutAbierto(true); }}
+        onVerDetalle={(producto) => { setCarritoAbierto(false); setProductoEnVistaRapida(producto); }}
       />
 
       {productoEnVistaRapida && (
@@ -360,8 +330,7 @@ export default function Tienda() {
         productos={productos}
         carrito={carrito}
         onProductoClick={setProductoEnVistaRapida}
-        onAgregarAlCarrito={agregarAlCarrito}
-        onAgregarTodo={handleAgregarTodoWishlist}        
+        onAgregarAlCarrito={agregarAlCarrito}       
         onQuitar={(productoId) =>
           setFavoritos((prev) => prev.filter((id) => id !== productoId))
         }

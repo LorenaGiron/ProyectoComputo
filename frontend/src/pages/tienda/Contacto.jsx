@@ -9,7 +9,7 @@ export default function Contacto() {
           style={{ fontFamily: "'Cinzel Decorative', serif" }}>
           Contacto
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
           ¿Tienes una pregunta, comentario o simplemente quieres saludarnos? Escríbenos,
           respondemos en máximo 24 horas.
         </p>
@@ -37,12 +37,12 @@ export default function Contacto() {
                   href={c.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-base text-blanco hover:text-lila transition-colors"
+                  className="text-sm text-blanco hover:text-lila transition-colors"
                 >
                   {c.valor}
                 </a>
               ) : (
-                <p className="text-base text-blanco">{c.valor}</p>
+                <p className="text-sm text-blanco">{c.valor}</p>
               )}
             </div>
           </div>

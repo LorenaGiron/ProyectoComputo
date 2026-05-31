@@ -17,7 +17,7 @@ export default function GuiaTallas() {
           style={{ fontFamily: "'Cinzel Decorative', serif" }}>
           Guía de Tallas
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
           Encuentra tu talla perfecta. Recuerda que ofrecemos cambio gratis por talla
           incorrecta en los primeros 14 días.
         </p>
@@ -34,8 +34,8 @@ export default function GuiaTallas() {
             <div className="w-14 h-14 rounded-full bg-lila/10 flex items-center justify-center mx-auto mb-4">
               <i className={`bi ${m.icon} text-2xl text-lila`} />
             </div>
-            <h3 className="text-blanco font-semibold text-lg mb-3">{m.titulo}</h3>
-            <p className="text-base text-lila-soft leading-relaxed">{m.texto}</p>
+            <h3 className="text-blanco font-semibold text-base mb-3">{m.titulo}</h3>
+            <p className="text-sm text-lila-soft leading-relaxed">{m.texto}</p>
           </div>
         ))}
       </div>
@@ -46,11 +46,11 @@ export default function GuiaTallas() {
           <h2 className="text-lila font-semibold text-lg tracking-wide">Tabla de medidas (cm)</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-base">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-lila/10">
                 {["Talla", "Pecho", "Cintura", "Cadera", "Equivalencia EU"].map((h) => (
-                  <th key={h} className="text-left px-6 py-4 text-lila-mid font-semibold tracking-wider text-sm uppercase">
+                  <th key={h} className="text-left px-6 py-4 text-lila-mid font-semibold tracking-wider text-xs uppercase">
                     {h}
                   </th>
                 ))}
@@ -59,11 +59,11 @@ export default function GuiaTallas() {
             <tbody>
               {tallas.map((t) => (
                 <tr key={t.talla} className="border-b border-lila/5 hover:bg-lila/5 transition-colors">
-                  <td className="px-6 py-4 font-black text-lila text-xl">{t.talla}</td>
-                  <td className="px-6 py-4 text-lila-soft">{t.pecho}</td>
-                  <td className="px-6 py-4 text-lila-soft">{t.cintura}</td>
-                  <td className="px-6 py-4 text-lila-soft">{t.cadera}</td>
-                  <td className="px-6 py-4 text-lila-soft">{t.equivalencia}</td>
+                  <td className="px-6 py-4 font-black text-lila text-lg">{t.talla}</td>
+                  <td className="px-6 py-4 text-lila-soft text-sm">{t.pecho}</td>
+                  <td className="px-6 py-4 text-lila-soft text-sm">{t.cintura}</td>
+                  <td className="px-6 py-4 text-lila-soft text-sm">{t.cadera}</td>
+                  <td className="px-6 py-4 text-lila-soft text-sm">{t.equivalencia}</td>
                 </tr>
               ))}
             </tbody>
@@ -73,7 +73,7 @@ export default function GuiaTallas() {
 
       <div className="bg-lila/5 border border-lila/20 rounded-2xl px-6 py-5 flex items-start gap-4">
         <i className="bi bi-info-circle text-lila text-xl mt-0.5" />
-        <p className="text-base text-lila-soft leading-relaxed">
+        <p className="text-sm text-lila-soft leading-relaxed">
           Si estás entre dos tallas, te recomendamos elegir la más grande para mayor comodidad.
           ¿Tienes dudas? Escríbenos a <span className="text-lila">hola@softaura.bliss</span>.
         </p>
