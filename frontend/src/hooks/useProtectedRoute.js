@@ -5,21 +5,21 @@ import { hasPageAccess } from "../utils/permissionMapper";
 const ROLE_PERMISSIONS = {
   "role_admin": [
     "dashboard", "productos", "recepciones", "ventas",
-    "clientes", "proveedores", "usuarios", "auditoria", "inventario"
+    "clientes", "proveedores", "usuarios", "auditoria", "inventario", "tienda"
   ],
   "ADMIN": [
     "dashboard", "productos", "recepciones", "ventas",
-    "clientes", "proveedores", "usuarios", "auditoria", "roles", "inventario"
+    "clientes", "proveedores", "usuarios", "auditoria", "roles", "inventario", "tienda"
   ],
   "GERENTE": [
     "dashboard", "productos", "recepciones", "ventas",
-    "clientes", "proveedores", "usuarios", "auditoria", "roles", "inventario"
+    "clientes", "proveedores", "usuarios", "auditoria", "roles", "inventario", "tienda"
   ],
   "BODEGUERO": [
-    "productos", "recepciones", "ventas", "clientes", "proveedores", "inventario"
+    "productos", "recepciones", "ventas", "clientes", "proveedores", "inventario", "tienda"
   ],
   "VENDEDOR": [
-    "productos", "ventas", "clientes"
+    "productos", "ventas", "clientes", "tienda"
   ],
   "CLIENTE": [
     "tienda"
