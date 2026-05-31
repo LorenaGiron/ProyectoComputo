@@ -50,16 +50,16 @@ export default function Tienda() {
   const [toast, setToast]                       = useState(null);
 
   // ── Favoritos ──────────────────────────────────────────────────────────────
-  // Fuente de verdad única: estado de React sincronizado con localStorage
+  const claveWishlist = `favoritos_${usuario?.id ?? "guest"}`;
   const [favoritos, setFavoritos] = useState(
-    () => JSON.parse(localStorage.getItem("favoritos_tienda") ?? "[]")
+    () => JSON.parse(localStorage.getItem(`favoritos_${usuario?.id ?? "guest"}`) ?? "[]")
   );
   const [wishlistAbierto, setWishlistAbierto] = useState(false);
 
   // Sincronizar favoritos → localStorage cada vez que cambian
   useEffect(() => {
-    localStorage.setItem("favoritos_tienda", JSON.stringify(favoritos));
-  }, [favoritos]);
+    localStorage.setItem(claveWishlist, JSON.stringify(favoritos));
+  }, [favoritos, claveWishlist]);
 
   useEffect(() => {
     localStorage.setItem(claveCarrito, JSON.stringify(carrito));
