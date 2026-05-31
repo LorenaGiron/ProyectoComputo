@@ -24,7 +24,7 @@ const columnas = [
 
 const redesSociales = [
   { nombre: "Instagram", icono: "bi-instagram", url: "https://www.instagram.com/softaura.bliss/" },
-  { nombre: "Twitter/X", icono: "bi-twitter-x", url: "https://x.com" },
+  { nombre: "Twitter/X", icono: "bi-twitter-x", url: "https://x.com/aura_clothes" },
   
 ];
 
