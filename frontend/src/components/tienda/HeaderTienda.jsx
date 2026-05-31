@@ -30,7 +30,6 @@ export default function HeaderTienda({
   categoriaActiva,
   onSeleccionarCategoria,
   onLogout,
-  onAbrirHistorial,
   usuario,
   onIrAlDashboard,
 }) {
@@ -143,20 +142,7 @@ export default function HeaderTienda({
               </div>
             )}
           </div>
-          <button
-            onClick={onAbrirHistorial}
-            className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
-            title="Mis pedidos"
-          >
-            <i className="bi bi-person text-lg" />
-          </button>
-
-          {/* Wishlist */}
-          <button
-            onClick={onAbrirWishlist}
-            className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
-            title="Wishlist"
-          >
+          <button onClick={onAbrirWishlist} className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
             <i className="bi bi-heart text-lg" />
             {cantidadWishlist > 0 && (
               <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center border-2 border-oscuro">
@@ -251,10 +237,6 @@ export default function HeaderTienda({
               </div>
             )}
           </div>
-          <button className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
-          <button onClick={onAbrirHistorial} className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Mis pedidos">
-            <i className="bi bi-person text-lg" />
-          </button>
           <button onClick={onAbrirWishlist} className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
             <i className="bi bi-heart text-lg" />
             {cantidadWishlist > 0 && (
