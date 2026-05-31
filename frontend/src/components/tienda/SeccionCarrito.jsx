@@ -45,10 +45,11 @@ export default function SeccionCarrito({
   onCambiarCantidad,
   onEliminar,
   onCheckout,
+  onVerDetalle,
 }) {
-  const subtotal      = carrito.reduce((acc, item) => acc + item.producto.precioVenta * item.cantidad, 0);
-  const envio         = subtotal === 0 ? 0 : subtotal >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
-  const total         = subtotal + envio;
+  const subtotal       = carrito.reduce((acc, item) => acc + item.producto.precioVenta * item.cantidad, 0);
+  const envio          = subtotal === 0 ? 0 : subtotal >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
+  const total          = subtotal + envio;
   const totalArticulos = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const faltaParaEnvio = ENVIO_GRATIS_DESDE - subtotal;
 
@@ -137,7 +138,8 @@ export default function SeccionCarrito({
             carrito.map((item) => (
               <div
                 key={`${item.producto.id}-${item.talla}`}
-                className="flex gap-3 bg-bg-card border border-lila/10 rounded-xl p-3"
+                onClick={() => onVerDetalle(item.producto)}
+                className="flex gap-3 bg-bg-card border border-lila/10 rounded-xl p-3 cursor-pointer hover:border-lila/30 transition"
               >
                 {/* Miniatura */}
                 <div className="w-20 h-24 shrink-0 rounded-lg overflow-hidden border border-lila/15">
@@ -149,15 +151,20 @@ export default function SeccionCarrito({
                   <p className="text-sm font-semibold text-blanco leading-tight line-clamp-2">
                     {item.producto.nombre}
                   </p>
-                  <p className="text-[11px] text-text-muted mt-0.5">
-                    Talla <b className="text-lila-soft">{item.talla}</b>
-                  </p>
+
+                  {/* Talla seleccionada */}
+                  <div className="mt-2 flex items-center gap-1">
+                    <span className="text-[11px] text-lila-mid uppercase tracking-widest font-bold">Talla:</span>
+                    <span className="min-w-[34px] h-7 px-2 rounded-md text-[11px] font-bold border bg-lila text-oscuro border-lila flex items-center justify-center">
+                      {item.talla}
+                    </span>
+                  </div>
 
                   <div className="mt-auto pt-2 flex items-end justify-between gap-2">
                     {/* Selector de cantidad */}
                     <div className="flex items-center bg-oscuro rounded-md border border-lila/10">
                       <button
-                        onClick={() => onCambiarCantidad(item.producto.id, item.talla, item.cantidad - 1)}
+                        onClick={(e) => { e.stopPropagation(); onCambiarCantidad(item.producto.id, item.talla, item.cantidad - 1); }}
                         className="w-7 h-7 text-lila-soft hover:bg-lila/10 rounded-l-md transition"
                       >
                         <i className="bi bi-dash" />
@@ -166,7 +173,7 @@ export default function SeccionCarrito({
                         {item.cantidad}
                       </span>
                       <button
-                        onClick={() => onCambiarCantidad(item.producto.id, item.talla, item.cantidad + 1)}
+                        onClick={(e) => { e.stopPropagation(); onCambiarCantidad(item.producto.id, item.talla, item.cantidad + 1); }}
                         disabled={item.cantidad >= (item.producto.inventario?.find((i) => i.talla === item.talla)?.stock ?? 0)}
                         className="w-7 h-7 text-lila-soft hover:bg-lila/10 rounded-r-md transition disabled:opacity-30 disabled:cursor-not-allowed"
                       >
@@ -175,14 +182,15 @@ export default function SeccionCarrito({
                     </div>
 
                     {/* Precio y eliminar */}
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-lila tabular-nums">
+                    <div className="flex flex-col items-end gap-1">
+                      <p className="text-base font-bold text-lila tabular-nums">
                         ${Number(item.producto.precioVenta * item.cantidad).toLocaleString("es-MX")}
                       </p>
                       <button
-                        onClick={() => onEliminar(item.producto.id, item.talla)}
-                        className="text-[10px] text-rojo hover:underline"
+                        onClick={(e) => { e.stopPropagation(); onEliminar(item.producto.id, item.talla); }}
+                        className="border border-rojo/30 text-rojo/70 font-bold px-3 py-1.5 rounded-lg hover:bg-rojo/10 hover:text-rojo hover:border-rojo/50 transition flex items-center gap-1.5 text-[11px] shrink-0"
                       >
+                        <i className="bi bi-trash text-xs" />
                         Eliminar
                       </button>
                     </div>

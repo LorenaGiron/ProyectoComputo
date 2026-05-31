@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const beneficios = [
   { icono: "bi-truck",        texto: "Envío 24h CDMX"       },
-  { icono: "bi-arrow-repeat", texto: "30 días devolución"   },
+  { icono: "bi-arrow-repeat", texto: "30 días de devolución"   },
   { icono: "bi-shield-check", texto: "Pago seguro"          },
   { icono: "bi-gift",         texto: "Empaque eco"          },
 ];

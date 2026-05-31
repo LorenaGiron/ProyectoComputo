@@ -5,7 +5,7 @@ import img3 from "../../assets/images/clothes-rack-3.jpg";
 
 const beneficios = [
   { icono: "bi-truck",        titulo: "Envío express 24h",   sub: "CDMX · GDL · MTY"       },
-  { icono: "bi-arrow-repeat", titulo: "30 días devolución",  sub: "Sin preguntas"           },
+  { icono: "bi-arrow-repeat", titulo: "30 días devolución",  sub: ""                        },
   { icono: "bi-shield-check", titulo: "Pagos seguros",       sub: "Tarjeta · OXXO · SPEI"  },
   { icono: "bi-star-fill",    titulo: "4.8 ★ promedio",      sub: "+24,800 reseñas"         },
 ];

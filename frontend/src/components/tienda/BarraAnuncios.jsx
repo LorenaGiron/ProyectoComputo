@@ -1,6 +1,6 @@
 const anuncios = [
   "🚚  Envío express GRATIS desde $999",
-  "♻  30 días de devolución sin preguntas",
+  "♻  30 días de devolución",
   "✨  Drops nuevos cada miércoles",
   "🎁  Empaque eco amigable en cada orden",
 ];

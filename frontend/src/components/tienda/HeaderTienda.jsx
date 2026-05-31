@@ -26,9 +26,11 @@ export default function HeaderTienda({
   cantidadCarrito,
   cantidadWishlist,
   onAbrirCarrito,
+  onAbrirWishlist,
   categoriaActiva,
   onSeleccionarCategoria,
   onLogout,
+  onAbrirHistorial,
   usuario,
   onIrAlDashboard,
 }) {
@@ -141,9 +143,17 @@ export default function HeaderTienda({
               </div>
             )}
           </div>
+          <button
+            onClick={onAbrirHistorial}
+            className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
+            title="Mis pedidos"
+          >
+            <i className="bi bi-person text-lg" />
+          </button>
 
           {/* Wishlist */}
           <button
+            onClick={onAbrirWishlist}
             className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
             title="Wishlist"
           >
@@ -187,17 +197,11 @@ export default function HeaderTienda({
           <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-lila-soft text-sm" />
           <input
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => { setBusqueda(e.target.value); if (!e.target.value) onBuscar(); }}
             onKeyDown={(e) => e.key === "Enter" && onBuscar()}
             placeholder="Busca prendas, categorías…"
-            className="w-full bg-bg-card text-lila border border-lila/20 rounded-full pl-11 pr-32 py-2.5 text-sm outline-none hover:border-lila focus:ring-1 focus:ring-lila transition placeholder-lila/30"
+            className="w-full bg-bg-card text-lila border border-lila/20 rounded-full pl-11 pr-4 py-2.5 text-sm outline-none hover:border-lila focus:ring-1 focus:ring-lila transition placeholder-lila/30"
           />
-          <button
-            onClick={onBuscar}
-            className="absolute right-1 top-1/2 -translate-y-1/2 bg-lila text-oscuro text-xs font-bold px-5 py-1.5 rounded-full hover:bg-lila-soft transition"
-          >
-            Buscar
-          </button>
         </div>
 
         {/* Iconos de acción — solo visibles en desktop */}
@@ -248,6 +252,10 @@ export default function HeaderTienda({
             )}
           </div>
           <button className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
+          <button onClick={onAbrirHistorial} className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Mis pedidos">
+            <i className="bi bi-person text-lg" />
+          </button>
+          <button onClick={onAbrirWishlist} className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
             <i className="bi bi-heart text-lg" />
             {cantidadWishlist > 0 && (
               <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rojo text-blanco text-[10px] font-bold flex items-center justify-center border-2 border-oscuro">
@@ -276,8 +284,8 @@ export default function HeaderTienda({
       </div>
 
       {/* Navegación de categorías — solo en desktop */}
-      <nav className="hidden md:block border-t border-lila/5">
-        <div className="max-w-[1480px] mx-auto px-6 lg:px-10 flex items-center justify-center gap-1 overflow-x-auto">
+      <nav className="hidden md:block border-t border-lila/5 overflow-x-auto">
+        <div className="flex items-center justify-center gap-1 min-w-max mx-auto px-6 lg:px-10">
           {categorias.map((cat) => (
             <button
               key={cat.id}

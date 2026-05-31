@@ -75,7 +75,7 @@ export default function Terminos() {
         >
           Términos y Condiciones
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
         Redactamos esta sección de forma clara y sencilla para que conozcas
         cómo funciona AURA y las condiciones de compra dentro de la tienda.
         </p>
@@ -98,13 +98,13 @@ export default function Terminos() {
               <div className="w-11 h-11 rounded-xl bg-lila/10 flex items-center justify-center flex-shrink-0">
                 <i className={`bi ${s.icono} text-xl text-lila`} />
               </div>
-              <h2 className="text-blanco font-semibold text-lg md:text-xl leading-snug">
+              <h2 className="text-blanco font-semibold text-base md:text-lg leading-snug">
                 {s.titulo}
               </h2>
             </div>
 
             {/* Texto */}
-            <p className="text-base md:text-lg text-lila-soft leading-relaxed pl-0 md:pl-[60px]">
+            <p className="text-sm md:text-base text-lila-soft leading-relaxed pl-0 md:pl-[60px]">
               {s.texto}
             </p>
           </div>
@@ -117,8 +117,8 @@ export default function Terminos() {
           <i className="bi bi-info-circle text-2xl text-lila" />
         </div>
         <div className="text-center sm:text-left">
-          <p className="text-blanco font-semibold text-lg mb-1">¿Tienes dudas sobre algún punto?</p>
-          <p className="text-lila-soft text-base">
+          <p className="text-blanco font-semibold text-base mb-1">¿Tienes dudas sobre algún punto?</p>
+          <p className="text-lila-soft text-sm">
             Escríbenos a{" "}
             <span className="text-lila">hola@softaura.bliss</span>
             {" "}y nuestro equipo te responde en menos de 24 horas.

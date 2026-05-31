@@ -85,7 +85,7 @@ export function generarTicket(venta) {
   y += 1;
 
   // ── Fecha y número de pedido ─────────────────────────────────
-  y = fila(doc, fmtFecha(venta.createdAt), `#${venta.id.slice(0, 8).toUpperCase()}`, y, true, 7.5);
+  y = fila(doc, fmtFecha(venta.createdAt), venta.numeroPedido || `#${venta.id.slice(0, 8).toUpperCase()}`, y, true, 7.5);
   y += 1;
 
   y = linea(doc, y);
@@ -174,9 +174,15 @@ export function generarTicket(venta) {
   y += 3;
 
   // ── Footer ───────────────────────────────────────────────────
-  y = centrado(doc, "Gracias por tu compra", y, false, 7.5);
+  const mensajeFooter = {
+    pagado:    "Gracias por tu compra",
+    pendiente: "El pago esta siendo procesado",
+    cancelado: "Este pedido fue cancelado",
+  }[venta.estado] ?? "Gracias por tu compra";
+
+  y = centrado(doc, mensajeFooter, y, false, 7.5);
   y += 4;
   centrado(doc, "A U R A  B O U T I Q U E", y, true, 7.5);
 
-  doc.save(`AURA-Pedido-${venta.id.slice(0, 8).toUpperCase()}.pdf`);
+  doc.save(`AURA-Pedido-${venta.numeroPedido || venta.id.slice(0, 8).toUpperCase()}.pdf`);
 }

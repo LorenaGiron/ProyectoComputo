@@ -17,7 +17,7 @@ export default function Sustentabilidad() {
           style={{ fontFamily: "'Cinzel Decorative', serif" }}>
           Sustentabilidad
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
           La moda puede ser bonita y responsable al mismo tiempo. Aquí te contamos cómo
           trabajamos cada día para que así sea.
         </p>
@@ -31,7 +31,7 @@ export default function Sustentabilidad() {
               <i className={`bi ${c.icon} text-2xl text-verde`} />
             </div>
             <p className="text-4xl font-black text-verde mb-2">{c.porcentaje}</p>
-            <p className="text-base text-lila-soft leading-snug">{c.label}</p>
+            <p className="text-sm text-lila-soft leading-snug">{c.label}</p>
           </div>
         ))}
       </div>
@@ -47,8 +47,8 @@ export default function Sustentabilidad() {
             <div className="w-12 h-12 rounded-xl bg-lila/10 flex items-center justify-center mb-4">
               <i className={`bi ${p.icon} text-2xl text-lila`} />
             </div>
-            <h3 className="text-blanco font-semibold text-lg mb-3">{p.titulo}</h3>
-            <p className="text-base text-lila-soft leading-relaxed">{p.texto}</p>
+            <h3 className="text-blanco font-semibold text-base mb-3">{p.titulo}</h3>
+            <p className="text-sm text-lila-soft leading-relaxed">{p.texto}</p>
           </div>
         ))}
       </div>
