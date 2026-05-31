@@ -305,6 +305,32 @@ A- Control de cantidad con límite de stock por talla
 - Detalle de cada pedido: items con imagen, talla, cantidades, totales y dirección
 - Descarga de ticket PDF desde el historial
 
+#### Perfil del cliente
+- Accesible desde el header de la tienda
+- Muestra datos del usuario: nombre, apellido y email
+- Resumen de compras: total de pedidos y monto total acumulado
+- Lista de todas las compras con estado, fecha, artículos y total
+- Al hacer clic en una compra se muestra el detalle completo con items y dirección
+
+#### Páginas informativas (footer de la tienda)
+- **Sobre AURA** — historia, valores y filosofía de la boutique
+- **Contacto** — email, WhatsApp, Instagram y ubicación
+- **FAQ** — preguntas frecuentes sobre pedidos, pagos y envíos
+- **Guía de tallas** — referencia de medidas por categoría
+- **Envíos** — información sobre tiempos y costos de envío
+- **Devoluciones** — política de 30 días de devolución
+- **Sustentabilidad** — compromiso ambiental de la marca
+- **Términos y condiciones** — términos legales de uso
+
+---
+
+## Perfil de usuario (Panel Admin)
+
+- Accesible desde el header del panel administrativo
+- Muestra información del usuario autenticado: nombre, email y rol
+- Historial de actividad reciente del usuario con badges de tipo de acción (CREATE, UPDATE, DELETE, TOGGLE)
+- Fecha y hora de cada acción realizada en el sistema
+
 ---
 
 ## Permisos del sistema
@@ -565,4 +591,4 @@ ProyectoComputo/
 
 ## Autores
 
-Proyecto desarrollado como entregable académico — Materia: Cómputo Nube, 8vo semestre, Enero - Junio 2026.
+Proyecto desarrollado como entregable académico — Materia: Cómputo en la Nube, 8vo semestre, Enero - Junio 2026.
