@@ -1,4 +1,5 @@
-// Paleta de colores por categoría para el placeholder de imagen
+import { useState } from 'react';
+
 const paletasPorCategoria = {
   "Playeras":   ["#9F86C0", "#E7D6FF", "#2C2A48"],
   "Blusas":     ["#ED8ABA", "#E7D6FF", "#C9B8E8"],
@@ -52,16 +53,32 @@ function ImagenProducto({ producto, className = "" }) {
   );
 }
 
-// Vista en lista
-function TarjetaLista({ producto, onVistaRapida }) {
-  const todasLasTallas    = producto.inventario ?? [];
-  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
+function TarjetaLista({ producto, onVistaRapida, onFavoritoChange, favoritos }) {
+  const todasLasTallas = producto.inventario ?? [];
   const agotado = producto.stock === 0;
+  const esFavorito = favoritos.includes(producto.id);
+
+  const toggleFavorito = (e) => {
+    e.stopPropagation();
+    onFavoritoChange?.(producto.id, esFavorito ? "quitado" : "agregado");
+  };
 
   return (
     <div className="flex gap-4 bg-bg-card border border-lila/10 rounded-2xl overflow-hidden hover:border-lila/30 transition-all">
       <div className="w-44 shrink-0 relative">
         <ImagenProducto producto={producto} />
+
+        {/* Corazón — esquina superior derecha */}
+        <button
+          onClick={toggleFavorito}
+          title={esFavorito ? "Remover de favoritos" : "Agregar a favoritos"}
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-blanco/30 backdrop-blur flex items-center justify-center hover:bg-blanco/50 transition-all duration-200 hover:scale-110 z-10"
+        >
+          <i className={`bi text-sm transition-all duration-200 ${
+            esFavorito ? "bi-heart-fill text-rojo" : "bi-heart text-rojo"
+          }`} />
+        </button>
+
         {agotado && (
           <div className="absolute inset-0 bg-oscuro/70 flex items-center justify-center">
             <span className="text-xs tracking-[3px] uppercase font-bold text-blanco bg-rojo/80 px-3 py-1 rounded">
@@ -107,11 +124,19 @@ function TarjetaLista({ producto, onVistaRapida }) {
   );
 }
 
-// Vista en grid
-function TarjetaGrid({ producto, onVistaRapida }) {
-  const todasLasTallas    = producto.inventario ?? [];
-  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0).map((i) => i.talla);
+// ─── TarjetaGrid ──────────────────────────────────────────────────────────────
+// Ahora recibe `favoritos` (array de IDs) desde Tienda.jsx como fuente de verdad
+function TarjetaGrid({ producto, onVistaRapida, onFavoritoChange, favoritos }) {
+  const todasLasTallas = producto.inventario ?? [];
   const agotado = producto.stock === 0;
+
+  // esFavorito se deriva de la prop, no de localStorage directamente
+  const esFavorito = favoritos.includes(producto.id);
+
+  const toggleFavorito = (e) => {
+    e.stopPropagation();
+    onFavoritoChange?.(producto.id, esFavorito ? "quitado" : "agregado");
+  };
 
   return (
     <div className="group relative bg-bg-card border border-lila/10 rounded-2xl overflow-hidden hover:border-lila/40 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(0,0,0,0.35)] transition-all">
@@ -119,6 +144,17 @@ function TarjetaGrid({ producto, onVistaRapida }) {
       {/* Imagen */}
       <div className="relative aspect-[4/5]">
         <ImagenProducto producto={producto} className="absolute inset-0" />
+
+        {/* Botón favorito */}
+        <button
+          onClick={toggleFavorito}
+          title={esFavorito ? "Remover de favoritos" : "Agregar a favoritos"}
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-blanco/30 backdrop-blur flex items-center justify-center hover:bg-blanco/50 transition-all duration-200 hover:scale-110 z-10"
+        >
+          <i className={`bi text-sm transition-all duration-200 ${
+            esFavorito ? "bi-heart-fill text-rojo" : "bi-heart text-rojo"
+          }`} />
+        </button>
 
         {/* Badge agotado */}
         {agotado && (
@@ -129,7 +165,7 @@ function TarjetaGrid({ producto, onVistaRapida }) {
           </div>
         )}
 
-        {/* Botón ver detalle — siempre visible en móvil, hover en desktop */}
+        {/* Botón ver detalle */}
         <div className="absolute left-3 right-3 bottom-3 md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all">
           <button
             onClick={() => onVistaRapida(producto)}
@@ -169,7 +205,21 @@ function TarjetaGrid({ producto, onVistaRapida }) {
   );
 }
 
-export default function TarjetaProductoTienda({ producto, vista, onVistaRapida }) {
-  if (vista === "lista") return <TarjetaLista producto={producto} onVistaRapida={onVistaRapida} />;
-  return <TarjetaGrid producto={producto} onVistaRapida={onVistaRapida} />;
+export default function TarjetaProductoTienda({ producto, vista, onVistaRapida, onFavoritoChange, favoritos }) {
+  if (vista === "lista") return (
+    <TarjetaLista
+      producto={producto}
+      onVistaRapida={onVistaRapida}
+      onFavoritoChange={onFavoritoChange}
+      favoritos={favoritos}
+    />
+  );
+  return (
+    <TarjetaGrid
+      producto={producto}
+      onVistaRapida={onVistaRapida}
+      onFavoritoChange={onFavoritoChange}
+      favoritos={favoritos}
+    />
+  );
 }
