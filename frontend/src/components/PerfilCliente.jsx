@@ -34,6 +34,7 @@ function EstadoBadge({ estado }) {
 export default function PerfilCliente({ usuario }) {
   const [compras, setCompras] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [compraSeleccionada, setCompraSeleccionada] = useState(null);
 
   useEffect(() => {
     const cargarCompras = async () => {
@@ -123,7 +124,7 @@ export default function PerfilCliente({ usuario }) {
       <div className="rounded-2xl border border-lila/10 shadow-lg p-6 w-full bg-blanco dark:bg-[rgba(35,30,60,0.6)] backdrop-blur-sm">
         <h3 className="text-lg font-bold text-lila mb-4 flex items-center gap-2">
           <i className="bi bi-bag-check-fill text-lila-mid" />
-          Mis Compras ({comprasEntregadas} entregadas)
+          Mis Compras
         </h3>
 
         {cargando ? (
@@ -139,7 +140,8 @@ export default function PerfilCliente({ usuario }) {
             {compras.map((compra) => (
               <div
                 key={compra.id}
-                className="p-4 rounded-lg border border-lila/10 bg-oscuro/50 hover:bg-oscuro/70 transition"
+                onClick={() => setCompraSeleccionada(compra)}
+                className="p-4 rounded-lg border border-lila/10 bg-oscuro/50 hover:bg-oscuro/70 transition cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1">
@@ -175,6 +177,119 @@ export default function PerfilCliente({ usuario }) {
           </div>
         )}
       </div>
+
+      {/* Modal de detalles de compra */}
+      {compraSeleccionada && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-oscuro/80 backdrop-blur-sm p-4">
+          <div className="bg-blanco dark:bg-[rgba(35,30,60,0.9)] rounded-2xl border border-lila/10 shadow-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-lila flex items-center gap-2">
+                <i className="bi bi-receipt text-lila-mid" />
+                Detalles del Pedido
+              </h3>
+              <button
+                onClick={() => setCompraSeleccionada(null)}
+                className="text-text-muted hover:text-lila transition"
+              >
+                <i className="bi bi-x text-2xl" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Información general */}
+              <div className="pb-4 border-b border-lila/10">
+                <p className="text-xs text-text-muted mb-2">ID Pedido</p>
+                <p className="font-mono text-sm text-lila">{compraSeleccionada.id}</p>
+              </div>
+
+              {/* Estado */}
+              <div className="pb-4 border-b border-lila/10">
+                <p className="text-xs text-text-muted mb-2">Estado</p>
+                <EstadoBadge estado={compraSeleccionada.estado} />
+              </div>
+
+              {/* Fecha */}
+              <div className="pb-4 border-b border-lila/10">
+                <p className="text-xs text-text-muted mb-2">Fecha de Compra</p>
+                <p className="text-sm text-lila font-semibold">{formatFecha(compraSeleccionada.createdAt)}</p>
+              </div>
+
+              {/* Método de pago */}
+              {compraSeleccionada.metodoPago && (
+                <div className="pb-4 border-b border-lila/10">
+                  <p className="text-xs text-text-muted mb-2">Método de Pago</p>
+                  <p className="text-sm text-lila capitalize">{compraSeleccionada.metodoPago}</p>
+                </div>
+              )}
+
+              {/* Artículos */}
+              <div className="pb-4 border-b border-lila/10">
+                <p className="text-xs text-text-muted mb-3">Artículos ({compraSeleccionada.items?.length || 0})</p>
+                <div className="space-y-2">
+                  {compraSeleccionada.items?.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-start p-2 bg-oscuro/30 rounded">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-lila">{item.nombre || item.producto?.nombre}</p>
+                        {item.talla && <p className="text-xs text-text-muted">Talla: {item.talla}</p>}
+                        {item.color && <p className="text-xs text-text-muted">Color: {item.color}</p>}
+                        <p className="text-xs text-text-muted">Cantidad: {item.cantidad}</p>
+                        <p className="text-xs text-text-muted">Precio unitario: {formatMoney(item.precioUnitario || item.precio || 0)}</p>
+                      </div>
+                      <p className="text-sm font-bold text-lila-soft">{formatMoney((item.precioUnitario || item.precio || 0) * item.cantidad)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Totales */}
+              <div className="bg-lila/10 rounded-lg p-4 space-y-2">
+                {compraSeleccionada.subtotal > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">Subtotal:</span>
+                    <span className="text-lila">{formatMoney(compraSeleccionada.subtotal)}</span>
+                  </div>
+                )}
+                {compraSeleccionada.impuesto > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">Impuesto:</span>
+                    <span className="text-lila">{formatMoney(compraSeleccionada.impuesto)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Envío:</span>
+
+                  {Number(compraSeleccionada.envio) > 0 ? (
+                    <span className="text-lila">
+                      {formatMoney(compraSeleccionada.envio)}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <span className="text-text-muted line-through opacity-70">
+                        {formatMoney(99)}
+                      </span>
+                      <span className="text-lila font-semibold">
+                        {formatMoney(0)}
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-2 border-t border-lila/20">
+                  <span className="text-lila-soft">Total:</span>
+                  <span className="text-lila">{formatMoney(compraSeleccionada.total)}</span>
+                </div>
+              </div>
+
+              {/* Botón cerrar */}
+              <button
+                onClick={() => setCompraSeleccionada(null)}
+                className="w-full py-2 rounded-lg bg-lila text-oscuro font-semibold hover:bg-lila-soft transition mt-4"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
