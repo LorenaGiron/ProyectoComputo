@@ -6,7 +6,7 @@ import { fetchNotifications } from "../services/notifications.service";
 import { createPortal } from "react-dom";
 
 export default function Header({ onMenuClick }) {
-  const { usuario } = useAuth();
+  const { usuario, logout } = useAuth();
   const navigate = useNavigate();
 
   const [isDark, setIsDark] = useState(() => {
@@ -25,11 +25,16 @@ export default function Header({ onMenuClick }) {
   const campanaRef = useRef(null);
   const buscadorRef = useRef(null);
   const notifsRef = useRef(null);
+  const usuarioRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const [posNotifs, setPosNotifs] = useState({ top: 0, right: 0 });
   const [totalNotifs, setTotalNotifs] = useState(0);
   const [mostrarNotifs, setMostrarNotifs] = useState(false);
   const [notifs, setNotifs] = useState([]);
+  const [mostrarDropdownUsuario, setMostrarDropdownUsuario] = useState(false);
+
+  
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -111,6 +116,24 @@ export default function Header({ onMenuClick }) {
         !campanaRef.current.contains(e.target)
       ) {
         setMostrarNotifs(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickFuera);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickFuera);
+  }, []);
+
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        usuarioRef.current &&
+        !usuarioRef.current.contains(e.target)
+      ) {
+        setMostrarDropdownUsuario(false);
       }
     };
 
@@ -332,10 +355,12 @@ export default function Header({ onMenuClick }) {
               if (!mostrarNotifs) {
                 const rect = campanaRef.current.getBoundingClientRect();
 
-                setPosNotifs({
-                  top: rect.bottom + 12,
-                  right: window.innerWidth - rect.right,
-                });
+                const isMobile = window.innerWidth < 640;
+                  setPosNotifs({
+                    top: rect.bottom + 12,
+                    right: isMobile ? 8 : window.innerWidth - rect.right,
+                    isMobile,
+                  });
               }
 
               setMostrarNotifs((v) => !v);
@@ -358,15 +383,16 @@ export default function Header({ onMenuClick }) {
 
           {mostrarNotifs &&
             createPortal(
-              <div
-                ref={notifsRef}
-                style={{
-                  position: "fixed",
-                  top: posNotifs.top,
-                  right: posNotifs.right,
-                }}
-                className="w-80 bg-blanco border border-gris/20 rounded-xl shadow-xl z-[9999] overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl"
-              >
+             <div
+                  ref={notifsRef}
+                  style={{
+                    position: "fixed",
+                    top: posNotifs.top,
+                    right: posNotifs.right,
+                    ...(posNotifs.isMobile && { left: 8 }),
+                  }}
+                  className="bg-blanco border border-gris/20 rounded-xl shadow-xl z-[9999] overflow-hidden dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl sm:w-80"
+                >
                 <div className="px-4 py-3 border-b border-gris/10 flex items-center justify-between dark:border-lila/10">
                   <p className="text-sm font-bold text-oscuro m-0 dark:text-blanco">
                     Notificaciones
@@ -437,20 +463,51 @@ export default function Header({ onMenuClick }) {
         </div>
 
         {/* Perfil del Usuario */}
-        <div className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-sm group bg-lila/30 border border-lila hover:bg-lila hover:border-lila-soft dark:bg-bg-card dark:border-lila-soft/20 dark:hover:bg-lila/10 dark:hover:border-lila-mid">
-          <i className="bi bi-person-circle text-2xl text-morado transition-colors dark:text-lila-mid dark:group-hover:text-lila"></i>
+        <div className="relative">
+          <button
+            ref={usuarioRef}
+            onClick={() => setMostrarDropdownUsuario(!mostrarDropdownUsuario)}
+            className="flex items-center gap-3 px-4 py-1.5 rounded-full transition-all duration-300 cursor-pointer shadow-sm group bg-lila/30 border border-lila hover:bg-lila hover:border-lila-soft dark:bg-bg-card dark:border-lila-soft/20 dark:hover:bg-lila/10 dark:hover:border-lila-mid"
+          >
+            <i className="bi bi-person-circle text-2xl text-morado transition-colors dark:text-lila-mid dark:group-hover:text-lila"></i>
 
-          <div className="text-left leading-tight hidden sm:block transition-colors">
-            <p className="m-0 font-semibold text-sm text-morado dark:text-blanco">
-              {usuario?.nombre || "Usuario"}
-            </p>
+            <div className="text-left leading-tight hidden sm:block transition-colors">
+              <p className="m-0 font-semibold text-sm text-morado dark:text-blanco">
+                {usuario?.nombre || "Usuario"}
+              </p>
 
-            <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-mid dark:text-lila-soft">
-              {usuario?.role || "Invitado"}
-            </p>
-          </div>
+              <p className="m-0 text-xs opacity-80 uppercase tracking-wider text-lila-mid dark:text-lila-soft">
+                {usuario?.roleId || usuario?.role || "Invitado"}
+              </p>
+            </div>
 
-          <i className="bi bi-chevron-down text-xs ml-1 text-lila-mid transition-colors dark:text-lila-soft"></i>
+            <i className={`bi bi-chevron-down text-xs ml-1 text-lila-mid transition-all duration-300 dark:text-lila-soft ${mostrarDropdownUsuario ? "rotate-180" : ""}`}></i>
+          </button>
+
+          {mostrarDropdownUsuario && (
+            <div
+              ref={dropdownRef}
+              className="absolute top-full right-0 mt-2 w-48 bg-blanco border border-lila/20 rounded-xl shadow-lg overflow-hidden z-50 dark:bg-bg-card dark:border-lila/20 dark:shadow-2xl"
+            >
+              <div className="px-4 py-3 border-b border-lila/10 dark:border-lila/10">
+                <p className="m-0 text-xs font-bold uppercase tracking-widest text-gris dark:text-lila-soft">
+                  Mi Cuenta
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                  setMostrarDropdownUsuario(false);
+                }}
+                className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-oscuro dark:text-blanco dark:hover:bg-lila/10"
+              >
+                <i className="bi bi-box-arrow-right text-base"></i>
+                Cerrar sesión
+              </button>
+            </div>
+          )}
         </div>
 
         <button

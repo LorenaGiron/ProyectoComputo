@@ -27,6 +27,8 @@ const navItems = [
     items: [
       { label: "Roles",       ruta: "/roles",       icon: Shield,          permiso: "roles:read" },
       { label: "Auditoría",   ruta: "/auditoria",   icon: ShieldCheck,     permiso: "audit:read" },
+      { label: "Inventario",  ruta: "/inventario",  icon: Package,         permiso: "inventory:read" },
+
     ],
   },
 ];
@@ -39,9 +41,8 @@ export default function Sidebar() {
     () => localStorage.getItem("sidebar-collapsed") === "true"
   );
 
-  const handleCerrarSesion = () => {
-    logout();               
-    navigate("/login");   
+  const handleIrAlaTienda = () => {
+    navigate("/tienda");   
   };
 
   const tienePermiso = (permisoRequerido) => {
@@ -168,14 +169,14 @@ export default function Sidebar() {
       <div className="shrink-0 p-3 border-t backdrop-blur-sm bg-blanco/50 border-oscuro/5 dark:bg-black/10 dark:border-white/5">
         <Boton
           variante="claro"
-          onClick={handleCerrarSesion}
-          title={collapsed ? "Logout" : undefined}
+          onClick={handleIrAlaTienda}
+          title={collapsed ? "Tienda" : undefined}
           className={`group flex items-center justify-center w-full py-3! rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(231,214,255,0.25)] font-poppins ${
             collapsed ? "px-0!" : "gap-3 text-lg" 
           }`}
         >
-          <LogOut size={21} strokeWidth={2.5} className="transition-transform duration-300 group-hover:-translate-x-1" />
-          {!collapsed && "Logout"}
+          <ShoppingCart size={21} strokeWidth={2.5} className="transition-transform duration-300 group-hover:-translate-x-1" />
+          {!collapsed && "Tienda"}
         </Boton>
       </div>
     </aside>

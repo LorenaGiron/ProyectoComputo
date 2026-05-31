@@ -228,6 +228,8 @@ export default function Tienda() {
         onSeleccionarCategoria={seleccionarCategoria}
         onLogout={handleLogout}
         onAbrirHistorial={() => setHistorialAbierto(true)}
+        usuario={usuario}
+        onIrAlDashboard={() => navigate("/dashboard")}
       />
 
       <HeroCarrusel />

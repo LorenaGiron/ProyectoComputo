@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { userCanAccessDashboard } from "../../utils/roleChecker";
 
 const categorias = [
   { id: "todas",      label: "Todas"      },
@@ -28,6 +29,8 @@ export default function HeaderTienda({
   onSeleccionarCategoria,
   onLogout,
   onAbrirHistorial,
+  usuario,
+  onIrAlDashboard,
 }) {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -108,6 +111,17 @@ export default function HeaderTienda({
             )}
           </button>
 
+          {/* Dashboard — solo para roles administrativos (no clientes) */}
+          {userCanAccessDashboard(usuario) && (
+            <button
+              onClick={onIrAlDashboard}
+              className="w-10 h-10 rounded-full text-verde hover:bg-verde hover:text-oscuro flex items-center justify-center transition"
+              title="Ir al dashboard"
+            >
+              <i className="bi bi-speedometer2 text-lg" />
+            </button>
+          )}
+
           {/* Logout */}
           <button
             onClick={onLogout}
@@ -152,6 +166,15 @@ export default function HeaderTienda({
               </span>
             )}
           </button>
+          {userCanAccessDashboard(usuario) && (
+            <button
+              onClick={onIrAlDashboard}
+              className="w-10 h-10 rounded-full text-verde hover:bg-verde hover:text-oscuro flex items-center justify-center transition"
+              title="Ir al dashboard"
+            >
+              <i className="bi bi-speedometer2 text-lg" />
+            </button>
+          )}
           <button onClick={onLogout} className="w-10 h-10 rounded-full text-rojo hover:bg-rojo hover:text-oscuro flex items-center justify-center transition" title="Cerrar sesión">
             <i className="bi bi-box-arrow-right text-lg" />
           </button>
