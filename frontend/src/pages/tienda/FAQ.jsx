@@ -50,7 +50,7 @@ export default function FAQ() {
         >
           Preguntas Frecuentes
         </h1>
-        <p className="text-base md:text-lg text-lila-soft max-w-2xl leading-relaxed">
+        <p className="text-sm md:text-base text-lila-soft max-w-2xl leading-relaxed">
           Todo lo que necesitas saber antes de hacer tu compra. Si no encuentras tu respuesta,
           escríbenos a <span className="text-lila">hola@softaura.bliss</span> y te respondemos en menos de 24 horas.
         </p>
@@ -68,7 +68,7 @@ export default function FAQ() {
               className="w-full flex items-center justify-between px-6 md:px-8 py-5 md:py-6 text-left group gap-4"
             >
               <span
-                className={`text-base md:text-lg font-semibold transition-colors leading-snug ${
+                className={`text-sm md:text-base font-semibold transition-colors leading-snug ${
                   abierta === i ? "text-lila" : "text-blanco group-hover:text-lila"
                 }`}
               >
@@ -83,7 +83,7 @@ export default function FAQ() {
 
             {abierta === i && (
               <div className="px-6 md:px-8 pb-6 border-t border-lila/10 pt-5">
-                <p className="text-base md:text-lg text-lila-soft leading-relaxed">
+                <p className="text-sm md:text-base text-lila-soft leading-relaxed">
                   {item.a}
                 </p>
               </div>
@@ -98,8 +98,8 @@ export default function FAQ() {
           <i className="bi bi-chat-heart text-2xl text-lila" />
         </div>
         <div className="text-center sm:text-left">
-          <p className="text-blanco font-semibold text-lg mb-1">¿No encontraste tu respuesta?</p>
-          <p className="text-lila-soft text-base">
+          <p className="text-blanco font-semibold text-base mb-1">¿No encontraste tu respuesta?</p>
+          <p className="text-lila-soft text-sm">
             Escríbenos directamente y te ayudamos con lo que necesites.
           </p>
         </div>

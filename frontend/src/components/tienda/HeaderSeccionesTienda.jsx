@@ -26,9 +26,9 @@ export default function HeaderSeccionesTienda() {
           {/* Botón volver a la tienda */}
          <button
             onClick={() => navigate("/tienda")}
-            className="flex items-center gap-2 px-7 py-3 bg-lila text-oscuro font-bold rounded-xl hover:bg-lila-soft transition text-sm tracking-wide whitespace-nowrap"
+            className="flex items-center gap-2 px-5 py-2 bg-lila text-oscuro font-bold rounded-lg hover:bg-lila-soft transition text-xs tracking-wide whitespace-nowrap"
             >
-            <i className="bi bi-chevron-left" />
+            <i className="bi bi-chevron-left text-sm" />
             <span className="hidden sm:inline">Volver a la tienda</span>
             <span className="sm:hidden">Volver</span>
             </button>

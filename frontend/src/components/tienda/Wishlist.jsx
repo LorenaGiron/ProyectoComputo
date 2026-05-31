@@ -35,46 +35,17 @@ function ImagenMiniatura({ producto }) {
   );
 }
 
-function ItemWishlist({ producto, carrito, onAgregarAlCarrito, onQuitar, onVerDetalle }) {
-  const todasLasTallas    = producto.inventario ?? [];
-  const tallasDisponibles = todasLasTallas.filter((i) => i.stock > 0);
-  const agotado           = producto.stock === 0;
-
-  const [tallaSeleccionada, setTallaSeleccionada] = useState(
-    tallasDisponibles[0]?.talla ?? ""
-  );
-
-  // ── Palomita: la talla seleccionada ya está en el carrito ──────────────────
-  const yaEnCarrito = carrito.some(
-    (item) => item.producto.id === producto.id && item.talla === tallaSeleccionada
-  );
-
-  const handleAgregar = () => {
-  if (!tallaSeleccionada) return;
-  onAgregarAlCarrito(producto, { talla: tallaSeleccionada, cantidad: 1 });
-  };
+function ItemWishlist({ producto, onQuitar, onVerDetalle }) {
+  const agotado = producto.stock === 0;
 
   return (
-    <div className="flex gap-3 bg-bg-card border border-lila/10 rounded-xl p-3">
-
-      {/* Miniatura con palomita */}
-      <div className="relative w-20 h-24 shrink-0">
-        <button
-          onClick={() => onVerDetalle(producto)}
-          className="w-full h-full rounded-lg overflow-hidden border border-lila/15 hover:border-lila/40 transition"
-        >
-          <ImagenMiniatura producto={producto} />
-        </button>
-
-        {/* Palomita verde — esquina superior derecha de la miniatura */}
-        {yaEnCarrito && (
-          <div
-            title="Producto agregado al carrito"
-            className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-verde flex items-center justify-center shadow-md border-2 border-oscuro"
-          >
-            <i className="bi bi-check text-oscuro text-xs font-black" />
-          </div>
-        )}
+    <div
+      onClick={() => onVerDetalle(producto)}
+      className="flex gap-3 bg-bg-card border border-lila/10 rounded-xl p-3 cursor-pointer hover:border-lila/30 transition"
+    >
+      {/* Miniatura */}
+      <div className="w-20 h-24 shrink-0 rounded-lg overflow-hidden border border-lila/15">
+        <ImagenMiniatura producto={producto} />
       </div>
 
       {/* Info */}
@@ -82,77 +53,28 @@ function ItemWishlist({ producto, carrito, onAgregarAlCarrito, onQuitar, onVerDe
         <p className="text-[10px] text-lila-mid uppercase tracking-widest font-bold">
           {producto.categoria}
         </p>
-        <button
-          onClick={() => onVerDetalle(producto)}
-          className="text-sm font-semibold text-blanco leading-tight line-clamp-2 text-left hover:text-lila transition mt-0.5"
-        >
+        <p className="text-sm font-semibold text-blanco leading-tight line-clamp-2 mt-0.5">
           {producto.nombre}
-        </button>
+        </p>
         <p className="text-base font-extrabold text-lila tabular-nums mt-1">
           ${Number(producto.precioVenta).toLocaleString("es-MX")}
         </p>
 
-        {/* Selector de talla */}
-        {todasLasTallas.length > 0 && !agotado && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {todasLasTallas.map((item) => {
-              const sinStock     = item.stock === 0;
-              const seleccionada = tallaSeleccionada === item.talla;
-              // Marcar tallas que ya están en el carrito
-              const estaEnCarrito = carrito.some(
-                (c) => c.producto.id === producto.id && c.talla === item.talla
-              );
-              return (
-                <button
-                  key={item.talla}
-                  onClick={() => !sinStock && setTallaSeleccionada(item.talla)}
-                  disabled={sinStock}
-                  title={estaEnCarrito ? "Ya en carrito" : sinStock ? "Sin stock" : undefined}
-                  className={`relative min-w-[34px] h-7 px-2 rounded-md text-[11px] font-bold border transition-all
-                    ${sinStock
-                      ? "border-lila/10 text-lila/20 cursor-not-allowed"
-                      : seleccionada
-                        ? "bg-lila text-oscuro border-lila"
-                        : "bg-transparent text-blanco border-lila/20 hover:border-lila"
-                    }`}
-                >
-                  {item.talla}
-                  {/* Punto verde en tallas ya agregadas al carrito */}
-                  {estaEnCarrito && !sinStock && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-verde border border-oscuro" />
-                  )}
-                  {sinStock && (
-                    <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="w-full h-px bg-lila/20 absolute rotate-45" />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+        {agotado && (
+          <span className="mt-1 text-[10px] font-bold text-rojo uppercase tracking-widest">
+            Agotado
+          </span>
         )}
 
-        {/* Acciones */}
-        <div className="mt-auto pt-2 flex items-center gap-2">
+        {/* Solo botón eliminar */}
+        <div className="mt-auto pt-2 flex justify-end">
           <button
-            onClick={handleAgregar}
-            disabled={agotado || !tallaSeleccionada}
-            className={`flex-1 text-[11px] font-bold py-1.5 rounded-lg transition flex items-center justify-center gap-1
-                ${agotado
-                ? "bg-lila/10 text-lila/30 cursor-not-allowed"
-                : "bg-lila text-oscuro hover:bg-lila-soft"
-                }`}
-            >
-            <i className="bi bi-bag-plus text-xs" />
-            {agotado ? "Agotado" : "Agregar al carrito"}
-            </button>
-          <button
-            onClick={() => onQuitar(producto.id)}
-            className="border border-rojo/30 text-rojo/70 font-bold px-3 py-1.5 rounded-lg hover:bg-rojo/10 hover:text-rojo hover:border-rojo/50 transition flex items-center gap-1.5 text-[11px] shrink-0"
-            >
+            onClick={(e) => { e.stopPropagation(); onQuitar(producto.id); }}
+            className="border border-rojo/30 text-rojo/70 font-bold px-3 py-1.5 rounded-lg hover:bg-rojo/10 hover:text-rojo hover:border-rojo/50 transition flex items-center gap-1.5 text-[11px]"
+          >
             <i className="bi bi-trash text-xs" />
             Eliminar
-            </button>
+          </button>
         </div>
       </div>
     </div>
@@ -163,11 +85,8 @@ export default function Wishlist({
   abierto,
   onCerrar,
   favoritos,
-  productos,
-  carrito,                  // ← prop nueva que viene de Tienda.jsx
+  productos,               
   onProductoClick,
-  onAgregarAlCarrito,
-  onAgregarTodo,
   onQuitar,
 }) {
   const productosEnWishlist = favoritos
@@ -179,10 +98,6 @@ export default function Wishlist({
     onCerrar();
   };
 
-  // ── Agregar todo al carrito ────────────────────────────────────────────────
-  const handleAgregarTodo = () => {
-  onAgregarTodo(productosEnWishlist);
-};
   // ── Vaciar lista ───────────────────────────────────────────────────────────
   const handleVaciarLista = () => {
     productosEnWishlist.forEach((p) => onQuitar(p.id));
@@ -249,8 +164,6 @@ export default function Wishlist({
               <ItemWishlist
                 key={producto.id}
                 producto={producto}
-                carrito={carrito}
-                onAgregarAlCarrito={onAgregarAlCarrito}
                 onQuitar={onQuitar}
                 onVerDetalle={handleVerDetalle}
               />
@@ -258,24 +171,17 @@ export default function Wishlist({
           )}
         </div>
 
-        {/* Footer con los 2 botones */}
+        {/* Footer */}
         {productosEnWishlist.length > 0 && (
-          <div className="border-t border-lila/10 px-6 py-4 flex flex-col gap-2">
+        <div className="border-t border-lila/10 px-6 py-4">
             <button
-              onClick={handleAgregarTodo}
-              className="w-full bg-lila text-oscuro font-bold py-3 rounded-xl hover:bg-lila-soft transition flex items-center justify-center gap-2"
+            onClick={handleVaciarLista}
+            className="w-full border border-rojo/30 text-rojo/70 font-bold py-2.5 rounded-xl hover:bg-rojo/10 hover:text-rojo hover:border-rojo/50 transition flex items-center justify-center gap-2"
             >
-              <i className="bi bi-bag-plus" />
-              Agregar todo al carrito
+            <i className="bi bi-trash" />
+            Vaciar lista
             </button>
-            <button
-              onClick={handleVaciarLista}
-              className="w-full border border-rojo/30 text-rojo/70 font-bold py-2.5 rounded-xl hover:bg-rojo/10 hover:text-rojo hover:border-rojo/50 transition flex items-center justify-center gap-2"
-            >
-              <i className="bi bi-trash" />
-              Vaciar lista
-            </button>
-          </div>
+        </div>
         )}
       </aside>
     </>
