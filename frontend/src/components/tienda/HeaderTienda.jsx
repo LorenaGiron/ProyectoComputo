@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { userCanAccessDashboard } from "../../utils/roleChecker";
 
 const categorias = [
@@ -33,6 +34,26 @@ export default function HeaderTienda({
 }) {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const [mostrarDropdownUsuario, setMostrarDropdownUsuario] = useState(false);
+  const dropdownRef = useRef(null);
+  const usuarioRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        usuarioRef.current &&
+        !usuarioRef.current.contains(e.target)
+      ) {
+        setMostrarDropdownUsuario(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickFuera);
+    return () => document.removeEventListener("mousedown", handleClickFuera);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,12 +96,51 @@ export default function HeaderTienda({
           <div className="flex items-center gap-2 md:hidden">
 
           {/* Mi cuenta */}
-          <button
-            className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
-            title="Mi cuenta"
-          >
-            <i className="bi bi-person text-lg" />
-          </button>
+          <div className="relative">
+            <button
+              ref={usuarioRef}
+              onClick={() => setMostrarDropdownUsuario(!mostrarDropdownUsuario)}
+              className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
+              title="Mi cuenta"
+            >
+              <i className="bi bi-person text-lg" />
+            </button>
+
+            {mostrarDropdownUsuario && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-full right-0 mt-2 w-48 bg-oscuro border border-lila/20 rounded-xl shadow-lg overflow-hidden z-50"
+              >
+                <div className="px-4 py-3 border-b border-lila/10">
+                  <p className="m-0 text-xs font-bold uppercase tracking-widest text-lila-soft">
+                    Mi Cuenta
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigate("/perfil");
+                    setMostrarDropdownUsuario(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-lila"
+                >
+                  <i className="bi bi-person-fill text-base"></i>
+                  Mi Perfil
+                </button>
+
+                <button
+                  onClick={() => {
+                    onLogout();
+                    setMostrarDropdownUsuario(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-rojo"
+                >
+                  <i className="bi bi-box-arrow-right text-base"></i>
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Wishlist */}
           <button
@@ -119,15 +179,6 @@ export default function HeaderTienda({
               <i className="bi bi-speedometer2 text-lg" />
             </button>
           )}
-
-          {/* Logout */}
-          <button
-            onClick={onLogout}
-            className="w-10 h-10 rounded-full text-rojo hover:bg-rojo hover:text-oscuro flex items-center justify-center transition"
-            title="Cerrar sesión"
-          >
-            <i className="bi bi-box-arrow-right text-lg" />
-          </button>
         </div>
         </div>{/* cierre fila 1 móvil */}
 
@@ -151,9 +202,51 @@ export default function HeaderTienda({
 
         {/* Iconos de acción — solo visibles en desktop */}
         <div className="hidden md:flex items-center gap-2 justify-end">
-          <button className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Mi cuenta">
-            <i className="bi bi-person text-lg" />
-          </button>
+          <div className="relative">
+            <button
+              ref={usuarioRef}
+              onClick={() => setMostrarDropdownUsuario(!mostrarDropdownUsuario)}
+              className="w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition"
+              title="Mi cuenta"
+            >
+              <i className="bi bi-person text-lg" />
+            </button>
+
+            {mostrarDropdownUsuario && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-full right-0 mt-2 w-48 bg-oscuro border border-lila/20 rounded-xl shadow-lg overflow-hidden z-50"
+              >
+                <div className="px-4 py-3 border-b border-lila/10">
+                  <p className="m-0 text-xs font-bold uppercase tracking-widest text-lila-soft">
+                    Mi Cuenta
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigate("/perfil");
+                    setMostrarDropdownUsuario(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-lila"
+                >
+                  <i className="bi bi-person-fill text-base"></i>
+                  Mi Perfil
+                </button>
+
+                <button
+                  onClick={() => {
+                    onLogout();
+                    setMostrarDropdownUsuario(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-rojo"
+                >
+                  <i className="bi bi-box-arrow-right text-base"></i>
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
           <button className="relative w-10 h-10 rounded-full text-lila hover:bg-lila/10 flex items-center justify-center transition" title="Wishlist">
             <i className="bi bi-heart text-lg" />
             {cantidadWishlist > 0 && (
@@ -179,9 +272,6 @@ export default function HeaderTienda({
               <i className="bi bi-speedometer2 text-lg" />
             </button>
           )}
-          <button onClick={onLogout} className="w-10 h-10 rounded-full text-rojo hover:bg-rojo hover:text-oscuro flex items-center justify-center transition" title="Cerrar sesión">
-            <i className="bi bi-box-arrow-right text-lg" />
-          </button>
         </div>
       </div>
 

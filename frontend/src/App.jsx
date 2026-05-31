@@ -23,6 +23,7 @@ import SobreAura       from "./pages/tienda/SobreAura";
 import Sustentabilidad from "./pages/tienda/Sustentabilidad";
 import Terminos        from "./pages/tienda/Terminos";
 import Inventario from "./pages/Inventario";
+import Perfil from "./pages/Perfil";
 
 
 import "./App.css";
@@ -178,6 +179,15 @@ function App() {
               <Layout>
                 <Inventario/>
               </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute requiredPage="perfil">
+              <Perfil />
             </ProtectedRoute>
           }
         />

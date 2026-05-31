@@ -14,6 +14,12 @@ import {
 const router = Router()
 
 router.get(
+  '/me',
+  authenticate,
+  asyncHandler(ventasController.getMyVentas.bind(ventasController))
+)
+
+router.get(
   '/',
   authenticate,
   requirePermissions(['ventas:read']),

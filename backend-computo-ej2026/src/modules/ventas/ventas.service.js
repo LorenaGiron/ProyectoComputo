@@ -1,8 +1,38 @@
 import { ventasRepository } from './ventas.repository.js'
 import { inventoryRepository } from '../inventory/inventory.repository.js'
+import { clientsRepository } from '../clients/clients.repository.js'
 import { logAuditEvent } from '../../utils/audit.js'
 
 export class VentasService {
+  async getMyVentas(currentUser) {
+    if (!currentUser) {
+      const error = new Error('Usuario no autenticado')
+      error.statusCode = 401
+      throw error
+    }
+
+    const clientEmail = currentUser.email
+    if (!clientEmail) {
+      const error = new Error('No se pudo identificar al usuario')
+      error.statusCode = 401
+      throw error
+    }
+
+    const all = await ventasRepository.findAll()
+    const myVentas = all
+      .filter((v) => {
+        const ventaEmail = v.cliente?.email
+        return ventaEmail === clientEmail
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .map((v) => this.sanitize(v))
+
+    return {
+      items: myVentas,
+      total: myVentas.length
+    }
+  }
+
   async list(query) {
     const { estado = '', page = 1, limit = 10 } = query
 

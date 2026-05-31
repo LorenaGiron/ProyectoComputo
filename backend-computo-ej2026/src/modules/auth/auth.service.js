@@ -54,6 +54,7 @@ export class AuthService {
 
     const token = signAccessToken({
       sub: user.id,
+      email: user.email,
       usuario: user.usuario,
       role: user.role || null,
       roleId: user.roleId || null,

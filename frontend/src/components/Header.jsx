@@ -497,6 +497,17 @@ export default function Header({ onMenuClick }) {
 
               <button
                 onClick={() => {
+                  navigate("/perfil");
+                  setMostrarDropdownUsuario(false);
+                }}
+                className="w-full px-4 py-3 text-left hover:bg-lila/20 transition-colors flex items-center gap-3 text-sm font-medium text-oscuro dark:text-blanco dark:hover:bg-lila/10"
+              >
+                <i className="bi bi-person-fill text-base"></i>
+                Mi Perfil
+              </button>
+
+              <button
+                onClick={() => {
                   logout();
                   navigate("/login");
                   setMostrarDropdownUsuario(false);

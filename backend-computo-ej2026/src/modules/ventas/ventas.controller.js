@@ -7,6 +7,12 @@ export class VentasController {
     return res.status(200).json(result)
   }
 
+  async getMyVentas(req, res) {
+    const result = await ventasService.getMyVentas(req.user)
+
+    return res.status(200).json(result)
+  }
+
   async getById(req, res) {
     const venta = await ventasService.getById(req.params.id)
 
