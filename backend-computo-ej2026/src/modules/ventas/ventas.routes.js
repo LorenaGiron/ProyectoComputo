@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { ventasController } from './ventas.controller.js'
 import { authenticate } from '../../middlewares/auth.js'
-import { requirePermissions } from '../../middlewares/requirePermissions.js'
+import { requirePermissions, requireAnyPermission } from '../../middlewares/requirePermissions.js'
 import { validate } from '../../middlewares/validate.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
@@ -16,7 +16,7 @@ const router = Router()
 router.get(
   '/',
   authenticate,
-  requirePermissions(['ventas:read']),
+  requireAnyPermission(['ventas:read', 'tienda:read']),
   validate(listVentasQuerySchema, 'query'),
   asyncHandler(ventasController.list.bind(ventasController))
 )

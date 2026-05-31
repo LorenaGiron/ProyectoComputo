@@ -1,7 +1,5 @@
-import { useState } from "react";
 import Etiquetas from "./Etiquetas";
 import Boton from "./Boton";
-import Input from "./Input"; 
 import Modal from "./Modal";
 import { generarTicket } from "../utils/generarTicket";
 
@@ -15,9 +13,7 @@ const formatFecha = (iso) => {
 const formatMoney = (n) => `$${Number(n).toLocaleString("es-MX")}`;
 
 export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onCambiarEstado, onCancelar, isOpen = true }) {
-  const [nuevoEstado, setNuevoEstado] = useState(venta?.estado);
-
-  if (!venta) return null; 
+  if (!venta) return null;
 
   // Header
   const tituloPersonalizado = (
@@ -27,7 +23,7 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
         bg-morado/10 text-morado border-morado/20
         dark:bg-lila/10 dark:text-lila dark:border-lila/20
       `}>
-        #{venta.id.slice(0, 8).toUpperCase()}
+        {venta.numeroPedido || `#${venta.id.slice(0, 8).toUpperCase()}`}
       </span>
       <Etiquetas contenido={venta.estado} />
       <span className={`
@@ -43,35 +39,17 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
   // Footer
   const footerContenido = (
     <div className="flex justify-between items-center gap-3 w-full">
-      <div className="flex items-center gap-2 flex-wrap">
-        
-        <button
-          onClick={() => generarTicket(venta)}
-          className={`
-            rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border
-            text-morado border-morado/30 bg-morado/10 hover:bg-morado hover:text-blanco
-            dark:text-lila dark:border-lila/30 dark:bg-lila/10 dark:hover:bg-lila dark:hover:text-oscuro
-          `}
-        >
-          <i className="bi bi-download mr-1" />Descargar ticket
-        </button>
+      <button
+        onClick={() => generarTicket(venta)}
+        className={`
+          rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border
+          text-morado border-morado/30 bg-morado/10 hover:bg-morado hover:text-blanco
+          dark:text-lila dark:border-lila/30 dark:bg-lila/10 dark:hover:bg-lila dark:hover:text-oscuro
+        `}
+      >
+        <i className="bi bi-download mr-1" />Descargar ticket
+      </button>
 
-        {puedeActualizar && venta.estado !== "cancelado" && (
-          <button
-            onClick={() => onCancelar(venta)}
-            className={`
-              rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border
-              text-rojo border-rojo/30 bg-rojo/10 hover:bg-rojo hover:text-blanco hover:border-rojo
-            `}
-          >
-            <i className="bi bi-slash-circle mr-1" />Cancelar venta
-          </button>
-        )}
-      </div>
-      
-      <Boton variante="claro" onClick={onClose} tipo="button">
-        Cerrar
-      </Boton>
     </div>
   );
 
@@ -199,34 +177,24 @@ export default function ModalDetalleVenta({ venta, puedeActualizar, onClose, onC
           </div>
         </div>
 
-        {/* Cambiar estado */}
+        {/* Acciones de estado */}
         {puedeActualizar && venta.estado !== "cancelado" && (
-          <div className="mb-2">
-            <p className="text-[11px] tracking-[2px] uppercase font-bold mb-2 transition-colors text-morado dark:text-lila-soft">
-              Cambiar estado
-            </p>
-            <div className="flex gap-2 items-start">
-              <div className="flex-1 capitalize">
-                <Input
-                  tipo="select"
-                  name="nuevoEstado"
-                  className="capitalize" 
-                  opciones={["pendiente", "pagado", "enviado", "entregado", "cancelado"]}
-                  value={nuevoEstado}
-                  onChange={(e) => setNuevoEstado(e.target.value)}
-                  abrirHaciaArriba={true}
-                />
-              </div>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {venta.estado === "pendiente" && (
               <Boton
                 variante="claro"
-                onClick={() => onCambiarEstado(venta.id, nuevoEstado)}
-                disabled={nuevoEstado === venta.estado}
+                onClick={() => onCambiarEstado(venta.id, "pagado")}
                 tipo="button"
-                className="h-10.5" 
               >
-                Guardar
+                <i className="bi bi-check-circle mr-1" /> Marcar como pagado
               </Boton>
-            </div>
+            )}
+            <button
+              onClick={() => onCancelar(venta)}
+              className="rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer border text-rojo border-rojo/30 bg-rojo/10 hover:bg-rojo hover:text-blanco hover:border-rojo"
+            >
+              <i className="bi bi-slash-circle mr-1" /> Cancelar venta
+            </button>
           </div>
         )}
 
