@@ -15,7 +15,7 @@ function required(name, fallback = undefined) {
 export const env = {
   PORT: Number(process.env.PORT || 3001),
   NODE_ENV: process.env.NODE_ENV || 'development',
-  CORS_ORIGIN: process.env.CORS_ORIGIN || true,
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
 
   JWT_SECRET: required('JWT_SECRET'),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '15m',
@@ -24,5 +24,5 @@ export const env = {
 
   FIREBASE_PROJECT_ID: required('FIREBASE_PROJECT_ID'),
   FIREBASE_CLIENT_EMAIL: required('FIREBASE_CLIENT_EMAIL'),
-  FIREBASE_PRIVATE_KEY: required('FIREBASE_PRIVATE_KEY')
+  FIREBASE_PRIVATE_KEY: required('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n')
 }
