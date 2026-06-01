@@ -20,7 +20,13 @@ export default function Login() {
   useTitulo("Iniciar Sesión");
   const navigate = useNavigate();
   const { login, usuario: usuarioDelContexto, token } = useAuth();
-  const [toast, setToast] = useState({ message: "", type: "error" });
+  
+  const [showPass,    setShowPass]    = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors,      setErrors]      = useState({});
+  const [loading,     setLoading]     = useState(false);
+  const [toast,       setToast]       = useState({ message: "", type: "error" });
+  
   const [usuarioLogeado, setUsuarioLogeado] = useState(null);
   const [resetPasswordState, setResetPasswordState] = useState({
     step: null,
@@ -30,7 +36,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors: formErrors, isSubmitting }
   } = useForm({
     resolver: zodResolver(loginSchema)
   });
@@ -59,6 +65,7 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -82,6 +89,8 @@ export default function Login() {
 
     } catch (error) {
       setToast({ message: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,11 +186,11 @@ export default function Login() {
               <input 
                 type="text"
                 {...register('usuario')}
-                disabled={isSubmitting}
+                disabled={isSubmitting || loading}
                 autoComplete="username"
-                className={`w-full p-3 bg-lila text-oscuro font-medium outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all text-sm sm:text-base box-border ${errors.usuario ? 'ring-2 ring-rojo' : 'border border-transparent'}`}
+                className={`w-full p-3 bg-lila text-oscuro font-medium outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all text-sm sm:text-base box-border ${formErrors.usuario ? 'ring-2 ring-rojo' : 'border border-transparent'}`}
               />
-              {errors.usuario && <span className="text-rojo text-xs sm:text-sm mt-1.5 font-poppins font-semibold">{errors.usuario.message}</span>}
+              {formErrors.usuario && <span className="text-rojo text-xs sm:text-sm mt-1.5 font-poppins font-semibold">{formErrors.usuario.message}</span>}
             </div>
 
             <div className="flex flex-col w-full">
@@ -189,22 +198,22 @@ export default function Login() {
                 Contraseña
               </label>
               <input 
-                type="password"
+                type={showPass ? "text" : "password"}
                 {...register('password')}
-                disabled={isSubmitting}
+                disabled={isSubmitting || loading}
                 autoComplete="current-password"
-                className={`w-full p-3 bg-lila text-oscuro font-medium outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all text-sm sm:text-base box-border ${errors.password ? 'ring-2 ring-rojo' : 'border border-transparent'}`}
+                className={`w-full p-3 bg-lila text-oscuro font-medium outline-none rounded-xl focus:ring-2 focus:ring-lila focus:ring-offset-2 focus:ring-offset-oscuro transition-all text-sm sm:text-base box-border ${formErrors.password ? 'ring-2 ring-rojo' : 'border border-transparent'}`}
               />
-              {errors.password && <span className="text-rojo text-xs sm:text-sm mt-1.5 font-poppins font-semibold">{errors.password.message}</span>}
+              {formErrors.password && <span className="text-rojo text-xs sm:text-sm mt-1.5 font-poppins font-semibold">{formErrors.password.message}</span>}
             </div>
 
             <div className="pt-4 flex justify-center w-full">
               <button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || loading}
                 className="w-full h-12 flex justify-center items-center gap-2 bg-transparent border border-lila rounded-xl text-lila font-poppins text-sm md:text-base tracking-widest hover:bg-lila hover:text-oscuro transition-all cursor-pointer font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
-                {isSubmitting ? 'Cargando...' : 'Iniciar Sesión'}
+                {isSubmitting || loading ? 'Cargando...' : 'Iniciar Sesión'}
               </button>
             </div>
 
