@@ -38,7 +38,7 @@ const TOOLTIP_STYLE = {
     padding: "8px 12px",
   },
   labelStyle: { color: C.lilaSoft, marginBottom: 4, fontSize: 11 },
-  cursor:     { fill: "rgba(167,139,250,0.06)" },
+  cursor:      { fill: "rgba(167,139,250,0.06)" },
 };
 
 const CurrencyTooltip = ({ active, payload, label }) => {
@@ -108,6 +108,17 @@ function Td({ children, mono, color, align = "center" }) {
     <td
       className={`p-3 text-xs border-b ${mono ? "font-mono" : "font-poppins"}`}
       style={{ textAlign: align, color: color || C.lilaSoft }}
+    >
+      {children}
+    </td>
+  );
+}
+
+function Triangle({ children, mono, color }) {
+  return (
+    <td
+      className={`p-3 text-xs border-b ${mono ? "font-mono" : "font-poppins"} text-center`}
+      style={{ color: color || C.lilaSoft }}
     >
       {children}
     </td>
@@ -191,9 +202,6 @@ function buildRecepValor(receps) {
   }));
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  DASHBOARD
-// ═══════════════════════════════════════════════════════════════
 export default function Dashboard() {
   useTitulo("Dashboard");
 
@@ -272,22 +280,20 @@ export default function Dashboard() {
         onClose={() => setToast({ message: "", type: "error" })}
       />
 
-      {/* ── Encabezado ── */}
       <Encabezado 
         titulo="Dashboard" 
         onActualizar={fetchSummary} 
       />
 
-      {/* ── KPI Cards ── */}
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="h-28 rounded-2xl animate-pulse border border-lila/10
               bg-oscuro/5 dark:bg-[rgba(35,30,60,0.6)]" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { label: "Productos",   value: fmt(t.products),             sub: `${fmt(t.activeProducts)} activos`,    accent: C.lilaMid,  icon: "bi bi-box-seam",            pct: pct(t.activeProducts,  t.products)  },
             { label: "Clientes",    value: fmt(t.clients),              sub: `${fmt(t.activeClients)} activos`,     accent: C.azul,     icon: "bi bi-people",               pct: pct(t.activeClients,   t.clients)   },
@@ -322,7 +328,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Alerta bajo stock ── */}
+
       {!loading && summary?.lowStockCount > 0 && (
         <div
           className="flex items-center gap-3 rounded-xl px-5 py-3 text-sm font-medium"
@@ -336,9 +342,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════════
-          GRID SUPERIOR: Bajo stock + Valor recepciones
-      ════════════════════════════════════════════════════════ */}
+      
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         <Panel className="xl:col-span-2">
@@ -362,7 +366,8 @@ export default function Dashboard() {
                   barSize={18}
                 >
                   <CartesianGrid stroke="rgba(231,214,255,0.06)" vertical={false} />
-                  <XAxis dataKey="nombre" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  {/* Corregido: Angulo sutil para prevenir colisión de texto en móvil */}
+                  <XAxis dataKey="nombre" tick={{ fill: C.muted, fontSize: 9 }} angle={-12} dy={4} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...TOOLTIP_STYLE} />
                   <Bar dataKey="stock"   name="Stock actual"  fill={C.lilaMid}     radius={[4, 4, 0, 0]} />
@@ -440,7 +445,7 @@ export default function Dashboard() {
                 </tr>
               ) : recep.map((r, i) => (
                 <Tr key={r.id} idx={i}>
-                  <Td mono color={C.azul}>{r.folio}</Td>
+                  <Triangle mono color={C.azul}>{r.folio}</Triangle>
                   <Td align="left" color={C.lilaSoft}>{r.supplierNombre}</Td>
                   <Td>{fmtDate(r.fecha || r.createdAt)}</Td>
                   <Td color={C.verdeMid}><b>{fmtCur(r.total)}</b></Td>
@@ -452,9 +457,6 @@ export default function Dashboard() {
 
       </div>
 
-      {/* ════════════════════════════════════════════════════════
-          GRID MEDIO: Recepciones + Movimientos
-      ════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
         <Panel>
@@ -466,13 +468,13 @@ export default function Dashboard() {
             onToggle={() => toggleView("recepciones")}
           />
           {loading ? <Skeleton /> : views.recepciones ? (
-            <div className="flex items-center gap-4" style={{ height: 220 }}>
-              <div style={{ flex: "0 0 180px", height: "100%" }}>
+            <div className="flex flex-col sm:flex-row items-center gap-6" style={{ minHeight: 220 }}>
+              <div style={{ flex: "0 0 160px", height: 160 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieRecep} cx="50%" cy="50%"
-                      outerRadius={80} innerRadius={48}
+                      outerRadius={75} innerRadius={45}
                       dataKey="value" paddingAngle={4}
                       startAngle={90} endAngle={450}
                     >
@@ -482,8 +484,8 @@ export default function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex-1 space-y-3">
-                <p className="text-xs text-text-muted mb-3">Por estatus</p>
+              <div className="flex-1 w-full space-y-3">
+                <p className="text-xs text-text-muted mb-2">Por estatus</p>
                 {pieRecep.map((s, i) => (
                   <div key={i}>
                     <div className="flex justify-between mb-1 text-xs">
@@ -592,9 +594,6 @@ export default function Dashboard() {
 
       </div>
 
-      {/* ════════════════════════════════════════════════════════
-          AUDITORÍA
-      ════════════════════════════════════════════════════════ */}
       <Panel>
         <SectionHeader
           title="Actividad reciente · Auditoría"

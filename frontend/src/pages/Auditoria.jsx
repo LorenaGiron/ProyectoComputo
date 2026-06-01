@@ -79,14 +79,13 @@ export default function Auditoria() {
   const { token } = useAuth();
   useTitulo("Auditoría");
 
-  const [logs,     setLogs]     = useState([]);
-  const [total,    setTotal]    = useState(0);
+  const [logs,      setLogs]     = useState([]);
+  const [total,     setTotal]    = useState(0);
   const [cargando, setCargando] = useState(true);
-  const [error,    setError]    = useState(null);
+  const [error,     setError]    = useState(null);
 
   const [kpis, setKpis] = useState({ total: 0, crear: 0, actualizar: 0, eliminar: 0 });
 
-  
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [busqueda,      setBusqueda]      = useState("");
@@ -114,7 +113,6 @@ export default function Auditoria() {
     [token]
   );
 
-  
   useEffect(() => {
     if (!token) return;
     const fetchKpis = async () => {
@@ -132,7 +130,6 @@ export default function Auditoria() {
     fetchKpis();
   }, [token, refreshKey, fetchAuth]);
 
-  
   useEffect(() => {
     if (!token) return;
     const fetchLogs = async () => {
@@ -163,7 +160,6 @@ export default function Auditoria() {
     fetchLogs();
   }, [token, busqueda, filtroAccion, filtroRecurso, paginaActual, refreshKey, fetchAuth]);
 
-  
   useEffect(() => { setPaginaActual(1); }, [busqueda, filtroAccion, filtroRecurso]);
 
   const textoRango = total === 0
@@ -177,7 +173,6 @@ export default function Auditoria() {
     else setPaginaActual(Number(page));
   };
 
-  
   const handleSetFiltroAccion = (v) => {
     setFiltroAccion(v);
     setModoKPI("all");
@@ -191,18 +186,16 @@ export default function Auditoria() {
   const encabezados = ["Acción", "Recurso", "Resource ID", "Usuario", "Detalles", "Fecha"];
 
   return (
-    <div className="p-4 md:p-6 flex flex-col gap-5">
+    <div className="w-full p-4 md:p-6 flex flex-col gap-5 box-border overflow-x-hidden">
 
-      
       <Encabezado
         titulo="Auditoría"
         onActualizar={() => setRefreshKey((k) => k + 1)}
       />
 
-      
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 w-full">
         {[
-          { id: "all",    label: "Total registros",  value: kpis.total,      sub: "Todos los eventos",                                                                  accent: "#a78bfa", icon: "bi bi-file-earmark-text" },
+          { id: "all",    label: "Total registros",  value: kpis.total,      sub: "Todos los eventos",                                                                                   accent: "#a78bfa", icon: "bi bi-file-earmark-text" },
           { id: "CREATE", label: "Creaciones",        value: kpis.crear,      sub: kpis.total ? `${Math.round((kpis.crear      / kpis.total) * 100)}% del total` : "—", accent: "#84B140", icon: "bi bi-plus-circle"       },
           { id: "UPDATE", label: "Actualizaciones",   value: kpis.actualizar, sub: kpis.total ? `${Math.round((kpis.actualizar / kpis.total) * 100)}% del total` : "—", accent: "#E0DA66", icon: "bi bi-pencil-square"     },
           { id: "DELETE", label: "Eliminaciones",     value: kpis.eliminar,   sub: kpis.total ? `${Math.round((kpis.eliminar   / kpis.total) * 100)}% del total` : "—", accent: "#D04E37", icon: "bi bi-trash"             },
@@ -215,6 +208,7 @@ export default function Auditoria() {
               borderRadius: 12,
               transition: "opacity 0.2s, outline 0.2s",
             }}
+            className="w-full min-w-0" 
           >
             <Tarjetas
               label={k.label}
@@ -229,7 +223,6 @@ export default function Auditoria() {
         ))}
       </div>
 
-      
       <ToolBar
         busqueda={busqueda}
         setBusqueda={setBusqueda}
@@ -242,63 +235,62 @@ export default function Auditoria() {
         setFiltro2={setFiltroRecurso}
         opcionesFiltro2={OPCIONES_RECURSO}
         placeholderFiltro2="Todos los recursos"
-        
       />
 
-      
-      <Tabla encabezados={encabezados}>
-        {cargando ? (
-          <tr>
-            <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-oscuro dark:text-lila">
-              <i className="bi bi-arrow-repeat animate-spin mr-2" />Cargando...
-            </td>
-          </tr>
-        ) : error ? (
-          <tr>
-            <td colSpan={6} className="p-8 text-center text-sm text-rojo">
-              <i className="bi bi-exclamation-circle mr-2" />{error}
-            </td>
-          </tr>
-        ) : logs.length === 0 ? (
-          <tr>
-            <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-oscuro dark:text-lila">
-              Sin registros que coincidan con los filtros
-            </td>
-          </tr>
-        ) : (
-          logs.map((l) => {
-            const detailKeys = Object.keys(l.details || {}).slice(0, 2).join(", ");
-            return (
-              <tr
-                key={l.id}
-                onClick={() => handleVerDetalle(l)}
-                className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors cursor-pointer"
-              >
-                <td className="p-3 md:p-4 text-center">
-                  <ActionBadge action={l.action} />
-                </td>
-                <td className="p-3 md:p-4 text-center">
-                  <ResourceBadge resource={l.resource} />
-                </td>
-                <td className="p-3 md:p-4 text-center font-mono text-xs text-oscuro dark:text-lila-soft hidden md:table-cell">
-                  {l.resourceId || "—"}
-                </td>
-                <td className="p-3 md:p-4 text-center text-sm font-medium text-oscuro dark:text-blanco">
-                  {l.usuario || "—"}
-                </td>
-                <td className="p-3 md:p-4 text-center text-xs text-oscuro dark:text-lila-soft/80 hidden lg:table-cell max-w-[140px] truncate overflow-hidden whitespace-nowrap">
-                  {detailKeys || "—"}
-                </td>
-                <td className="p-3 md:p-4 text-center text-xs text-oscuro dark:text-lila-soft/60">
-                  {fmtDateShort(l.createdAt)}
-                </td>
-              </tr>
-            );
-          })
-        )}
-      </Tabla>
+      <div className="w-full overflow-x-auto rounded-lg shadow-sm">
+        <Tabla encabezados={encabezados}>
+          {cargando ? (
+            <tr>
+              <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-oscuro dark:text-lila">
+                <i className="bi bi-arrow-repeat animate-spin mr-2" />Cargando...
+              </td>
+            </tr>
+          ) : error ? (
+            <tr>
+              <td colSpan={6} className="p-8 text-center text-sm text-rojo">
+                <i className="bi bi-exclamation-circle mr-2" />{error}
+              </td>
+            </tr>
+          ) : logs.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-10 text-sm opacity-50 text-oscuro dark:text-lila">
+                Sin registros que coincidan con los filtros
+              </td>
+            </tr>
+          ) : (
+            logs.map((l) => {
+              const detailKeys = Object.keys(l.details || {}).slice(0, 2).join(", ");
+              return (
+                <tr
+                  key={l.id}
+                  onClick={() => handleVerDetalle(l)}
+                  className="border-b hover:bg-lila/30 dark:hover:bg-oscuro/40 transition-colors cursor-pointer"
+                >
+                  <td className="p-3 md:p-4 text-center">
+                    <ActionBadge action={l.action} />
+                  </td>
+                  <td className="p-3 md:p-4 text-center">
+                    <ResourceBadge resource={l.resource} />
+                  </td>
+                  <td className="p-3 md:p-4 text-center font-mono text-xs text-oscuro dark:text-lila-soft hidden md:table-cell">
+                    {l.resourceId || "—"}
+                  </td>
+                  <td className="p-3 md:p-4 text-center text-sm font-medium text-oscuro dark:text-blanco">
+                    {l.usuario || "—"}
+                  </td>
+                  <td className="p-3 md:p-4 text-center text-xs text-oscuro dark:text-lila-soft/80 hidden lg:table-cell max-w-[140px] truncate overflow-hidden whitespace-nowrap">
+                    {detailKeys || "—"}
+                  </td>
+                  <td className="p-3 md:p-4 text-center text-xs text-oscuro dark:text-lila-soft/60">
+                    {fmtDateShort(l.createdAt)}
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </Tabla>
+      </div>
 
-      
       <Paginacion
         paginaActual={paginaActual}
         totalRegistros={total}
@@ -322,7 +314,6 @@ export default function Auditoria() {
         }))}
       />
 
-      
       <ModalAuditoria
         isOpen={isDetalleModalOpen}
         onClose={() => setIsDetalleModalOpen(false)}
