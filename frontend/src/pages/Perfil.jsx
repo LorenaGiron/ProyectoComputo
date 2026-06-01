@@ -38,7 +38,7 @@ export default function Perfil() {
   if (esAdmin) {
     return (
       <Layout>
-        <div className="p-6 lg:p-8 space-y-6">
+        <div className="p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
           <Encabezado titulo="Mi Perfil" />
           <PerfilUsuario usuario={usuario} />
         </div>
@@ -47,7 +47,7 @@ export default function Perfil() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-oscuro">
+    <div className="flex flex-col min-h-screen bg-oscuro w-full overflow-x-hidden">
       <HeaderTienda
         busqueda={busqueda}
         setBusqueda={setBusqueda}
@@ -62,13 +62,13 @@ export default function Perfil() {
         onIrAlDashboard={handleIrAlDashboard}
       />
 
-      <main className="flex-1 max-w-[1480px] mx-auto px-6 lg:px-10 py-8 w-full">
+      <main className="flex-1 max-w-[1480px] mx-auto px-4 md:px-6 lg:px-10 py-6 md:py-8 w-full box-border">
         <button
           onClick={handleVolver}
-          className="flex items-center gap-2 text-lila hover:text-lila-mid transition mb-6"
+          className="flex items-center gap-2 text-lila hover:text-lila-mid transition mb-5 md:mb-6 active:scale-95 text-left"
         >
-          <i className="bi bi-arrow-left text-lg" />
-          <span className="text-sm font-semibold">Volver a la tienda</span>
+          <i className="bi bi-arrow-left text-base md:text-lg" />
+          <span className="text-xs md:text-sm font-semibold whitespace-nowrap">Volver a la tienda</span>
         </button>
 
         <PerfilCliente usuario={usuario} />
